@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import { useState, useRef, useEffect, useTransition } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { WorkCardProps } from '@/features/works/types'
+import { toggleLikeAction } from '@/features/works/server/actions'
+import { ShareModal } from './ShareModal'
+import { BookmarkModal } from './BookmarkModal'
 
 export function WorkCard({ 
   work, 
@@ -18,19 +19,36 @@ export function WorkCard({
   const [bookmarked, setBookmarked] = useState(isBookmarked)
   const [isHovered, setIsHovered] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [showBookmarkModal, setShowBookmarkModal] = useState(false)
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
   const moreMenuButtonRef = useRef<HTMLButtonElement>(null)
+  const dropdownMenuRef = useRef<HTMLDivElement>(null)
+  const [isPending, startTransition] = useTransition()
 
-  const handleLike = (e: React.MouseEvent) => {
+  const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault()
+    e.stopPropagation()
+    
+    // 楽観的UI更新
     setLiked(!liked)
-    // TODO: Supabase更新処理
+    
+    // Server Action呼び出し
+    startTransition(async () => {
+      const result = await toggleLikeAction(work.work_id)
+      if (result.error) {
+        // エラー時は元に戻す
+        setLiked(liked)
+        console.error(result.error)
+      }
+    })
   }
 
   const handleBookmark = (e: React.MouseEvent) => {
     e.preventDefault()
-    setBookmarked(!bookmarked)
-    // TODO: ブックマークモーダル表示
+    e.stopPropagation()
+    setShowMoreMenu(false)
+    setShowBookmarkModal(true)
   }
 
   const handleMoreMenu = (e: React.MouseEvent) => {
@@ -60,15 +78,16 @@ export function WorkCard({
   const handleShare = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    // TODO: シェア機能実装
-    console.log('Share work:', work.work_id)
     setShowMoreMenu(false)
+    setShowShareModal(true)
   }
 
   // Close menu on outside click and ESC key
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (showMoreMenu && !moreMenuButtonRef.current?.contains(event.target as Node)) {
+      if (showMoreMenu && 
+          !moreMenuButtonRef.current?.contains(event.target as Node) &&
+          !dropdownMenuRef.current?.contains(event.target as Node)) {
         setShowMoreMenu(false)
       }
     }
@@ -106,9 +125,22 @@ export function WorkCard({
     return categoryColors[category as keyof typeof categoryColors] || categoryColors['その他']
   }
 
+
   return (
-    <Link href={`/works/${work.work_id}`}>
-      <article 
+    <>
+      <div onClick={(e) => {
+        // インタラクティブ要素以外がクリックされた場合のみナビゲーション
+        const target = e.target as HTMLElement
+        const isButton = target.tagName === 'BUTTON' || target.closest('button')
+        const isInteractive = target.closest('.interactive-button, .clickable')
+        
+        if (!isButton && !isInteractive) {
+          window.location.href = `/works/${work.work_id}`
+        }
+        
+        setShowMoreMenu(false)
+      }}>
+        <article 
         className={cn(
           'group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700',
           'hover:border-transparent hover:shadow-2xl transition-all duration-500 cursor-pointer',
@@ -117,7 +149,6 @@ export function WorkCard({
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={() => setShowMoreMenu(false)}
       >
         {/* Background image with enhanced overlay */}
         {work.image_url ? (
@@ -218,7 +249,7 @@ export function WorkCard({
                 <button 
                   onClick={handleLike} 
                   className={cn(
-                    'stat-item flex items-center gap-1 text-xs sm:text-sm transition-all duration-300',
+                    'stat-item interactive-button flex items-center gap-1 text-xs sm:text-sm transition-all duration-300',
                     'hover:scale-110 active:scale-95 clickable',
                     liked 
                       ? 'text-red-500' 
@@ -244,26 +275,23 @@ export function WorkCard({
                   <span className="font-medium">{work.comments || 0}</span>
                 </div>
 
-                {/* More Menu */}
-                <div className="more-menu-container relative">
-                  <button 
-                    ref={moreMenuButtonRef}
-                    onClick={handleMoreMenu}
-                    className={cn(
-                      'more-menu-btn p-1 rounded transition-all duration-300',
-                      'hover:bg-black/10 active:scale-95',
-                      work.image_url ? 'text-white/80' : 'text-gray-500'
-                    )}
-                    title="その他のオプション"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="more-menu-icon">
-                      <circle cx="12" cy="12" r="1" fill="currentColor"/>
-                      <circle cx="12" cy="5" r="1" fill="currentColor"/>
-                      <circle cx="12" cy="19" r="1" fill="currentColor"/>
-                    </svg>
-                  </button>
-
-                </div>
+                {/* More Menu Button Only */}
+                <button 
+                  ref={moreMenuButtonRef}
+                  onClick={handleMoreMenu}
+                  className={cn(
+                    'more-menu-btn interactive-button p-1 rounded transition-all duration-300',
+                    'hover:bg-black/10 active:scale-95',
+                    work.image_url ? 'text-white/80' : 'text-gray-500'
+                  )}
+                  title="その他のオプション"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="more-menu-icon">
+                    <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                    <circle cx="12" cy="5" r="1" fill="currentColor"/>
+                    <circle cx="12" cy="19" r="1" fill="currentColor"/>
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
@@ -297,23 +325,29 @@ export function WorkCard({
           'absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent',
           'opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none'
         )} />
-      </article>
+        </article>
+      </div>
 
-      {/* Portal-rendered dropdown menu */}
-      {showMoreMenu && typeof window !== 'undefined' && createPortal(
+      {/* Dropdown Menu - Outside Link Component */}
+      {showMoreMenu && (
         <div 
+          ref={dropdownMenuRef}
           className={cn(
-            'more-menu-dropdown fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700',
-            'min-w-[160px] py-1 z-[9999]',
-            'animate-in slide-in-from-top-2 duration-200'
+            'fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700',
+            'min-w-[160px] py-1 z-[9999]'
           )}
           style={{
-            left: `${menuPosition.x}px`,
-            top: `${menuPosition.y}px`,
+            left: menuPosition.x,
+            top: menuPosition.y,
+          }}
+          onClick={(e) => {
+            e.stopPropagation()
           }}
         >
           <button
-            onClick={handleBookmark}
+            onClick={(e) => {
+              handleBookmark(e)
+            }}
             className={cn(
               'dropdown-item w-full px-3 py-2 text-sm text-left',
               'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
@@ -328,7 +362,9 @@ export function WorkCard({
           </button>
           
           <button
-            onClick={handleShare}
+            onClick={(e) => {
+              handleShare(e)
+            }}
             className={cn(
               'dropdown-item w-full px-3 py-2 text-sm text-left',
               'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
@@ -342,9 +378,27 @@ export function WorkCard({
             </svg>
             <span>シェア</span>
           </button>
-        </div>,
-        document.body
+        </div>
       )}
-    </Link>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        workId={work.work_id}
+        title={work.title}
+        author={work.author}
+        description={work.description}
+      />
+
+      {/* Bookmark Modal */}
+      <BookmarkModal
+        isOpen={showBookmarkModal}
+        onClose={() => setShowBookmarkModal(false)}
+        workId={work.work_id}
+        title={work.title}
+        author={work.author}
+      />
+    </>
   )
 }
