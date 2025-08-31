@@ -28,7 +28,7 @@ export function WorksFeedSection({
   return (
     <section className="py-8">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         {works.map((work) => (
           <WorkCard
             key={work.work_id}

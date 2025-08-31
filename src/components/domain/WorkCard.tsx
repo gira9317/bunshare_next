@@ -113,7 +113,7 @@ export function WorkCard({
           'group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700',
           'hover:border-transparent hover:shadow-2xl transition-all duration-500 cursor-pointer',
           'transform hover:-translate-y-1 hover:scale-[1.02]',
-          'aspect-[16/9] min-h-[200px] max-h-[280px]'
+          'aspect-[16/9]'
         )}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -130,16 +130,16 @@ export function WorkCard({
             />
             <div className={cn(
               'absolute inset-0 transition-all duration-500',
-              'bg-gradient-to-br from-transparent to-transparent',
-              'group-hover:from-black/60 group-hover:to-black/40'
+              'bg-gradient-to-br from-black/20 to-black/40',
+              'group-hover:from-black/60 group-hover:to-black/50'
             )} />
           </div>
         ) : null}
 
         {/* Content container */}
-        <div className="relative z-10 h-full p-4 flex flex-col justify-between">
+        <div className="relative z-10 h-full p-3 sm:p-4 md:p-4 lg:p-4 xl:p-4 flex flex-col justify-between">
           {/* Header section */}
-          <div className="space-y-2">
+          <div className="space-y-1 md:space-y-1.5 lg:space-y-1">
             {work.series_title && (
               <div className={cn(
                 'text-xs font-medium px-2 py-1 rounded-full inline-block',
@@ -151,7 +151,7 @@ export function WorkCard({
             )}
 
             <h3 className={cn(
-              'font-bold text-lg leading-tight line-clamp-2',
+              'font-bold text-sm sm:text-base md:text-lg lg:text-base xl:text-sm leading-tight line-clamp-2',
               'transition-colors duration-300',
               work.image_url 
                 ? 'text-white group-hover:text-gray-100' 
@@ -161,7 +161,7 @@ export function WorkCard({
             </h3>
             
             <p className={cn(
-              'text-sm font-medium transition-colors duration-300',
+              'text-xs sm:text-sm font-medium transition-colors duration-300',
               work.image_url 
                 ? 'text-gray-200 group-hover:text-gray-100' 
                 : 'text-gray-600 dark:text-gray-400 group-hover:text-purple-500'
@@ -172,7 +172,7 @@ export function WorkCard({
 
           {/* Description */}
           <p className={cn(
-            'text-sm leading-relaxed line-clamp-3 my-3',
+            'text-xs sm:text-sm leading-relaxed line-clamp-2 my-2',
             'transition-all duration-300',
             work.image_url 
               ? 'text-gray-100 group-hover:text-white' 
@@ -201,10 +201,10 @@ export function WorkCard({
               </div>
               
               {/* Right side - Stats */}
-              <div className="stat-group-right flex items-center gap-3">
+              <div className="stat-group-right flex items-center gap-2 sm:gap-3">
                 {/* Views */}
                 <div className={cn(
-                  'stat-item flex items-center gap-1 text-sm',
+                  'stat-item flex items-center gap-1 text-xs sm:text-sm',
                   work.image_url ? 'text-white/80' : 'text-gray-500'
                 )}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="icon">
@@ -218,7 +218,7 @@ export function WorkCard({
                 <button 
                   onClick={handleLike} 
                   className={cn(
-                    'stat-item flex items-center gap-1 text-sm transition-all duration-300',
+                    'stat-item flex items-center gap-1 text-xs sm:text-sm transition-all duration-300',
                     'hover:scale-110 active:scale-95 clickable',
                     liked 
                       ? 'text-red-500' 
@@ -235,7 +235,7 @@ export function WorkCard({
 
                 {/* Comments */}
                 <div className={cn(
-                  'stat-item flex items-center gap-1 text-sm',
+                  'stat-item flex items-center gap-1 text-xs sm:text-sm',
                   work.image_url ? 'text-white/80' : 'text-gray-500'
                 )}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="icon">

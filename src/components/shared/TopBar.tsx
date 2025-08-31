@@ -30,37 +30,58 @@ export function TopBar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50">
-      <div className="flex items-center justify-between h-14 px-4">
-        {/* モバイル用ロゴ - デスクトップでは非表示 */}
+    <header className={cn(
+      'sticky top-0 z-50',
+      'bg-white/95 dark:bg-gray-800/95 backdrop-blur-md',
+      'border-b border-gray-200/50 dark:border-gray-700/50',
+      'supports-backdrop-blur:bg-white/90 dark:supports-backdrop-blur:bg-gray-800/90'
+    )}>
+      <div className={cn(
+        'flex items-center justify-between',
+        'h-12 sm:h-14 md:h-16',
+        'px-3 sm:px-4 md:px-6'
+      )}>
+        {/* モバイル・タブレット用ロゴ */}
         <div className="flex items-center gap-2 md:hidden">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2 group active:scale-95 transition-transform">
             <Image
               src="/images/logo/Bunshare_logo.png"
               alt="Bunshare"
-              width={28}
-              height={28}
-              className="w-7 h-7 object-contain dark:hidden"
+              width={32}
+              height={32}
+              className="w-6 h-6 sm:w-7 sm:h-7 object-contain dark:hidden group-hover:scale-105 transition-transform"
             />
             <Image
               src="/images/logo/Bunshare_logo_dark_mode.png"
               alt="Bunshare"
-              width={28}
-              height={28}
-              className="w-7 h-7 object-contain hidden dark:block"
+              width={32}
+              height={32}
+              className="w-6 h-6 sm:w-7 sm:h-7 object-contain hidden dark:block group-hover:scale-105 transition-transform"
             />
-            <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+            <span className={cn(
+              'text-base sm:text-lg font-bold',
+              'bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent',
+              'group-hover:from-purple-700 group-hover:to-blue-700 transition-colors'
+            )}>
               Bunshare
             </span>
           </Link>
         </div>
 
-        {/* タブレット・デスクトップ用検索バー */}
-        <div className="hidden md:flex flex-1 max-w-xl mx-6">
+        {/* デスクトップ用検索バー */}
+        <div className="hidden md:flex flex-1 max-w-xl lg:max-w-2xl mx-4 lg:mx-8">
           <form onSubmit={handleSearch} className="relative w-full">
-            <div className="flex items-center w-full bg-gray-100/80 dark:bg-gray-700/50 rounded-full border border-gray-200/50 dark:border-gray-600/50 hover:border-purple-300 dark:hover:border-purple-600 focus-within:border-purple-400 dark:focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-400/20 transition-all">
-              <div className="pl-4 pr-2">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gray-500 dark:text-gray-400">
+            <div className={cn(
+              'flex items-center w-full',
+              'bg-gray-100/80 dark:bg-gray-700/50 rounded-full',
+              'border border-gray-200/50 dark:border-gray-600/50',
+              'hover:border-purple-300 dark:hover:border-purple-600',
+              'focus-within:border-purple-400 dark:focus-within:border-purple-500',
+              'focus-within:ring-2 focus-within:ring-purple-400/20',
+              'transition-all duration-200'
+            )}>
+              <div className="pl-3 lg:pl-4 pr-2">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gray-500 dark:text-gray-400 lg:w-5 lg:h-5">
                   <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
                   <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2"/>
                 </svg>
@@ -70,11 +91,22 @@ export function TopBar() {
                 placeholder="作品や作者を検索..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 py-2.5 px-2 bg-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none font-medium"
+                className={cn(
+                  'flex-1 py-2 lg:py-2.5 px-2 bg-transparent',
+                  'text-sm lg:text-base text-gray-900 dark:text-gray-100',
+                  'placeholder-gray-500 dark:placeholder-gray-400',
+                  'focus:outline-none font-medium'
+                )}
               />
               <button
                 type="submit"
-                className="mx-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 font-medium text-sm transition-all hover:scale-105 active:scale-95"
+                className={cn(
+                  'mx-2 px-3 lg:px-4 py-1 lg:py-1.5 rounded-full',
+                  'bg-gradient-to-r from-purple-600 to-blue-600 text-white',
+                  'hover:from-purple-700 hover:to-blue-700',
+                  'font-medium text-xs lg:text-sm transition-all',
+                  'hover:scale-105 active:scale-95'
+                )}
               >
                 検索
               </button>
@@ -83,17 +115,22 @@ export function TopBar() {
         </div>
 
         {/* ユーザーアクション */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
           {/* テーマ切り替えボタン */}
           <button
             onClick={toggleDarkMode}
-            className="p-2 rounded-lg bg-gray-100/80 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all"
+            className={cn(
+              'p-1.5 sm:p-2 rounded-lg',
+              'bg-gray-100/80 dark:bg-gray-700/50',
+              'hover:bg-gray-200 dark:hover:bg-gray-600',
+              'active:scale-95 transition-all duration-200'
+            )}
             title="テーマを切り替え"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="dark:hidden text-gray-600">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="dark:hidden text-gray-600 sm:w-4 sm:h-4">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="2"/>
             </svg>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="hidden dark:block text-gray-300">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="hidden dark:block text-gray-300 sm:w-4 sm:h-4">
               <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
               <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
               <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
@@ -109,10 +146,15 @@ export function TopBar() {
           {/* モバイル検索ボタン */}
           <button
             onClick={handleMobileSearch}
-            className="p-2 rounded-lg bg-gray-100/80 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all md:hidden"
+            className={cn(
+              'p-1.5 sm:p-2 rounded-lg md:hidden',
+              'bg-gray-100/80 dark:bg-gray-700/50',
+              'hover:bg-gray-200 dark:hover:bg-gray-600',
+              'active:scale-95 transition-all duration-200'
+            )}
             title="検索"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-300">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-300 sm:w-4 sm:h-4">
               <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
               <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2"/>
             </svg>
@@ -121,19 +163,29 @@ export function TopBar() {
           {/* 通知ボタン */}
           <button
             onClick={handleNotifications}
-            className="p-2 rounded-lg bg-gray-100/80 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-600 transition-all relative"
+            className={cn(
+              'p-1.5 sm:p-2 rounded-lg relative',
+              'bg-gray-100/80 dark:bg-gray-700/50',
+              'hover:bg-gray-200 dark:hover:bg-gray-600',
+              'active:scale-95 transition-all duration-200'
+            )}
             title="通知"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-300">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-300 sm:w-4 sm:h-4">
               <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" stroke="currentColor" strokeWidth="2"/>
               <path d="m13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2"/>
             </svg>
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
           </button>
 
           {/* ユーザーアバター */}
-          <button className="w-8 h-8 rounded-lg overflow-hidden bg-gradient-to-br from-purple-600 to-blue-600 hover:shadow-md transition-all">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-white">
+          <button className={cn(
+            'w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg overflow-hidden',
+            'bg-gradient-to-br from-purple-600 to-blue-600',
+            'hover:shadow-md hover:scale-105 active:scale-95',
+            'transition-all duration-200'
+          )}>
+            <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" className="text-white">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="1.5"/>
               <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="1.5"/>
             </svg>
