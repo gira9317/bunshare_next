@@ -27,20 +27,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
           {/* デスクトップサイドバー */}
           <Sidebar />
           
-          {/* メインコンテンツ */}
-          <div className="flex-1 flex flex-col lg:ml-[280px]">
+          {/* メインレイアウト */}
+          <div className="md:ml-64">
             {/* トップバー */}
             <TopBar />
             
             {/* ページコンテンツ */}
-            <main className="flex-1 px-4 py-6 mb-16 lg:mb-0 max-w-7xl mx-auto w-full">
+            <main className="px-4 py-6 pb-20 md:pb-6 max-w-6xl mx-auto">
               {children}
             </main>
           </div>
