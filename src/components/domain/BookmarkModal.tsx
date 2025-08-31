@@ -8,7 +8,8 @@ import {
   getBookmarkFoldersAction, 
   createBookmarkFolderAction, 
   saveBookmarkToFoldersAction,
-  getWorkBookmarkFoldersAction 
+  getWorkBookmarkFoldersAction,
+  toggleFolderPrivateAction
 } from '@/features/works/server/actions'
 
 interface BookmarkFolder {
@@ -17,6 +18,7 @@ interface BookmarkFolder {
   folder_name: string
   is_private: boolean
   is_system: boolean
+  sort_order?: number
 }
 
 interface BookmarkModalProps {
@@ -39,24 +41,29 @@ export function BookmarkModal({
   const [mounted, setMounted] = useState(false)
   const [folders, setFolders] = useState<BookmarkFolder[]>([])
   const [selectedFolders, setSelectedFolders] = useState<string[]>([])
+  const [initialSelectedFolders, setInitialSelectedFolders] = useState<string[]>([]) // 初期状態保存
+  const [initialMemo, setInitialMemo] = useState('') // 初期メモ保存
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [isPrivate, setIsPrivate] = useState(false)
   const [memo, setMemo] = useState('')
   const [loading, setLoading] = useState(false)
+  const [dataLoaded, setDataLoaded] = useState(false) // データ読み込み状態
 
   useEffect(() => {
     setMounted(true)
     if (isOpen) {
-      loadFolders()
-      loadCurrentBookmarks()
+      initializeData()
     } else {
       // モーダルが閉じられた時に状態をリセット
       setSelectedFolders([])
+      setInitialSelectedFolders([])
       setMemo('')
+      setInitialMemo('')
       setShowCreateForm(false)
       setNewFolderName('')
       setIsPrivate(false)
+      setDataLoaded(false)
     }
     return () => setMounted(false)
   }, [isOpen, workId])
@@ -73,41 +80,49 @@ export function BookmarkModal({
     }
   }, [isOpen])
 
-  const loadFolders = async () => {
+  // 同期的にすべてのデータを読み込み
+  const initializeData = async () => {
+    setDataLoaded(false)
     try {
-      const result = await getBookmarkFoldersAction()
-      if (result.success) {
-        let folderList = result.folders
-        
-        // フォルダが存在しない場合はデフォルトフォルダを作成
-        if (folderList.length === 0) {
-          const defaultResult = await createBookmarkFolderAction('デフォルト', false)
-          if (defaultResult.success) {
-            folderList = [defaultResult.folder]
-          }
-        }
-        
-        setFolders(folderList)
+      // 並行してフォルダリストと現在のブックマークを取得
+      const [foldersResult, bookmarksResult] = await Promise.all([
+        getBookmarkFoldersAction(),
+        getWorkBookmarkFoldersAction(workId)
+      ])
+
+      if (foldersResult.success) {
+        setFolders(foldersResult.folders)
       } else {
-        console.error('フォルダ取得エラー:', result.error)
+        console.error('フォルダ取得エラー:', foldersResult.error)
+      }
+
+      if (bookmarksResult.success) {
+        // 初期状態と現在状態の両方を設定
+        setSelectedFolders(bookmarksResult.folderKeys)
+        setInitialSelectedFolders(bookmarksResult.folderKeys)
+        setMemo(bookmarksResult.memo || '')
+        setInitialMemo(bookmarksResult.memo || '')
+      } else {
+        console.error('現在のブックマーク取得エラー:', bookmarksResult.error)
       }
     } catch (error) {
-      console.error('フォルダ取得エラー:', error)
+      console.error('データ初期化エラー:', error)
+    } finally {
+      setDataLoaded(true)
     }
   }
 
-  const loadCurrentBookmarks = async () => {
-    try {
-      const result = await getWorkBookmarkFoldersAction(workId)
-      if (result.success) {
-        setSelectedFolders(result.folderKeys)
-        setMemo(result.memo || '')
-      } else {
-        console.error('現在のブックマーク取得エラー:', result.error)
-      }
-    } catch (error) {
-      console.error('現在のブックマーク取得エラー:', error)
-    }
+  // 変更があったかどうかを検知
+  const hasChanges = () => {
+    if (!dataLoaded) return false
+    
+    // フォルダ選択の変更をチェック
+    const foldersChanged = JSON.stringify([...selectedFolders].sort()) !== JSON.stringify([...initialSelectedFolders].sort())
+    
+    // メモの変更をチェック
+    const memoChanged = memo.trim() !== initialMemo.trim()
+    
+    return foldersChanged || memoChanged
   }
 
   const handleFolderToggle = (folderKey: string) => {
@@ -116,6 +131,36 @@ export function BookmarkModal({
         ? prev.filter(key => key !== folderKey)
         : [...prev, folderKey]
     )
+  }
+
+  const handlePrivateToggle = async (folder: BookmarkFolder, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    // システムフォルダは変更不可
+    if (folder.is_system) {
+      return
+    }
+
+    try {
+      const newPrivateState = !folder.is_private
+      const result = await toggleFolderPrivateAction(folder.id, newPrivateState)
+      
+      if (result.success) {
+        // フォルダリストを更新
+        setFolders(prev => 
+          prev.map(f => 
+            f.id === folder.id 
+              ? { ...f, is_private: newPrivateState }
+              : f
+          )
+        )
+      } else {
+        console.error('プライベート設定変更エラー:', result.error)
+      }
+    } catch (error) {
+      console.error('プライベート設定変更エラー:', error)
+    }
   }
 
   const handleCreateFolder = async () => {
@@ -223,40 +268,129 @@ export function BookmarkModal({
             </button>
           </div>
 
-          <div className="space-y-2 max-h-60 overflow-y-auto">
-            {folders.map((folder) => {
-              const isSelected = selectedFolders.includes(folder.folder_key)
-              return (
-                <div
-                  key={folder.folder_key}
-                  className={cn(
-                    'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
-                    isSelected
-                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                      : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
-                  )}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handleFolderToggle(folder.folder_key)
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => {}} // 制御された入力
-                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 pointer-events-none"
-                  />
-                  <Folder size={16} className="text-gray-500" />
-                  <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
-                    {folder.folder_name}
-                  </span>
-                  {folder.is_private && (
-                    <Lock size={14} className="text-gray-400" />
-                  )}
+          {!dataLoaded ? (
+            // ローディング表示
+            <div className="flex items-center justify-center py-8 text-gray-500">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500 mr-2"></div>
+              読み込み中...
+            </div>
+          ) : (
+            <div className="space-y-3 max-h-60 overflow-y-auto">
+              {/* システムフォルダ */}
+              {folders.filter(folder => folder.is_system).length > 0 && (
+                <div>
+                  <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">
+                    システムフォルダ
+                  </h4>
+                  <div className="space-y-1">
+                    {folders.filter(folder => folder.is_system).map((folder) => {
+                      const isSelected = selectedFolders.includes(folder.folder_key)
+                      return (
+                        <div
+                          key={folder.folder_key}
+                          className={cn(
+                            'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
+                            isSelected
+                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
+                              : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          )}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleFolderToggle(folder.folder_key)
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}} // 制御された入力
+                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 pointer-events-none"
+                          />
+                          <Folder size={16} className="text-gray-500" />
+                          <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
+                            {folder.folder_name}
+                          </span>
+                          <button
+                            onClick={(e) => handlePrivateToggle(folder, e)}
+                            className={cn(
+                              "p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                              folder.is_system ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                            )}
+                            title={folder.is_system ? "システムフォルダは設定を変更できません" : (folder.is_private ? "プライベート設定を解除" : "プライベート設定にする")}
+                          >
+                            {folder.is_private ? (
+                              <Lock size={14} className="text-red-500" />
+                            ) : (
+                              <Unlock size={14} className="text-gray-400" />
+                            )}
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              )
-            })}
-          </div>
+              )}
+
+              {/* カスタムフォルダ */}
+              {folders.filter(folder => !folder.is_system).length > 0 && (
+                <div>
+                  <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">
+                    カスタムフォルダ
+                  </h4>
+                  <div className="space-y-1">
+                    {folders.filter(folder => !folder.is_system).map((folder) => {
+                      const isSelected = selectedFolders.includes(folder.folder_key)
+                      return (
+                        <div
+                          key={folder.folder_key}
+                          className={cn(
+                            'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
+                            isSelected
+                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
+                              : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                          )}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleFolderToggle(folder.folder_key)
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}} // 制御された入力
+                            className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 pointer-events-none"
+                          />
+                          <Folder size={16} className="text-gray-500" />
+                          <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
+                            {folder.folder_name}
+                          </span>
+                          <button
+                            onClick={(e) => handlePrivateToggle(folder, e)}
+                            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                            title={folder.is_private ? "プライベート設定を解除" : "プライベート設定にする"}
+                          >
+                            {folder.is_private ? (
+                              <Lock size={14} className="text-red-500" />
+                            ) : (
+                              <Unlock size={14} className="text-gray-400" />
+                            )}
+                          </button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* フォルダが存在しない場合 */}
+              {folders.length === 0 && (
+                <div className="text-center py-6 text-gray-500">
+                  <Folder size={24} className="mx-auto mb-2 text-gray-400" />
+                  <p className="text-sm">フォルダがありません</p>
+                  <p className="text-xs mt-1">「新規作成」でフォルダを作成してください</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Create New Folder Form */}
@@ -328,15 +462,15 @@ export function BookmarkModal({
           </button>
           <button
             onClick={handleSave}
-            disabled={selectedFolders.length === 0 || loading}
+            disabled={!hasChanges() || loading || !dataLoaded}
             className={cn(
               'flex-1 px-4 py-3 font-medium rounded-lg transition-colors',
-              selectedFolders.length > 0
+              hasChanges() && dataLoaded
                 ? 'bg-purple-500 hover:bg-purple-600 text-white'
                 : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
             )}
           >
-            {loading ? '保存中...' : '保存'}
+            {loading ? '保存中...' : !dataLoaded ? '読み込み中...' : '保存'}
           </button>
         </div>
       </div>

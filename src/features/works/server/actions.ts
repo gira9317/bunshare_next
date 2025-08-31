@@ -122,7 +122,7 @@ export async function toggleBookmarkAction(workId: string) {
 }
 
 /**
- * ブックマークフォルダ一覧を取得
+ * ブックマークフォルダ一覧を取得（システムフォルダ+ユーザーフォルダ）
  */
 export async function getBookmarkFoldersAction() {
   const supabase = await createClient()
@@ -133,19 +133,69 @@ export async function getBookmarkFoldersAction() {
   }
 
   try {
+    // システムフォルダとユーザーのカスタムフォルダを取得
     const { data: folders, error } = await supabase
       .from('bookmark_folders')
-      .select('id, folder_key, folder_name, is_private, is_system')
-      .eq('user_id', user.id)
-      .order('is_system', { ascending: false })
+      .select('id, folder_key, folder_name, is_private, is_system, sort_order')
+      .or(`user_id.eq.${user.id},is_system.eq.true`)
+      .order('is_system', { ascending: false }) // システムフォルダを先に
+      .order('sort_order', { ascending: true })
       .order('created_at', { ascending: true })
 
     if (error) throw error
 
-    return { success: true, folders: folders || [] }
+    // システムフォルダが存在しない場合は作成
+    let folderList = folders || []
+    if (!folderList.some(f => f.is_system)) {
+      await ensureSystemFolders()
+      // 再取得
+      const { data: refetchedFolders } = await supabase
+        .from('bookmark_folders')
+        .select('id, folder_key, folder_name, is_private, is_system, sort_order')
+        .or(`user_id.eq.${user.id},is_system.eq.true`)
+        .order('is_system', { ascending: false })
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: true })
+      folderList = refetchedFolders || []
+    }
+
+    return { success: true, folders: folderList }
   } catch (error) {
     console.error('ブックマークフォルダ取得エラー:', error)
     return { error: 'フォルダの取得に失敗しました' }
+  }
+}
+
+/**
+ * システムフォルダの存在を確認し、なければ作成
+ */
+async function ensureSystemFolders() {
+  const supabase = await createClient()
+  
+  const systemFolders = [
+    { folder_key: 'default', folder_name: 'デフォルト', sort_order: 1 },
+    { folder_key: 'favorites', folder_name: 'お気に入り', sort_order: 2 },
+    { folder_key: 'toread', folder_name: '後で読む', sort_order: 3 }
+  ]
+
+  try {
+    for (const folder of systemFolders) {
+      await supabase
+        .from('bookmark_folders')
+        .upsert({
+          user_id: null, // システムフォルダはuser_idがNULL
+          folder_key: folder.folder_key,
+          folder_name: folder.folder_name,
+          sort_order: folder.sort_order,
+          is_system: true,
+          is_private: false
+        }, { 
+          onConflict: 'user_id,folder_key',
+          ignoreDuplicates: true 
+        })
+    }
+  } catch (error) {
+    console.error('システムフォルダ作成エラー:', error)
   }
 }
 
@@ -199,28 +249,30 @@ export async function saveBookmarkToFoldersAction(workId: string, folderKeys: st
   }
 
   try {
-    if (folderKeys.length > 0) {
-      // JSON形式で複数フォルダを保存（既存制約に対応）
-      const { error: upsertError } = await supabase
-        .from('bookmarks')
-        .upsert({
-          user_id: user.id,
-          work_id: workId,
-          folder: JSON.stringify(folderKeys), // 配列をJSONとして保存
-          memo: memo || null,
-          is_private: false,
-          bookmarked_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
+    // 既存のブックマークを削除
+    await supabase
+      .from('bookmarks')
+      .delete()
+      .eq('work_id', workId)
+      .eq('user_id', user.id)
 
-      if (upsertError) throw upsertError
-    } else {
-      // フォルダが選択されていない場合は削除
-      await supabase
+    if (folderKeys.length > 0) {
+      // 複数フォルダの場合は複数レコードとして保存（マイグレーション適用後）
+      const bookmarks = folderKeys.map(folderKey => ({
+        user_id: user.id,
+        work_id: workId,
+        folder: folderKey, // 単一フォルダとして保存
+        memo: memo || null,
+        is_private: false,
+        bookmarked_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }))
+
+      const { error: insertError } = await supabase
         .from('bookmarks')
-        .delete()
-        .eq('work_id', workId)
-        .eq('user_id', user.id)
+        .insert(bookmarks)
+
+      if (insertError) throw insertError
     }
 
     // キャッシュを無効化
@@ -255,27 +307,61 @@ export async function getWorkBookmarkFoldersAction(workId: string) {
     if (error) throw error
 
     if (bookmarks && bookmarks.length > 0) {
-      const bookmark = bookmarks[0]
-      try {
-        // folder列がJSON形式の場合はパース、そうでなければ単一文字列として扱う
-        const folderKeys = bookmark.folder ? 
-          (bookmark.folder.startsWith('[') ? 
-            JSON.parse(bookmark.folder) : 
-            [bookmark.folder]
-          ) : []
-        return { success: true, folderKeys, memo: bookmark.memo || '' }
-      } catch (parseError) {
-        console.error('フォルダキーのパースエラー:', parseError)
-        // パースに失敗した場合は単一文字列として扱う
-        const folderKeys = bookmark.folder ? [bookmark.folder] : []
-        return { success: true, folderKeys, memo: bookmark.memo || '' }
-      }
+      // 複数レコード対応 - 各レコードのfolderを配列として集める
+      const folderKeys = bookmarks.map(b => b.folder).filter(Boolean)
+      const currentMemo = bookmarks[0]?.memo || '' // 最初のレコードからメモを取得
+      
+      return { success: true, folderKeys, memo: currentMemo }
     }
 
     return { success: true, folderKeys: [], memo: '' }
   } catch (error) {
     console.error('ブックマークフォルダ取得エラー:', error)
     return { error: 'ブックマークフォルダの取得に失敗しました' }
+  }
+}
+
+/**
+ * ブックマークフォルダのプライベート設定を切り替え
+ */
+export async function toggleFolderPrivateAction(folderId: string, isPrivate: boolean) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // システムフォルダの場合はエラー
+    const { data: folder, error: fetchError } = await supabase
+      .from('bookmark_folders')
+      .select('is_system, user_id')
+      .eq('id', folderId)
+      .single()
+
+    if (fetchError) throw fetchError
+    
+    if (folder.is_system || folder.user_id !== user.id) {
+      return { error: 'システムフォルダまたは他のユーザーのフォルダは変更できません' }
+    }
+
+    // プライベート設定を更新
+    const { error: updateError } = await supabase
+      .from('bookmark_folders')
+      .update({ is_private: isPrivate })
+      .eq('id', folderId)
+      .eq('user_id', user.id)
+
+    if (updateError) throw updateError
+
+    // キャッシュを無効化
+    revalidateTag(`user:${user.id}:bookmark_folders`)
+
+    return { success: true, isPrivate }
+  } catch (error) {
+    console.error('フォルダプライベート設定エラー:', error)
+    return { error: 'プライベート設定の変更に失敗しました' }
   }
 }
 
