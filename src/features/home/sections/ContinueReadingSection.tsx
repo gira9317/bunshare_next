@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import type { Work } from '../types'
+import type { Work } from '@/features/works/types'
 
 interface ContinueReadingSectionProps {
   works: Work[]

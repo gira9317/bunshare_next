@@ -1,6 +1,6 @@
 import { getWorks, getContinueReadingWorks, getUserLikesAndBookmarks } from '@/features/works/server/loader'
-import { WorksFeedSection } from '@/features/works/sections/WorksFeedSection'
-import { ContinueReadingSection } from '@/features/works/sections/ContinueReadingSection'
+import { WorksFeedSection } from '@/features/home/sections/WorksFeedSection'
+import { ContinueReadingSection } from '@/features/home/sections/ContinueReadingSection'
 import { createClient } from '@/lib/supabase/server'
 import CategoryChipsClient from './CategoryChipsClient'
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { CategoryChips } from '@/features/works/leaf/CategoryChips'
+import { CategoryChips } from '@/features/home/leaf/CategoryChips'
 
 export default function CategoryChipsClient() {
   const [activeCategory, setActiveCategory] = useState('all')

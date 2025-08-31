@@ -1,5 +1,5 @@
-import { WorkCard } from '../leaf/WorkCard'
-import type { Work } from '../types'
+import { WorkCard } from '@/components/domain/WorkCard'
+import type { Work } from '@/features/works/types'
 
 interface WorksFeedSectionProps {
   works: Work[]
