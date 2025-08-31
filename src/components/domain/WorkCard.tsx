@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -17,6 +18,8 @@ export function WorkCard({
   const [bookmarked, setBookmarked] = useState(isBookmarked)
   const [isHovered, setIsHovered] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
+  const moreMenuButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleLike = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -33,6 +36,24 @@ export function WorkCard({
   const handleMoreMenu = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    
+    if (!showMoreMenu && moreMenuButtonRef.current) {
+      const rect = moreMenuButtonRef.current.getBoundingClientRect()
+      const menuWidth = 160
+      const menuHeight = 80
+      
+      // Calculate position with viewport boundaries
+      let x = rect.right - menuWidth
+      let y = rect.bottom + 8
+      
+      // Adjust if menu would go off-screen
+      if (x < 8) x = 8
+      if (x + menuWidth > window.innerWidth - 8) x = window.innerWidth - menuWidth - 8
+      if (y + menuHeight > window.innerHeight - 8) y = rect.top - menuHeight - 8
+      
+      setMenuPosition({ x, y })
+    }
+    
     setShowMoreMenu(!showMoreMenu)
   }
 
@@ -43,6 +64,31 @@ export function WorkCard({
     console.log('Share work:', work.work_id)
     setShowMoreMenu(false)
   }
+
+  // Close menu on outside click and ESC key
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showMoreMenu && !moreMenuButtonRef.current?.contains(event.target as Node)) {
+        setShowMoreMenu(false)
+      }
+    }
+
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showMoreMenu) {
+        setShowMoreMenu(false)
+      }
+    }
+
+    if (showMoreMenu) {
+      document.addEventListener('mousedown', handleClickOutside)
+      document.addEventListener('keydown', handleEscKey)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscKey)
+    }
+  }, [showMoreMenu])
 
   const excerpt = work.description?.slice(0, 100) + (work.description && work.description.length > 100 ? '...' : '')
 
@@ -201,6 +247,7 @@ export function WorkCard({
                 {/* More Menu */}
                 <div className="more-menu-container relative">
                   <button 
+                    ref={moreMenuButtonRef}
                     onClick={handleMoreMenu}
                     className={cn(
                       'more-menu-btn p-1 rounded transition-all duration-300',
@@ -216,46 +263,6 @@ export function WorkCard({
                     </svg>
                   </button>
 
-                  {/* Dropdown Menu */}
-                  {showMoreMenu && (
-                    <div className={cn(
-                      'more-menu-dropdown absolute right-0 top-full mt-2 z-50',
-                      'bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700',
-                      'min-w-[160px] py-1',
-                      'animate-in slide-in-from-top-2 duration-200'
-                    )}>
-                      <button
-                        onClick={handleBookmark}
-                        className={cn(
-                          'dropdown-item w-full px-3 py-2 text-sm text-left',
-                          'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
-                          'transition-colors duration-200',
-                          bookmarked ? 'text-yellow-600' : 'text-gray-700 dark:text-gray-300'
-                        )}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill={bookmarked ? "currentColor" : "none"}>
-                          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2"/>
-                        </svg>
-                        <span>{bookmarked ? 'ブックマーク済み' : 'ブックマーク'}</span>
-                      </button>
-                      
-                      <button
-                        onClick={handleShare}
-                        className={cn(
-                          'dropdown-item w-full px-3 py-2 text-sm text-left',
-                          'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
-                          'transition-colors duration-200 text-gray-700 dark:text-gray-300'
-                        )}
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="currentColor" strokeWidth="2"/>
-                          <polyline points="16,6 12,2 8,6" stroke="currentColor" strokeWidth="2"/>
-                          <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" strokeWidth="2"/>
-                        </svg>
-                        <span>シェア</span>
-                      </button>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -291,6 +298,53 @@ export function WorkCard({
           'opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none'
         )} />
       </article>
+
+      {/* Portal-rendered dropdown menu */}
+      {showMoreMenu && typeof window !== 'undefined' && createPortal(
+        <div 
+          className={cn(
+            'more-menu-dropdown fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700',
+            'min-w-[160px] py-1 z-[9999]',
+            'animate-in slide-in-from-top-2 duration-200'
+          )}
+          style={{
+            left: `${menuPosition.x}px`,
+            top: `${menuPosition.y}px`,
+          }}
+        >
+          <button
+            onClick={handleBookmark}
+            className={cn(
+              'dropdown-item w-full px-3 py-2 text-sm text-left',
+              'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
+              'transition-colors duration-200',
+              bookmarked ? 'text-yellow-600' : 'text-gray-700 dark:text-gray-300'
+            )}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={bookmarked ? "currentColor" : "none"}>
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2"/>
+            </svg>
+            <span>{bookmarked ? 'ブックマーク済み' : 'ブックマーク'}</span>
+          </button>
+          
+          <button
+            onClick={handleShare}
+            className={cn(
+              'dropdown-item w-full px-3 py-2 text-sm text-left',
+              'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
+              'transition-colors duration-200 text-gray-700 dark:text-gray-300'
+            )}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="currentColor" strokeWidth="2"/>
+              <polyline points="16,6 12,2 8,6" stroke="currentColor" strokeWidth="2"/>
+              <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" strokeWidth="2"/>
+            </svg>
+            <span>シェア</span>
+          </button>
+        </div>,
+        document.body
+      )}
     </Link>
   )
 }
