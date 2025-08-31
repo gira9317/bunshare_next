@@ -2,7 +2,7 @@ import { getWorks, getContinueReadingWorks, getUserLikesAndBookmarks } from '@/f
 import { WorksFeedSection } from '@/features/home/sections/WorksFeedSection'
 import { ContinueReadingSection } from '@/features/home/sections/ContinueReadingSection'
 import { createClient } from '@/lib/supabase/server'
-import CategoryChipsClient from './CategoryChipsClient'
+import { CategoryChipsClient } from '@/features/home/leaf/CategoryChipsClient'
 
 async function HomePage() {
   const supabase = await createClient()

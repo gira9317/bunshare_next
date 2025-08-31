@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { CategoryChips } from '@/features/home/leaf/CategoryChips'
 
-export default function CategoryChipsClient() {
+export function CategoryChipsClient() {
   const [activeCategory, setActiveCategory] = useState('all')
   
   return (
