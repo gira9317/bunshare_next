@@ -40,7 +40,7 @@ export default function RootLayout({
             <TopBar />
             
             {/* ページコンテンツ */}
-            <main className="flex-1 px-4 py-6 mt-16 mb-16 lg:mb-0 max-w-7xl mx-auto w-full">
+            <main className="flex-1 px-4 py-6 mb-16 lg:mb-0 max-w-7xl mx-auto w-full">
               {children}
             </main>
           </div>
