@@ -31,7 +31,7 @@ export function WorkCard({
   const excerpt = work.description?.slice(0, 100) + (work.description && work.description.length > 100 ? '...' : '')
 
   return (
-    <Link href={`/works/${work.id}`}>
+    <Link href={`/works/${work.work_id}`}>
       <div className={cn(
         'relative bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700',
         'hover:border-purple-400 hover:shadow-lg transition-all cursor-pointer',
@@ -78,15 +78,14 @@ export function WorkCard({
             <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
               <button onClick={handleLike} className="flex items-center gap-1 hover:text-purple-600">
                 <span className={cn(liked && 'text-red-500')}>❤</span>
-                <span>{work.like_count || 0}</span>
+                <span>{work.likes || 0}</span>
               </button>
               <button onClick={handleBookmark} className="flex items-center gap-1 hover:text-purple-600">
                 <span className={cn(bookmarked && 'text-yellow-500')}>🔖</span>
-                <span>{work.bookmark_count || 0}</span>
               </button>
               <span className="flex items-center gap-1">
                 <span>💬</span>
-                <span>{work.comment_count || 0}</span>
+                <span>{work.comments || 0}</span>
               </span>
             </div>
             

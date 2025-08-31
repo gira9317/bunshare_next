@@ -1,22 +1,24 @@
 export interface Work {
-  id: string
+  work_id: string
+  user_id: string
   title: string
-  author: string
-  author_id: string
+  author?: string
+  author_username?: string
   description?: string
   content?: string
   category?: string
   tags?: string[]
   image_url?: string
-  series_title?: string
+  series_id?: string
   episode_number?: number
   is_adult_content?: boolean
   created_at: string
   updated_at: string
-  view_count?: number
-  like_count?: number
-  comment_count?: number
-  bookmark_count?: number
+  views?: number
+  likes?: number
+  comments?: number
+  rating?: number
+  readingProgress?: number
 }
 
 export interface WorkCardProps {

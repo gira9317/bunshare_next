@@ -31,10 +31,10 @@ export function WorksFeedSection({
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {works.map((work) => (
           <WorkCard
-            key={work.id}
+            key={work.work_id}
             work={work}
-            isLiked={userLikes.includes(work.id)}
-            isBookmarked={userBookmarks.includes(work.id)}
+            isLiked={userLikes.includes(work.work_id)}
+            isBookmarked={userBookmarks.includes(work.work_id)}
           />
         ))}
       </div>

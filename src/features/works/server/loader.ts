@@ -8,10 +8,11 @@ export async function getWorks(limit = 10, offset = 0) {
     .from('works')
     .select(`
       *,
-      users!author_id (
+      users (
         username
       )
     `)
+    .eq('is_published', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
@@ -22,7 +23,8 @@ export async function getWorks(limit = 10, offset = 0) {
 
   return data.map((work: any) => ({
     ...work,
-    author: work.users?.username || work.author,
+    author: work.users?.username || 'Unknown',
+    author_username: work.users?.username || 'Unknown'
   })) as Work[]
 }
 
@@ -33,11 +35,12 @@ export async function getWorksByCategory(category: string, limit = 10, offset = 
     .from('works')
     .select(`
       *,
-      users!author_id (
+      users (
         username
       )
     `)
     .eq('category', category)
+    .eq('is_published', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
@@ -48,7 +51,8 @@ export async function getWorksByCategory(category: string, limit = 10, offset = 
 
   return data.map((work: any) => ({
     ...work,
-    author: work.users?.username || work.author,
+    author: work.users?.username || 'Unknown',
+    author_username: work.users?.username || 'Unknown'
   })) as Work[]
 }
 
