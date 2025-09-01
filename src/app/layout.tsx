@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="ja" className="h-full">
       <head>
-        {/* <ThemeScript /> 一時的にコメントアウト */}
+        <ThemeScript />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
         {children}

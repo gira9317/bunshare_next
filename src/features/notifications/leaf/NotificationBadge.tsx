@@ -18,8 +18,8 @@ export function NotificationBadge({
       onClick={onClick}
       className={cn(
         'p-1.5 sm:p-2 rounded-lg relative',
-        'bg-gray-100/80 dark:bg-gray-700/50',
-        'hover:bg-gray-200 dark:hover:bg-gray-600',
+        'bg-gray-100/80 dark:bg-gray-800/80',
+        'hover:bg-gray-200 dark:hover:bg-gray-700',
         'active:scale-95 transition-all duration-200',
         className
       )}

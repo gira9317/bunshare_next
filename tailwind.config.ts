@@ -63,5 +63,29 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // カスタムコンポーネントクラスプラグイン
+    function({ addComponents }: any) {
+      addComponents({
+        '.category-tag-brand': {
+          background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
+          color: '#ffffff',
+          border: 'none',
+          boxShadow: '0 2px 8px rgba(139, 92, 246, 0.3)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+            transform: 'scale(1.02)',
+            boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)',
+          }
+        },
+        '.btn-icon-dark': {
+          backgroundColor: 'rgba(26, 26, 26, 0.8)',
+          '&:hover': {
+            backgroundColor: 'rgba(36, 36, 36, 0.8)',
+          }
+        }
+      })
+    }
+  ],
 } satisfies Config;

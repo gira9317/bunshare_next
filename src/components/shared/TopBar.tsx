@@ -53,14 +53,20 @@ export function TopBar({
               alt="Bunshare"
               width={32}
               height={32}
-              className="w-6 h-6 sm:w-7 sm:h-7 object-contain dark:hidden group-hover:scale-105 transition-transform"
+              className={cn(
+                'w-6 h-6 sm:w-7 sm:h-7 object-contain logo-light',
+                'group-hover:scale-105 transition-all duration-200'
+              )}
             />
             <Image
               src="/images/logo/Bunshare_logo_dark_mode.png"
               alt="Bunshare"
               width={32}
               height={32}
-              className="w-6 h-6 sm:w-7 sm:h-7 object-contain hidden dark:block group-hover:scale-105 transition-transform"
+              className={cn(
+                'w-6 h-6 sm:w-7 sm:h-7 object-contain logo-dark',
+                'group-hover:scale-105 transition-all duration-200'
+              )}
             />
             <span className={cn(
               'text-base sm:text-lg font-bold',
@@ -86,7 +92,7 @@ export function TopBar({
             )}>
               <div className="pl-3 lg:pl-4 pr-2">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gray-500 dark:text-gray-400 lg:w-5 lg:h-5">
-                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" fill="none"/>
                   <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2"/>
                 </svg>
               </div>
@@ -118,14 +124,6 @@ export function TopBar({
           </form>
         </div>
 
-        {/* デバッグ用テーマテスト */}
-        <div className="hidden md:flex items-center mr-4">
-          <div className="px-3 py-2 text-sm rounded-lg border-2 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-            <span className="text-gray-900 dark:text-gray-100 font-medium">
-              🌙 ダーク: <span className="text-blue-600 dark:text-blue-400">テスト</span>
-            </span>
-          </div>
-        </div>
 
         {/* ユーザーアクション */}
         <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
@@ -134,14 +132,14 @@ export function TopBar({
             onClick={handleMobileSearch}
             className={cn(
               'p-1.5 sm:p-2 rounded-lg md:hidden',
-              'bg-gray-100/80 dark:bg-gray-700/50',
-              'hover:bg-gray-200 dark:hover:bg-gray-600',
+              'bg-gray-100/80 dark:bg-gray-800/80',
+              'hover:bg-gray-200 dark:hover:bg-gray-700',
               'active:scale-95 transition-all duration-200'
             )}
             title="検索"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-300 sm:w-4 sm:h-4">
-              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
+              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" fill="none"/>
               <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2"/>
             </svg>
           </button>

@@ -219,12 +219,7 @@ export function WorkCard({
               <div className="stat-group-left">
                 {work.category && (
                   <div className="work-category">
-                    <span className={cn(
-                      'category-tag px-2 py-1 text-xs font-semibold rounded-full',
-                      'bg-white/90 backdrop-blur-sm text-gray-800',
-                      'transition-all duration-300',
-                      'group-hover:bg-white group-hover:shadow-lg'
-                    )}>
+                    <span className="category-tag-brand px-2 py-1 text-xs font-semibold rounded-full">
                       {work.category}
                     </span>
                   </div>

@@ -13,7 +13,7 @@ export function ContinueReadingSection({ works }: ContinueReadingSectionProps) {
 
   return (
     <section className="mb-8">
-      <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+      <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100">
         <span>📖</span>
         <span>続きを読む</span>
       </h2>
@@ -30,7 +30,7 @@ export function ContinueReadingSection({ works }: ContinueReadingSectionProps) {
               'hover:shadow-md transition-all'
             )}
           >
-            <h3 className="font-semibold text-sm mb-1 line-clamp-1">
+            <h3 className="font-semibold text-sm mb-1 line-clamp-1 text-gray-900 dark:text-gray-100">
               {work.title}
             </h3>
             <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
@@ -41,7 +41,7 @@ export function ContinueReadingSection({ works }: ContinueReadingSectionProps) {
                 しおりから始める
               </button>
               {work.readingProgress && (
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400">
                   {work.readingProgress}%
                 </span>
               )}

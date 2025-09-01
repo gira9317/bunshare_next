@@ -80,8 +80,8 @@ export function Sidebar() {
             width={48}
             height={48}
             className={cn(
-              'w-8 h-8 lg:w-10 lg:h-10 object-contain dark:hidden',
-              'group-hover:scale-105 transition-transform duration-200'
+              'w-8 h-8 lg:w-10 lg:h-10 object-contain logo-light',
+              'group-hover:scale-105 transition-all duration-200'
             )}
           />
           <Image
@@ -90,8 +90,8 @@ export function Sidebar() {
             width={48}
             height={48}
             className={cn(
-              'w-8 h-8 lg:w-10 lg:h-10 object-contain hidden dark:block',
-              'group-hover:scale-105 transition-transform duration-200'
+              'w-8 h-8 lg:w-10 lg:h-10 object-contain logo-dark',
+              'group-hover:scale-105 transition-all duration-200'
             )}
           />
           <span className={cn(
