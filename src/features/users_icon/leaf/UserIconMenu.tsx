@@ -58,7 +58,7 @@ export function UserIconMenu({
           <UserIconMenuItem
             label="プロフィール"
             icon="👤"
-            href={`/users/${user.id}`}
+            href="/profile"
           />
           <UserIconMenuItem
             label="マイ作品"

@@ -72,3 +72,4 @@ markdown
 - ESLint + Prettier + Tailwind プラグインを強制
 - 主要機能ごとに `README.md` を置く
 - ファイルが巨大化しそうなら Section/Leaf へ速やかに分割
+- tailwind.cssのため、モバイルデザインファースト
