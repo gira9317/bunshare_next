@@ -21,18 +21,12 @@ export function TopBar({
   initialUnreadCount
 }: TopBarProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [isDarkMode, setIsDarkMode] = useState(false)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`
     }
-  }
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-    document.documentElement.classList.toggle('dark')
   }
 
   const handleMobileSearch = () => {
@@ -42,9 +36,9 @@ export function TopBar({
   return (
     <header className={cn(
       'sticky top-0 z-50',
-      'bg-white/95 dark:bg-gray-800/95 backdrop-blur-md',
-      'border-b border-gray-200/50 dark:border-gray-700/50',
-      'supports-backdrop-blur:bg-white/90 dark:supports-backdrop-blur:bg-gray-800/90'
+      'bg-white dark:bg-gray-800 backdrop-blur-md',
+      'border-b border-gray-200 dark:border-gray-700',
+      'transition-colors duration-200'
     )}>
       <div className={cn(
         'flex items-center justify-between',
@@ -124,35 +118,17 @@ export function TopBar({
           </form>
         </div>
 
+        {/* デバッグ用テーマテスト */}
+        <div className="hidden md:flex items-center mr-4">
+          <div className="px-3 py-2 text-sm rounded-lg border-2 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
+            <span className="text-gray-900 dark:text-gray-100 font-medium">
+              🌙 ダーク: <span className="text-blue-600 dark:text-blue-400">テスト</span>
+            </span>
+          </div>
+        </div>
+
         {/* ユーザーアクション */}
         <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
-          {/* テーマ切り替えボタン */}
-          <button
-            onClick={toggleDarkMode}
-            className={cn(
-              'p-1.5 sm:p-2 rounded-lg',
-              'bg-gray-100/80 dark:bg-gray-700/50',
-              'hover:bg-gray-200 dark:hover:bg-gray-600',
-              'active:scale-95 transition-all duration-200'
-            )}
-            title="テーマを切り替え"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="dark:hidden text-gray-600 sm:w-4 sm:h-4">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="hidden dark:block text-gray-300 sm:w-4 sm:h-4">
-              <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2"/>
-              <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
-              <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2"/>
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2"/>
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2"/>
-              <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2"/>
-              <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2"/>
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2"/>
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-          </button>
-
           {/* モバイル検索ボタン */}
           <button
             onClick={handleMobileSearch}

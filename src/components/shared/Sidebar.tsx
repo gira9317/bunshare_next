@@ -64,14 +64,14 @@ export function Sidebar() {
     <aside className={cn(
       'hidden md:flex fixed left-0 top-0 h-screen flex-col z-40',
       'w-56 lg:w-64 xl:w-72',
-      'bg-white/95 dark:bg-gray-800/95 backdrop-blur-md',
-      'border-r border-gray-200/50 dark:border-gray-700/50',
-      'supports-backdrop-blur:bg-white/90 dark:supports-backdrop-blur:bg-gray-800/90'
+      'bg-white dark:bg-gray-800 backdrop-blur-md',
+      'border-r border-gray-200 dark:border-gray-700',
+      'transition-colors duration-200'
     )}>
       {/* ロゴヘッダー */}
       <div className={cn(
         'px-4 lg:px-6 py-4 lg:py-6',
-        'border-b border-gray-200/50 dark:border-gray-700/50'
+        'border-b border-gray-200 dark:border-gray-700'
       )}>
         <Link href="/" className="flex items-center gap-2 lg:gap-3 group">
           <Image

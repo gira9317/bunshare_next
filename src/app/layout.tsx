@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Sidebar } from '@/components/shared/Sidebar'
-import { TopBar } from '@/components/shared/TopBar'
-import { BottomNav } from '@/components/shared/BottomNav'
-import { cn } from '@/lib/utils'
-import { headers } from 'next/headers'
+import { ThemeScript } from '@/components/shared/ThemeScript'
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,8 +24,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="ja" className="h-full">
+      <head>
+        {/* <ThemeScript /> 一時的にコメントアウト */}
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
         {children}
       </body>
     </html>

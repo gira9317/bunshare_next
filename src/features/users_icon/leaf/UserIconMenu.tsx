@@ -2,6 +2,7 @@
 
 import { UserProfile } from '../types'
 import { UserIconMenuItem } from './UserIconMenuItem'
+import { ThemeSelector } from './ThemeSelector'
 import { cn } from '@/lib/utils'
 
 interface UserIconMenuProps {
@@ -71,6 +72,8 @@ export function UserIconMenu({
           />
           
           <UserIconMenuItem divider />
+          
+          <ThemeSelector />
           
           <UserIconMenuItem
             label="設定"

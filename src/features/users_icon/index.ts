@@ -3,6 +3,7 @@ export { UserIconDropdownSection } from './sections/UserIconDropdownSection'
 export { UserIconAvatar } from './leaf/UserIconAvatar'
 export { UserIconMenu } from './leaf/UserIconMenu'
 export { UserIconMenuItem } from './leaf/UserIconMenuItem'
+export { ThemeSelector } from './leaf/ThemeSelector'
 export { useUserIcon } from './hooks/useUserIcon'
 
 // Types only
