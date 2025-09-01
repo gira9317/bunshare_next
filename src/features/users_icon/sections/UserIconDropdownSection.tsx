@@ -17,7 +17,7 @@ export function UserIconDropdownSection({
   size = 'md',
   className 
 }: UserIconDropdownSectionProps) {
-  const { isOpen, toggle, close } = useUserIcon(user)
+  const { isOpen, toggle, close, dropdownRef } = useUserIcon(user)
   
   if (!user) {
     return (
@@ -30,7 +30,7 @@ export function UserIconDropdownSection({
   }
   
   return (
-    <div className={cn('relative', className)}>
+    <div className={cn('relative', className)} ref={dropdownRef}>
       <UserIconAvatar
         user={user}
         size={size}
