@@ -4,8 +4,22 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { UserIconDropdownSection } from '@/features/users_icon'
+import { NotificationPanelSection } from '@/features/notifications'
+import type { UserProfile } from '@/features/users_icon/types'
+import type { Notification } from '@/features/notifications/types'
 
-export function TopBar() {
+interface TopBarProps {
+  userProfile: UserProfile | null
+  initialNotifications: Notification[]
+  initialUnreadCount: number
+}
+
+export function TopBar({ 
+  userProfile, 
+  initialNotifications, 
+  initialUnreadCount
+}: TopBarProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [isDarkMode, setIsDarkMode] = useState(false)
 
@@ -23,10 +37,6 @@ export function TopBar() {
 
   const handleMobileSearch = () => {
     console.log('Open mobile search modal')
-  }
-
-  const handleNotifications = () => {
-    console.log('Open notifications')
   }
 
   return (
@@ -160,36 +170,20 @@ export function TopBar() {
             </svg>
           </button>
 
-          {/* 通知ボタン */}
-          <button
-            onClick={handleNotifications}
-            className={cn(
-              'p-1.5 sm:p-2 rounded-lg relative',
-              'bg-gray-100/80 dark:bg-gray-700/50',
-              'hover:bg-gray-200 dark:hover:bg-gray-600',
-              'active:scale-95 transition-all duration-200'
-            )}
-            title="通知"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-300 sm:w-4 sm:h-4">
-              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" stroke="currentColor" strokeWidth="2"/>
-              <path d="m13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-          </button>
+          {/* 通知パネル */}
+          {userProfile && (
+            <NotificationPanelSection
+              userId={userProfile.id}
+              initialNotifications={initialNotifications}
+              initialUnreadCount={initialUnreadCount}
+            />
+          )}
 
-          {/* ユーザーアバター */}
-          <button className={cn(
-            'w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-lg overflow-hidden',
-            'bg-gradient-to-br from-purple-600 to-blue-600',
-            'hover:shadow-md hover:scale-105 active:scale-95',
-            'transition-all duration-200'
-          )}>
-            <svg width="100%" height="100%" viewBox="0 0 24 24" fill="none" className="text-white">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="1.5"/>
-              <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="1.5"/>
-            </svg>
-          </button>
+          {/* ユーザーアイコン */}
+          <UserIconDropdownSection
+            user={userProfile}
+            size="md"
+          />
         </div>
       </div>
     </header>

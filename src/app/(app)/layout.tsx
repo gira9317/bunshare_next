@@ -1,5 +1,5 @@
 import { Sidebar } from '@/components/shared/Sidebar'
-import { TopBar } from '@/components/shared/TopBar'
+import { TopBarWrapper } from '@/components/shared/TopBarWrapper'
 import { BottomNav } from '@/components/shared/BottomNav'
 import { cn } from '@/lib/utils'
 
@@ -16,7 +16,7 @@ export default function AppLayout({
       {/* メインレイアウト */}
       <div className="md:ml-56 lg:ml-64 xl:ml-72">
         {/* トップバー */}
-        <TopBar />
+        <TopBarWrapper />
         
         {/* ページコンテンツ */}
         <main className={cn(
