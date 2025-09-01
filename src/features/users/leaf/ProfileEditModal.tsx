@@ -21,11 +21,13 @@ export function ProfileEditModal({
   className 
 }: ProfileEditModalProps) {
   const [isPending, startTransition] = useTransition()
+  
+  
   const [formData, setFormData] = useState<UserProfileUpdateInput>({
-    username: user.username,
-    display_name: user.display_name || '',
+    username: user.username || '',
+    custom_user_id: user.custom_user_id || '',
     bio: user.bio || '',
-    website_url: user.website_url || '',
+    website_url: user.website_url || [],
   })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
@@ -45,8 +47,13 @@ export function ProfileEditModal({
     if (formData.bio && formData.bio.length > 500) {
       newErrors.bio = '自己紹介は500文字以内で入力してください'
     }
-    if (formData.website_url && !isValidUrl(formData.website_url)) {
-      newErrors.website_url = '正しいURLを入力してください'
+    if (formData.website_url && formData.website_url.length > 0) {
+      for (const url of formData.website_url) {
+        if (url && !isValidUrl(url)) {
+          newErrors.website_url = '正しいURLを入力してください'
+          break
+        }
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -64,7 +71,7 @@ export function ProfileEditModal({
           avatarFormData.append('avatar', avatarFile)
           const avatarResult = await uploadAvatar(avatarFormData)
           if (avatarResult.success) {
-            updatedFormData.avatar_url = avatarResult.url
+            updatedFormData.avatar_img_url = avatarResult.url
           }
         }
         
@@ -73,7 +80,7 @@ export function ProfileEditModal({
           coverFormData.append('cover', coverFile)
           const coverResult = await uploadCover(coverFormData)
           if (coverResult.success) {
-            updatedFormData.cover_url = coverResult.url
+            updatedFormData.header_img_url = coverResult.url
           }
         }
 
@@ -142,13 +149,13 @@ export function ProfileEditModal({
           <div className="grid grid-cols-2 gap-4">
             <ImageUploadField
               label="プロフィール画像"
-              currentImage={user.avatar_url}
+              currentImage={user.avatar_img_url}
               onImageSelect={setAvatarFile}
               type="avatar"
             />
             <ImageUploadField
               label="カバー画像"
-              currentImage={user.cover_url}
+              currentImage={user.header_img_url}
               onImageSelect={setCoverFile}
               type="cover"
               className="col-span-2"
@@ -174,20 +181,29 @@ export function ProfileEditModal({
             )}
           </div>
 
-          {/* Display Name */}
+          {/* Custom User ID */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              表示名
+              カスタムユーザーID
             </label>
-            <input
-              type="text"
-              value={formData.display_name || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, display_name: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
-                       bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                       focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="表示名を入力（任意）"
-            />
+            <div className="flex">
+              <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm rounded-l-md">
+                @
+              </span>
+              <input
+                type="text"
+                value={formData.custom_user_id || ''}
+                onChange={(e) => setFormData(prev => ({ ...prev, custom_user_id: e.target.value }))}
+                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-r-md
+                         bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                         focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="カスタムID（任意）"
+                maxLength={50}
+              />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              1-50文字の英数字とアンダースコア
+            </p>
           </div>
 
           {/* Bio */}
@@ -213,20 +229,50 @@ export function ProfileEditModal({
             )}
           </div>
 
-          {/* Website URL */}
+          {/* Website URLs */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               ウェブサイト
             </label>
-            <input
-              type="url"
-              value={formData.website_url || ''}
-              onChange={(e) => setFormData(prev => ({ ...prev, website_url: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
-                       bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                       focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="https://example.com"
-            />
+            {(formData.website_url || []).map((url, index) => (
+              <div key={index} className="flex gap-2 mb-2">
+                <input
+                  type="url"
+                  value={url}
+                  onChange={(e) => {
+                    const newUrls = [...(formData.website_url || [])]
+                    newUrls[index] = e.target.value
+                    setFormData(prev => ({ ...prev, website_url: newUrls }))
+                  }}
+                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
+                           bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="https://example.com"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newUrls = (formData.website_url || []).filter((_, i) => i !== index)
+                    setFormData(prev => ({ ...prev, website_url: newUrls }))
+                  }}
+                  className="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                const newUrls = [...(formData.website_url || []), '']
+                setFormData(prev => ({ ...prev, website_url: newUrls }))
+              }}
+              className="text-blue-600 hover:text-blue-700 text-sm"
+            >
+              + ウェブサイトを追加
+            </button>
             {errors.website_url && (
               <p className="text-red-500 text-xs mt-1">{errors.website_url}</p>
             )}

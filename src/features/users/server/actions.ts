@@ -17,10 +17,7 @@ export async function updateUserProfile(data: UserProfileUpdateInput) {
   
   const { error } = await supabase
     .from('users')
-    .update({
-      ...validatedData,
-      updated_at: new Date().toISOString()
-    })
+    .update(validatedData)
     .eq('id', user.id)
 
   if (error) {
@@ -48,7 +45,7 @@ export async function followUser(targetUserId: string) {
   // Get target user info to check if approval is required
   const { data: targetUser, error: targetUserError } = await supabase
     .from('users')
-    .select('follow_approval_required')
+    .select('follow_approval')
     .eq('id', targetUserId)
     .single()
 
@@ -56,7 +53,7 @@ export async function followUser(targetUserId: string) {
     throw new Error('User not found')
   }
 
-  const status = targetUser.follow_approval_required ? 'pending' : 'approved'
+  const status = targetUser.follow_approval ? 'pending' : 'approved'
 
   const { error } = await supabase
     .from('follows')
@@ -185,8 +182,7 @@ export async function uploadAvatar(formData: FormData) {
   const { error: updateError } = await supabase
     .from('users')
     .update({ 
-      avatar_url: publicUrl.publicUrl,
-      updated_at: new Date().toISOString()
+      avatar_img_url: publicUrl.publicUrl
     })
     .eq('id', user.id)
 
@@ -231,8 +227,7 @@ export async function uploadCover(formData: FormData) {
   const { error: updateError } = await supabase
     .from('users')
     .update({ 
-      cover_url: publicUrl.publicUrl,
-      updated_at: new Date().toISOString()
+      header_img_url: publicUrl.publicUrl
     })
     .eq('id', user.id)
 

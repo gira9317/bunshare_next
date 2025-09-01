@@ -6,6 +6,9 @@ import { UserBio } from '../leaf/UserBio'
 import { UserStats } from '../leaf/UserStats'
 import { FollowButton } from '../leaf/FollowButton'
 import { ProfileEditModal } from '../leaf/ProfileEditModal'
+import { FollowListModal } from '../leaf/FollowListModal'
+import { LikedWorksModal } from '../leaf/LikedWorksModal'
+import { ServiceIcon } from '../leaf/ServiceIcon'
 import { UserWithStats } from '../schemas'
 import { Button } from '@/components/ui/button'
 // import { Settings, Link2, Calendar } from 'lucide-react'
@@ -28,25 +31,38 @@ export function UserProfileSection({
   className 
 }: UserProfileSectionProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [followModalType, setFollowModalType] = useState<'followers' | 'following' | null>(null)
+  const [isLikedWorksModalOpen, setIsLikedWorksModalOpen] = useState(false)
   const isOwnProfile = currentUserId === user.id
-  const joinedDate = new Date(user.created_at).toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: 'long'
-  })
+
+  const joinedDate = user.sign_in_time 
+    ? new Date(user.sign_in_time).toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: 'long'
+      })
+    : '不明'
 
   return (
     <div className={cn('bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm', className)}>
       {/* Cover Image */}
       <div className="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600">
-        {user.cover_url && (
-          <Image
-            src={user.cover_url}
-            alt="Cover"
-            fill
-            className="object-cover"
-          />
+        {user.header_img_url ? (
+          <>
+            {/* Use Next.js Image with proper z-index */}
+            <Image
+              src={user.header_img_url}
+              alt="Cover"
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+            />
+          </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-white text-opacity-50">
+            <span>ヘッダー画像なし</span>
+          </div>
         )}
-        <div className="absolute inset-0 bg-black bg-opacity-20" />
       </div>
 
       {/* Profile Content */}
@@ -54,8 +70,8 @@ export function UserProfileSection({
         {/* Avatar positioned over cover */}
         <div className="flex items-end justify-between -mt-16">
           <UserAvatar
-            src={user.avatar_url}
-            alt={user.display_name || user.username}
+            src={user.avatar_img_url}
+            alt={user.username || 'ユーザー'}
             size="xl"
             className="ring-4 ring-white dark:ring-gray-800"
           />
@@ -75,7 +91,7 @@ export function UserProfileSection({
                 targetUserId={user.id}
                 isFollowing={isFollowing}
                 isPending={isPending}
-                followApprovalRequired={user.follow_approval_required}
+                followApproval={user.follow_approval}
               />
             )}
           </div>
@@ -86,11 +102,11 @@ export function UserProfileSection({
           {/* Name and Username */}
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {user.display_name || user.username}
+              {user.username || 'ユーザー'}
             </h1>
-            {user.display_name && (
+            {user.custom_user_id && (
               <p className="text-gray-600 dark:text-gray-400">
-                @{user.username}
+                @{user.custom_user_id}
               </p>
             )}
           </div>
@@ -112,29 +128,34 @@ export function UserProfileSection({
               <span>{joinedDate}に登録</span>
             </div>
             
-            {user.website_url && (
-              <a
-                href={user.website_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" stroke="currentColor" strokeWidth="2"/>
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" stroke="currentColor" strokeWidth="2"/>
-                </svg>
-                <span className="truncate max-w-[200px]">
-                  {typeof user.website_url === 'string' 
-                    ? user.website_url.replace(/^https?:\/\//, '') 
-                    : user.website_url
-                  }
-                </span>
-              </a>
+            {user.website_url && user.website_url.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {user.website_url.filter(url => url.trim()).map((url, index) => (
+                  <a
+                    key={index}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                    title={url}
+                  >
+                    <ServiceIcon url={url} />
+                    <span className="break-all">
+                      {url.replace(/^https?:\/\//, '')}
+                    </span>
+                  </a>
+                ))}
+              </div>
             )}
           </div>
 
           {/* Stats */}
-          <UserStats stats={user.stats} />
+          <UserStats 
+            stats={user.stats}
+            onFollowersClick={() => setFollowModalType('followers')}
+            onFollowingClick={() => setFollowModalType('following')}
+            onLikesClick={() => setIsLikedWorksModalOpen(true)}
+          />
         </div>
       </div>
       
@@ -146,6 +167,24 @@ export function UserProfileSection({
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
+      
+      {/* Follow List Modal */}
+      {followModalType && (
+        <FollowListModal
+          isOpen={true}
+          onClose={() => setFollowModalType(null)}
+          userId={user.id}
+          currentUserId={currentUserId}
+          type={followModalType}
+        />
+      )}
+      
+      {/* Liked Works Modal */}
+      <LikedWorksModal
+        isOpen={isLikedWorksModalOpen}
+        onClose={() => setIsLikedWorksModalOpen(false)}
+        userId={user.id}
+      />
     </div>
   )
 }

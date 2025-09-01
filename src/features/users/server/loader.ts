@@ -12,8 +12,10 @@ export const getUserProfile = cache(async (userId: string): Promise<UserProfile 
     .single()
 
   if (error || !data) {
+    console.error('getUserProfile error:', error)
     return null
   }
+
 
   return data
 })
@@ -21,16 +23,19 @@ export const getUserProfile = cache(async (userId: string): Promise<UserProfile 
 export const getUserStats = cache(async (userId: string): Promise<UserStats> => {
   const supabase = await createClient()
 
+  // Try both field names to ensure compatibility
   const [
     { count: followersCount },
     { count: followingCount },
     { count: worksCount },
-    { count: likesCount }
+    { count: likesCount },
+    { count: bookmarksCount }
   ] = await Promise.all([
     supabase.from('follows').select('*', { count: 'exact' }).eq('following_id', userId).eq('status', 'approved'),
     supabase.from('follows').select('*', { count: 'exact' }).eq('follower_id', userId).eq('status', 'approved'),
-    supabase.from('works').select('*', { count: 'exact' }).eq('author_id', userId).eq('is_published', true),
-    supabase.from('likes').select('*', { count: 'exact' }).eq('user_id', userId)
+    supabase.from('works').select('*', { count: 'exact' }).eq('user_id', userId).eq('is_published', true),
+    supabase.from('likes').select('*', { count: 'exact' }).eq('user_id', userId),
+    supabase.from('bookmarks').select('*', { count: 'exact' }).eq('user_id', userId)
   ])
 
   return {
@@ -38,7 +43,7 @@ export const getUserStats = cache(async (userId: string): Promise<UserStats> => 
     following_count: followingCount || 0,
     works_count: worksCount || 0,
     likes_count: likesCount || 0,
-    bookmarks_count: 0, // TODO: implement bookmarks count
+    bookmarks_count: bookmarksCount || 0,
   }
 })
 
@@ -73,7 +78,7 @@ export const getUserWorks = cache(async (userId: string, limit: number = 10, off
       comments_count,
       views_count
     `)
-    .eq('author_id', userId)
+    .eq('user_id', userId)
     .eq('is_published', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
@@ -117,7 +122,7 @@ export const canViewProfile = cache(async (viewerId: string | null, profileUserI
   if (!user) return false
   
   // 公開プロフィール
-  if (user.is_public) return true
+  if (user.public_profile) return true
   
   // 本人
   if (viewerId === profileUserId) return true

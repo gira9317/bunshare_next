@@ -1,16 +1,24 @@
 export interface UserProfile {
   id: string
   email: string
-  username: string
-  display_name?: string
-  bio?: string
-  avatar_url?: string
-  cover_url?: string
-  website_url?: string
-  is_public: boolean
-  follow_approval_required: boolean
-  created_at: string
-  updated_at: string
+  username: string | null
+  custom_user_id: string | null
+  bio: string | null
+  avatar_img_url: string | null
+  header_img_url: string | null
+  website_url: string[] | null
+  birth_date: string | null
+  gender: string | null
+  public_profile: boolean
+  follow_approval: boolean
+  like_notification: boolean
+  comment_notification: boolean
+  follow_notification: boolean
+  email_notification: boolean
+  sign_in_time: string
+  role: string
+  provider: string | null
+  agree_marketing: boolean
 }
 
 export interface UserStats {
@@ -23,6 +31,7 @@ export interface UserStats {
 
 export interface UserWithStats extends UserProfile {
   stats: UserStats
+  follow_approval_required?: boolean
 }
 
 export interface FollowRelation {
@@ -34,13 +43,19 @@ export interface FollowRelation {
 
 export interface UserProfileUpdateInput {
   username?: string
-  display_name?: string
+  custom_user_id?: string
   bio?: string
-  avatar_url?: string
-  cover_url?: string
-  website_url?: string
-  is_public?: boolean
-  follow_approval_required?: boolean
+  avatar_img_url?: string
+  header_img_url?: string
+  website_url?: string[]
+  birth_date?: string
+  gender?: string
+  public_profile?: boolean
+  follow_approval?: boolean
+  like_notification?: boolean
+  comment_notification?: boolean
+  follow_notification?: boolean
+  email_notification?: boolean
 }
 
 export interface UserWork {

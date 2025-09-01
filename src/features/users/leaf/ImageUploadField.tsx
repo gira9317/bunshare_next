@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
+import { ImageCropModal } from './ImageCropModal'
 
 interface ImageUploadFieldProps {
   label: string
@@ -20,6 +21,8 @@ export function ImageUploadField({
 }: ImageUploadFieldProps) {
   const [dragOver, setDragOver] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentImage || null)
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isAvatar = type === 'avatar'
@@ -37,14 +40,21 @@ export function ImageUploadField({
       return
     }
 
+    // Open crop modal instead of directly selecting
+    setSelectedFile(file)
+    setCropModalOpen(true)
+  }, [])
+
+  const handleCropComplete = useCallback((croppedFile: File) => {
     // Create preview
     const reader = new FileReader()
     reader.onload = (e) => {
       setPreview(e.target?.result as string)
     }
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(croppedFile)
 
-    onImageSelect(file)
+    onImageSelect(croppedFile)
+    setSelectedFile(null)
   }, [onImageSelect])
 
   const handleClick = () => {
@@ -146,6 +156,20 @@ export function ImageUploadField({
       <div className="text-xs text-gray-500 dark:text-gray-400">
         JPG、PNG、GIF対応（最大5MB）
       </div>
+      
+      {/* Image Crop Modal */}
+      {selectedFile && (
+        <ImageCropModal
+          isOpen={cropModalOpen}
+          onClose={() => {
+            setCropModalOpen(false)
+            setSelectedFile(null)
+          }}
+          imageFile={selectedFile}
+          onCropComplete={handleCropComplete}
+          aspectRatio={isAvatar ? 1 : 16/9}
+        />
+      )}
     </div>
   )
 }

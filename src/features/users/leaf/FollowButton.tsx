@@ -10,7 +10,7 @@ interface FollowButtonProps {
   targetUserId: string
   isFollowing: boolean
   isPending?: boolean
-  followApprovalRequired?: boolean
+  followApproval?: boolean
   className?: string
 }
 
@@ -18,7 +18,7 @@ export function FollowButton({
   targetUserId, 
   isFollowing, 
   isPending = false,
-  followApprovalRequired = false,
+  followApproval = false,
   className 
 }: FollowButtonProps) {
   const [isOptimisticFollowing, setIsOptimisticFollowing] = useState(isFollowing)
