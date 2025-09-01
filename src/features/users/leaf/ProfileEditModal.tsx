@@ -32,6 +32,8 @@ export function ProfileEditModal({
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [showSuccess, setShowSuccess] = useState(false)
+
 
   if (!isOpen) return null
 
@@ -63,36 +65,79 @@ export function ProfileEditModal({
 
     startTransition(async () => {
       try {
-        // Upload images first if selected
+        setErrors({}) // Clear previous errors
         let updatedFormData = { ...formData }
+        
+        // Step 1: Upload images only when save button is clicked
+        const imageUploadPromises = []
         
         if (avatarFile) {
           const avatarFormData = new FormData()
           avatarFormData.append('avatar', avatarFile)
-          const avatarResult = await uploadAvatar(avatarFormData)
-          if (avatarResult.success) {
-            updatedFormData.avatar_img_url = avatarResult.url
-          }
+          imageUploadPromises.push(
+            uploadAvatar(avatarFormData)
+              .then(result => ({ type: 'avatar', result }))
+              .catch(error => ({ type: 'avatar', error }))
+          )
         }
         
         if (coverFile) {
           const coverFormData = new FormData()
           coverFormData.append('cover', coverFile)
-          const coverResult = await uploadCover(coverFormData)
-          if (coverResult.success) {
-            updatedFormData.header_img_url = coverResult.url
+          imageUploadPromises.push(
+            uploadCover(coverFormData)
+              .then(result => ({ type: 'cover', result }))
+              .catch(error => ({ type: 'cover', error }))
+          )
+        }
+        
+        // Wait for all image uploads to complete
+        if (imageUploadPromises.length > 0) {
+          const imageResults = await Promise.allSettled(imageUploadPromises)
+          
+          for (const settledResult of imageResults) {
+            if (settledResult.status === 'fulfilled') {
+              const { type, result, error } = settledResult.value
+              
+              if (error) {
+                throw new Error(`${type === 'avatar' ? 'アバター' : 'カバー'}画像のアップロードに失敗しました: ${error.message}`)
+              }
+              
+              if (result?.success) {
+                if (type === 'avatar') {
+                  updatedFormData.avatar_img_url = result.url
+                } else if (type === 'cover') {
+                  updatedFormData.header_img_url = result.url
+                }
+              }
+            }
           }
         }
 
+        // Step 2: Update profile with all data including uploaded image URLs
         const result = await updateUserProfile(updatedFormData)
+        
         if (result.success) {
-          onClose()
+          // Reset form state
+          setAvatarFile(null)
+          setCoverFile(null)
+          
+          // Show success message
+          setShowSuccess(true)
+          
+          // Auto close after 2 seconds
+          setTimeout(() => {
+            setShowSuccess(false)
+            onClose()
+          }, 2000)
         } else {
-          setErrors({ general: 'プロフィールの更新に失敗しました' })
+          setErrors({ general: 'プロフィールの更新に失敗しました。もう一度お試しください。' })
         }
-      } catch (error) {
-        setErrors({ general: 'エラーが発生しました' })
+      } catch (error: any) {
         console.error('Profile update failed:', error)
+        setErrors({ 
+          general: error.message || 'エラーが発生しました。ネットワーク接続を確認してもう一度お試しください。'
+        })
       }
     })
   }
@@ -142,6 +187,15 @@ export function ProfileEditModal({
           {errors.general && (
             <div className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded">
               {errors.general}
+            </div>
+          )}
+          
+          {showSuccess && (
+            <div className="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-lg flex items-center gap-2">
+              <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>プロフィールを保存しました！</span>
             </div>
           )}
 
@@ -292,9 +346,16 @@ export function ProfileEditModal({
             <Button
               type="submit"
               className="flex-1"
-              disabled={isPending}
+              disabled={isPending || showSuccess}
             >
-              {isPending ? '保存中...' : '保存'}
+              {showSuccess ? (
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  保存完了
+                </div>
+              ) : isPending ? '保存中...' : '保存'}
             </Button>
           </div>
         </form>

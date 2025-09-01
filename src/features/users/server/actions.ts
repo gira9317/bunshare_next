@@ -152,91 +152,171 @@ export async function rejectFollowRequest(followerId: string) {
 }
 
 export async function uploadAvatar(formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    throw new Error('Unauthorized')
+    if (!user) {
+      throw new Error('認証が必要です')
+    }
+
+    const file = formData.get('avatar') as File
+    if (!file) {
+      throw new Error('ファイルが選択されていません')
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      throw new Error('画像ファイルを選択してください')
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('ファイルサイズは5MB以下にしてください')
+    }
+
+    const fileExt = file.name.split('.').pop() || 'webp'
+    const fileName = `${user.id}_avatar_${Date.now()}.${fileExt}`
+    const uploadPath = `avatars/${fileName}`
+
+    // Upload with retry logic
+    let uploadAttempts = 0
+    let uploadData, uploadError
+    
+    while (uploadAttempts < 3) {
+      const result = await supabase.storage
+        .from('user-assets')
+        .upload(uploadPath, file, {
+          upsert: true,
+          contentType: file.type
+        })
+      
+      uploadData = result.data
+      uploadError = result.error
+      
+      if (!uploadError) break
+      
+      uploadAttempts++
+      if (uploadAttempts < 3) {
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Wait 1s before retry
+      }
+    }
+
+    if (uploadError || !uploadData) {
+      throw new Error(`アバター画像のアップロードに失敗しました: ${uploadError?.message || '不明なエラー'}`)
+    }
+
+    const { data: publicUrl } = supabase.storage
+      .from('user-assets')
+      .getPublicUrl(uploadData.path)
+
+    if (!publicUrl.publicUrl) {
+      throw new Error('画像URLの生成に失敗しました')
+    }
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ 
+        avatar_img_url: publicUrl.publicUrl
+      })
+      .eq('id', user.id)
+
+    if (updateError) {
+      throw new Error(`プロフィールの更新に失敗しました: ${updateError.message}`)
+    }
+
+    // Clear cache
+    revalidateTag(`user-${user.id}`)
+    revalidatePath('/profile')
+
+    return { success: true, url: publicUrl.publicUrl }
+  } catch (error: any) {
+    console.error('Upload avatar error:', error)
+    throw error
   }
-
-  const file = formData.get('avatar') as File
-  if (!file) {
-    throw new Error('No file provided')
-  }
-
-  const fileExt = file.name.split('.').pop()
-  const fileName = `${user.id}-avatar-${Date.now()}.${fileExt}`
-
-  const { data, error: uploadError } = await supabase.storage
-    .from('avatars')
-    .upload(fileName, file)
-
-  if (uploadError) {
-    throw new Error(`Failed to upload avatar: ${uploadError.message}`)
-  }
-
-  const { data: publicUrl } = supabase.storage
-    .from('avatars')
-    .getPublicUrl(data.path)
-
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({ 
-      avatar_img_url: publicUrl.publicUrl
-    })
-    .eq('id', user.id)
-
-  if (updateError) {
-    throw new Error(`Failed to update avatar URL: ${updateError.message}`)
-  }
-
-  revalidateTag(`user-${user.id}`)
-  revalidatePath('/profile')
-
-  return { success: true, url: publicUrl.publicUrl }
 }
 
 export async function uploadCover(formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    throw new Error('Unauthorized')
+    if (!user) {
+      throw new Error('認証が必要です')
+    }
+
+    const file = formData.get('cover') as File
+    if (!file) {
+      throw new Error('ファイルが選択されていません')
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      throw new Error('画像ファイルを選択してください')
+    }
+
+    // Validate file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('ファイルサイズは5MB以下にしてください')
+    }
+
+    const fileExt = file.name.split('.').pop() || 'webp'
+    const fileName = `${user.id}_cover_${Date.now()}.${fileExt}`
+    const uploadPath = `headers/${fileName}`
+
+    // Upload with retry logic
+    let uploadAttempts = 0
+    let uploadData, uploadError
+    
+    while (uploadAttempts < 3) {
+      const result = await supabase.storage
+        .from('user-assets')
+        .upload(uploadPath, file, {
+          upsert: true,
+          contentType: file.type
+        })
+      
+      uploadData = result.data
+      uploadError = result.error
+      
+      if (!uploadError) break
+      
+      uploadAttempts++
+      if (uploadAttempts < 3) {
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Wait 1s before retry
+      }
+    }
+
+    if (uploadError || !uploadData) {
+      throw new Error(`カバー画像のアップロードに失敗しました: ${uploadError?.message || '不明なエラー'}`)
+    }
+
+    const { data: publicUrl } = supabase.storage
+      .from('user-assets')
+      .getPublicUrl(uploadData.path)
+
+    if (!publicUrl.publicUrl) {
+      throw new Error('画像URLの生成に失敗しました')
+    }
+
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ 
+        header_img_url: publicUrl.publicUrl
+      })
+      .eq('id', user.id)
+
+    if (updateError) {
+      throw new Error(`プロフィールの更新に失敗しました: ${updateError.message}`)
+    }
+
+    // Clear cache
+    revalidateTag(`user-${user.id}`)
+    revalidatePath('/profile')
+
+    return { success: true, url: publicUrl.publicUrl }
+  } catch (error: any) {
+    console.error('Upload cover error:', error)
+    throw error
   }
-
-  const file = formData.get('cover') as File
-  if (!file) {
-    throw new Error('No file provided')
-  }
-
-  const fileExt = file.name.split('.').pop()
-  const fileName = `${user.id}-cover-${Date.now()}.${fileExt}`
-
-  const { data, error: uploadError } = await supabase.storage
-    .from('covers')
-    .upload(fileName, file)
-
-  if (uploadError) {
-    throw new Error(`Failed to upload cover: ${uploadError.message}`)
-  }
-
-  const { data: publicUrl } = supabase.storage
-    .from('covers')
-    .getPublicUrl(data.path)
-
-  const { error: updateError } = await supabase
-    .from('users')
-    .update({ 
-      header_img_url: publicUrl.publicUrl
-    })
-    .eq('id', user.id)
-
-  if (updateError) {
-    throw new Error(`Failed to update cover URL: ${updateError.message}`)
-  }
-
-  revalidateTag(`user-${user.id}`)
-  revalidatePath('/profile')
-
-  return { success: true, url: publicUrl.publicUrl }
 }

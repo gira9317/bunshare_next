@@ -212,13 +212,15 @@ export function ImageCropModal({
         {/* Image Crop Area */}
         <div className="p-4">
           <div className="relative inline-block">
-            <img
-              ref={imageRef}
-              src={imageUrl}
-              alt="Crop preview"
-              className="max-w-full max-h-[400px] object-contain"
-              draggable={false}
-            />
+            {imageUrl && (
+              <img
+                ref={imageRef}
+                src={imageUrl}
+                alt="Crop preview"
+                className="max-w-full max-h-[400px] object-contain"
+                draggable={false}
+              />
+            )}
             
             {/* Crop Overlay */}
             <div
@@ -260,6 +262,7 @@ export function ImageCropModal({
         {/* Actions */}
         <div className="flex gap-3 p-4 border-t border-gray-200 dark:border-gray-700">
           <Button
+            type="button"
             variant="outline"
             onClick={onClose}
             className="flex-1"
@@ -267,6 +270,7 @@ export function ImageCropModal({
             キャンセル
           </Button>
           <Button
+            type="button"
             onClick={handleCrop}
             className="flex-1"
           >
