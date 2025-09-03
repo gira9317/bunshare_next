@@ -37,7 +37,7 @@ export const userWithStatsSchema = userProfileSchema.extend({
 
 export const followRelationSchema = z.object({
   follower_id: z.string().uuid(),
-  following_id: z.string().uuid(),
+  followed_id: z.string().uuid(),
   status: z.enum(['pending', 'approved']).default('approved'),
   created_at: z.string(),
 })

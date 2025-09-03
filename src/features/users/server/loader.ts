@@ -32,11 +32,11 @@ export const getUserStats = cache(async (userId: string): Promise<UserStats> => 
     { count: likesCount },
     { count: bookmarksCount }
   ] = await Promise.all([
-    supabase.from('follows').select('*', { count: 'exact' }).eq('following_id', userId).eq('status', 'approved'),
+    supabase.from('follows').select('*', { count: 'exact' }).eq('followed_id', userId).eq('status', 'approved'),
     supabase.from('follows').select('*', { count: 'exact' }).eq('follower_id', userId).eq('status', 'approved'),
     supabase.from('works').select('*', { count: 'exact' }).eq('user_id', userId).eq('is_published', true),
     supabase.from('likes').select('*', { count: 'exact' }).eq('user_id', userId),
-    supabase.from('bookmarks').select('*', { count: 'exact' }).eq('user_id', userId)
+    supabase.from('reading_bookmarks').select('*', { count: 'exact' }).eq('user_id', userId)
   ])
 
   return {
@@ -98,7 +98,7 @@ export const getFollowRelation = cache(async (followerId: string, followingId: s
     .from('follows')
     .select('*')
     .eq('follower_id', followerId)
-    .eq('following_id', followingId)
+    .eq('followed_id', followingId)
     .single()
 
   if (error || !data) {
@@ -152,7 +152,6 @@ export const getUserPublishedWorks = cache(async (userId: string, limit: number 
       tags,
       image_url,
       series_id,
-      series_title,
       episode_number,
       is_adult_content,
       created_at,
@@ -194,7 +193,6 @@ export const getUserDraftWorks = cache(async (userId: string): Promise<Work[]> =
       tags,
       image_url,
       series_id,
-      series_title,
       episode_number,
       is_adult_content,
       created_at,
@@ -223,83 +221,105 @@ export const getUserDraftWorks = cache(async (userId: string): Promise<Work[]> =
 export const getUserLikedWorks = cache(async (userId: string): Promise<Work[]> => {
   const supabase = await createClient()
   
-  const { data, error } = await supabase
+  // Get liked work IDs first
+  const { data: likedWorkIds, error: likesError } = await supabase
     .from('likes')
-    .select(`
-      works!inner(
-        work_id,
-        user_id,
-        title,
-        description,
-        content,
-        category,
-        tags,
-        image_url,
-        series_id,
-        series_title,
-        episode_number,
-        is_adult_content,
-        created_at,
-        updated_at,
-        views,
-        likes,
-        comments,
-        rating,
-        users!inner(username)
-      )
-    `)
+    .select('work_id')
     .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+    .order('liked_at', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching user liked works:', error)
+  if (likesError || !likedWorkIds?.length) {
+    console.error('Error fetching user likes:', likesError)
     return []
   }
 
-  return (data || []).map(item => ({
-    ...item.works,
-    author: item.works.users?.username || 'Unknown',
+  // Get works details
+  const workIds = likedWorkIds.map(like => like.work_id)
+  const { data, error } = await supabase
+    .from('works')
+    .select(`
+      work_id,
+      user_id,
+      title,
+      description,
+      content,
+      category,
+      tags,
+      image_url,
+      series_id,
+      episode_number,
+      is_adult_content,
+      created_at,
+      updated_at,
+      views,
+      likes,
+      comments,
+      rating,
+      users!inner(username)
+    `)
+    .in('work_id', workIds)
+    .eq('is_published', true)
+
+  if (error) {
+    console.error('Error fetching liked works details:', error)
+    return []
+  }
+
+  return (data || []).map(work => ({
+    ...work,
+    author: work.users?.username || 'Unknown',
   })) as Work[]
 })
 
 export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work[]> => {
   const supabase = await createClient()
   
-  const { data, error } = await supabase
-    .from('bookmarks')
-    .select(`
-      works!inner(
-        work_id,
-        user_id,
-        title,
-        description,
-        content,
-        category,
-        tags,
-        image_url,
-        series_id,
-        series_title,
-        episode_number,
-        is_adult_content,
-        created_at,
-        updated_at,
-        views,
-        likes,
-        comments,
-        rating,
-        users!inner(username)
-      )
-    `)
+  // Use reading_bookmarks table instead of bookmarks
+  const { data: bookmarkedWorkIds, error: bookmarksError } = await supabase
+    .from('reading_bookmarks')
+    .select('work_id')
     .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+    .order('updated_at', { ascending: false })
 
-  if (error) {
-    console.error('Error fetching user bookmarked works:', error)
+  if (bookmarksError || !bookmarkedWorkIds?.length) {
+    console.error('Error fetching user bookmarks:', bookmarksError)
     return []
   }
 
-  return (data || []).map(item => ({
-    ...item.works,
-    author: item.works.users?.username || 'Unknown',
+  // Get works details
+  const workIds = bookmarkedWorkIds.map(bookmark => bookmark.work_id)
+  const { data, error } = await supabase
+    .from('works')
+    .select(`
+      work_id,
+      user_id,
+      title,
+      description,
+      content,
+      category,
+      tags,
+      image_url,
+      series_id,
+      episode_number,
+      is_adult_content,
+      created_at,
+      updated_at,
+      views,
+      likes,
+      comments,
+      rating,
+      users!inner(username)
+    `)
+    .in('work_id', workIds)
+    .eq('is_published', true)
+
+  if (error) {
+    console.error('Error fetching bookmarked works details:', error)
+    return []
+  }
+
+  return (data || []).map(work => ({
+    ...work,
+    author: work.users?.username || 'Unknown',
   })) as Work[]
 })

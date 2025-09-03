@@ -171,13 +171,13 @@ export function WorkCard({
         <div className="relative z-10 h-full p-3 sm:p-4 md:p-4 lg:p-4 xl:p-4 flex flex-col justify-between">
           {/* Header section */}
           <div className="space-y-1 md:space-y-1.5 lg:space-y-1">
-            {work.series_title && (
+            {work.series_id && work.episode_number && (
               <div className={cn(
                 'text-xs font-medium px-2 py-1 rounded-full inline-block',
                 'bg-white/20 backdrop-blur-sm',
                 work.image_url ? 'text-white' : 'text-gray-600 dark:text-gray-400'
               )}>
-                {work.series_title} {work.episode_number && `第${work.episode_number}話`}
+                シリーズ 第{work.episode_number}話
               </div>
             )}
 

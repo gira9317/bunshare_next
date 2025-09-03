@@ -3,11 +3,11 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const supabase = await createClient()
-    const { userId } = params
+    const { userId } = await params
 
     // Get followers with user information
     const { data, error } = await supabase
@@ -22,7 +22,7 @@ export async function GET(
           bio
         )
       `)
-      .eq('following_id', userId)
+      .eq('followed_id', userId)
       .eq('status', 'approved')
 
     if (error) {

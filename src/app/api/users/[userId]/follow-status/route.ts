@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server'
 
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const { searchParams } = new URL(request.url)
     const currentUserId = searchParams.get('currentUserId')
-    const { userId } = params
+    const { userId } = await params
 
     if (!currentUserId) {
       return NextResponse.json({ isFollowing: false, isPending: false })
@@ -21,7 +21,7 @@ export async function GET(
       .from('follows')
       .select('status')
       .eq('follower_id', currentUserId)
-      .eq('following_id', userId)
+      .eq('followed_id', userId)
       .single()
 
     const isFollowing = followData?.status === 'approved'

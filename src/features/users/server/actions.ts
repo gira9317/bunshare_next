@@ -59,11 +59,11 @@ export async function followUser(targetUserId: string) {
     .from('follows')
     .upsert({
       follower_id: user.id,
-      following_id: targetUserId,
+      followed_id: targetUserId,
       status,
       created_at: new Date().toISOString()
     }, {
-      onConflict: 'follower_id,following_id'
+      onConflict: 'follower_id,followed_id'
     })
 
   if (error) {
@@ -89,7 +89,7 @@ export async function unfollowUser(targetUserId: string) {
     .from('follows')
     .delete()
     .eq('follower_id', user.id)
-    .eq('following_id', targetUserId)
+    .eq('followed_id', targetUserId)
 
   if (error) {
     throw new Error(`Failed to unfollow user: ${error.message}`)
@@ -114,7 +114,7 @@ export async function approveFollowRequest(followerId: string) {
     .from('follows')
     .update({ status: 'approved' })
     .eq('follower_id', followerId)
-    .eq('following_id', user.id)
+    .eq('followed_id', user.id)
     .eq('status', 'pending')
 
   if (error) {
@@ -139,7 +139,7 @@ export async function rejectFollowRequest(followerId: string) {
     .from('follows')
     .delete()
     .eq('follower_id', followerId)
-    .eq('following_id', user.id)
+    .eq('followed_id', user.id)
     .eq('status', 'pending')
 
   if (error) {

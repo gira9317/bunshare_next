@@ -36,7 +36,7 @@ export interface UserWithStats extends UserProfile {
 
 export interface FollowRelation {
   follower_id: string
-  following_id: string
+  followed_id: string
   status: 'pending' | 'approved'
   created_at: string
 }

@@ -3,11 +3,11 @@ import { NextResponse } from 'next/server'
 
 export async function GET(
   request: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
     const supabase = await createClient()
-    const { userId } = params
+    const { userId } = await params
 
     // Get works count
     const { count: worksCount } = await supabase
@@ -20,7 +20,7 @@ export async function GET(
     const { count: followersCount } = await supabase
       .from('follows')
       .select('*', { count: 'exact', head: true })
-      .eq('following_id', userId)
+      .eq('followed_id', userId)
       .eq('status', 'approved')
 
     // Get following count
