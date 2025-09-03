@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedUser } from '@/lib/auth'
 import { notFound } from 'next/navigation'
 import { 
   getUserWithStats, 
@@ -19,8 +19,7 @@ interface ProfilePageProps {
 
 export default async function UserProfilePage({ params }: ProfilePageProps) {
   const { id } = params
-  const supabase = await createClient()
-  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  const currentUser = await getAuthenticatedUser()
 
   // ユーザー情報を取得
   const userWithStats = await getUserWithStats(id)

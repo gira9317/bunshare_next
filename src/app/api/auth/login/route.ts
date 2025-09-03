@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { loginSchema } from '@/features/auth/schemas'
 
 export async function POST(request: NextRequest) {
@@ -18,14 +19,38 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // TODO: Supabase認証の実装
     console.log('ログイン処理:', validatedFields.data)
     
-    // 仮の成功レスポンス
+    // Supabase認証の実装
+    const supabase = await createClient()
+    const { email, password } = validatedFields.data
+    
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+    
+    if (error) {
+      console.error('Supabase認証エラー:', error)
+      return NextResponse.json(
+        { 
+          error: 'ログインに失敗しました',
+          details: error.message 
+        },
+        { status: 401 }
+      )
+    }
+    
+    console.log('ログイン成功:', { userId: data.user?.id, email: data.user?.email })
+    
     return NextResponse.json(
       { 
         success: true,
-        message: 'ログインに成功しました' 
+        message: 'ログインに成功しました',
+        user: {
+          id: data.user?.id,
+          email: data.user?.email
+        }
       },
       { status: 200 }
     )

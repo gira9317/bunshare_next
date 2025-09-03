@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getAuthenticatedUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { 
   getUserWithStats, 
@@ -20,8 +20,7 @@ import {
 } from '@/features/users/sections/ProfileTabsSection'
 
 export default async function ProfilePage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getAuthenticatedUser()
 
   // ログインしていない場合はログインページにリダイレクト
   if (!user) {

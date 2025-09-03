@@ -45,12 +45,29 @@ export const getCurrentUserNotifications = cache(async (
 ): Promise<{ notifications: Notification[], unreadCount: number }> => {
   const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.user) {
+      return { notifications: [], unreadCount: 0 }
+    }
+    
+    const [notifications, unreadCount] = await Promise.all([
+      getNotifications(session.user.id, limit),
+      getUnreadCount(session.user.id)
+    ])
+    
+    return { notifications, unreadCount }
+  } catch (error) {
+    console.error('getCurrentUserNotifications error:', error)
     return { notifications: [], unreadCount: 0 }
   }
-  
+})
+
+export const getNotificationsByUser = cache(async (
+  user: { id: string },
+  limit: number = 20
+): Promise<{ notifications: Notification[], unreadCount: number }> => {
   const [notifications, unreadCount] = await Promise.all([
     getNotifications(user.id, limit),
     getUnreadCount(user.id)

@@ -22,11 +22,20 @@ export const getUserProfile = cache(async (userId: string): Promise<UserProfile 
 export const getCurrentUserProfile = cache(async (): Promise<UserProfile | null> => {
   const supabase = await createClient()
   
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    
+    if (!session?.user) {
+      return null
+    }
+    
+    return getUserProfile(session.user.id)
+  } catch (error) {
+    console.error('getCurrentUserProfile error:', error)
     return null
   }
-  
+})
+
+export const getUserProfileByUser = cache(async (user: { id: string }): Promise<UserProfile | null> => {
   return getUserProfile(user.id)
 })
