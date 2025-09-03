@@ -137,6 +137,73 @@ export function ImageCropModal({
     }
   }, [isDragging, isResizing, handleMouseMove, handleResizeMove, handleMouseUp])
 
+  const compressToWebP = async (canvas: HTMLCanvasElement): Promise<File> => {
+    const targetSize = 1024 * 1024 // 1MB
+    
+    // Try different quality levels for WebP compression
+    for (let quality = 0.9; quality >= 0.1; quality -= 0.1) {
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, 'image/webp', quality)
+      })
+      
+      if (blob && blob.size <= targetSize) {
+        return new File([blob], 'compressed.webp', {
+          type: 'image/webp',
+          lastModified: Date.now()
+        })
+      }
+    }
+    
+    // If still too large, resize canvas and try again
+    const maxDimension = 1024
+    const currentWidth = canvas.width
+    const currentHeight = canvas.height
+    
+    if (currentWidth > maxDimension || currentHeight > maxDimension) {
+      const ratio = Math.min(maxDimension / currentWidth, maxDimension / currentHeight)
+      const newWidth = currentWidth * ratio
+      const newHeight = currentHeight * ratio
+      
+      // Create a new smaller canvas
+      const resizedCanvas = document.createElement('canvas')
+      const resizedCtx = resizedCanvas.getContext('2d')
+      
+      if (resizedCtx) {
+        resizedCanvas.width = newWidth
+        resizedCanvas.height = newHeight
+        resizedCtx.drawImage(canvas, 0, 0, newWidth, newHeight)
+        
+        // Try compression again with resized image
+        for (let quality = 0.9; quality >= 0.1; quality -= 0.1) {
+          const blob = await new Promise<Blob | null>((resolve) => {
+            resizedCanvas.toBlob(resolve, 'image/webp', quality)
+          })
+          
+          if (blob && blob.size <= targetSize) {
+            return new File([blob], 'compressed.webp', {
+              type: 'image/webp',
+              lastModified: Date.now()
+            })
+          }
+        }
+      }
+    }
+    
+    // Fallback: return with lowest quality
+    const fallbackBlob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob(resolve, 'image/webp', 0.1)
+    })
+    
+    if (fallbackBlob) {
+      return new File([fallbackBlob], 'compressed.webp', {
+        type: 'image/webp',
+        lastModified: Date.now()
+      })
+    }
+    
+    throw new Error('Failed to compress image')
+  }
+
   const handleCrop = async () => {
     if (!imageRef.current || !canvasRef.current) return
 
@@ -164,16 +231,24 @@ export function ImageCropModal({
       crop.height * scaleY
     )
 
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const croppedFile = new File([blob], imageFile.name, {
-          type: imageFile.type,
-          lastModified: Date.now()
-        })
-        onCropComplete(croppedFile)
-        onClose()
-      }
-    }, imageFile.type, 0.9)
+    try {
+      const compressedFile = await compressToWebP(canvas)
+      onCropComplete(compressedFile)
+      onClose()
+    } catch (error) {
+      console.error('Failed to compress image:', error)
+      // Fallback to original behavior
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const croppedFile = new File([blob], 'fallback.webp', {
+            type: 'image/webp',
+            lastModified: Date.now()
+          })
+          onCropComplete(croppedFile)
+          onClose()
+        }
+      }, 'image/webp', 0.8)
+    }
   }
 
   if (!isOpen) return null

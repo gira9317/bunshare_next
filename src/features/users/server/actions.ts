@@ -175,8 +175,7 @@ export async function uploadAvatar(formData: FormData) {
       throw new Error('ファイルサイズは5MB以下にしてください')
     }
 
-    const fileExt = file.name.split('.').pop() || 'webp'
-    const fileName = `${user.id}_avatar_${Date.now()}.${fileExt}`
+    const fileName = `${user.id}_avatar_${Date.now()}.webp`
     const uploadPath = `avatars/${fileName}`
 
     // Upload with retry logic
@@ -188,7 +187,7 @@ export async function uploadAvatar(formData: FormData) {
         .from('user-assets')
         .upload(uploadPath, file, {
           upsert: true,
-          contentType: file.type
+          contentType: 'image/webp'
         })
       
       uploadData = result.data
@@ -260,8 +259,7 @@ export async function uploadCover(formData: FormData) {
       throw new Error('ファイルサイズは5MB以下にしてください')
     }
 
-    const fileExt = file.name.split('.').pop() || 'webp'
-    const fileName = `${user.id}_cover_${Date.now()}.${fileExt}`
+    const fileName = `${user.id}_cover_${Date.now()}.webp`
     const uploadPath = `headers/${fileName}`
 
     // Upload with retry logic
@@ -273,7 +271,7 @@ export async function uploadCover(formData: FormData) {
         .from('user-assets')
         .upload(uploadPath, file, {
           upsert: true,
-          contentType: file.type
+          contentType: 'image/webp'
         })
       
       uploadData = result.data

@@ -154,7 +154,7 @@ export function ImageUploadField({
       />
       
       <div className="text-xs text-gray-500 dark:text-gray-400">
-        JPG、PNG、GIF対応（最大5MB）
+        JPG、PNG、GIF対応（最大5MB、WebP圧縮で自動最適化）
       </div>
       
       {/* Image Crop Modal */}

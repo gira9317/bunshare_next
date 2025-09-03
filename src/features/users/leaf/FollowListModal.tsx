@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { UserAvatar } from './UserAvatar'
-import { FollowButton } from './FollowButton'
+import { UserCard } from './UserCard'
 import { cn } from '@/lib/utils'
 
 interface FollowUser {
@@ -75,7 +74,10 @@ export function FollowListModal({
       {/* Modal */}
       <div className={cn(
         'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2',
-        'w-full max-w-md max-h-[80vh] overflow-hidden',
+        // Mobile: full width with margin, max height
+        'w-[calc(100vw-2rem)] max-w-md max-h-[85vh] overflow-hidden',
+        // Tablet and desktop: larger modal
+        'md:max-w-2xl md:max-h-[80vh]',
         'bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50',
         'border border-gray-200 dark:border-gray-700',
         className
@@ -106,40 +108,25 @@ export function FollowListModal({
               {type === 'followers' ? 'フォロワーはいません' : 'フォローしているユーザーはいません'}
             </div>
           ) : (
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            <div className={cn(
+              'p-4',
+              // Mobile: single column with spacing
+              'space-y-3',
+              // Tablet and desktop: 2 column grid
+              'md:grid md:grid-cols-2 md:gap-4 md:space-y-0'
+            )}>
               {users.map((user) => (
-                <div key={user.id} className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <UserAvatar
-                      src={user.avatar_img_url}
-                      alt={user.username || 'ユーザー'}
-                      size="md"
-                    />
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">
-                        {user.username || 'ユーザー'}
-                      </p>
-                      {user.custom_user_id && (
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          @{user.custom_user_id}
-                        </p>
-                      )}
-                      {user.bio && (
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1 line-clamp-2">
-                          {user.bio}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  {currentUserId && currentUserId !== user.id && (
-                    <FollowButton
-                      targetUserId={user.id}
-                      isFollowing={false} // TODO: Get actual follow status
-                      className="min-w-0 px-3 text-sm"
-                    />
-                  )}
-                </div>
+                <UserCard
+                  key={user.id}
+                  user={user}
+                  currentUserId={currentUserId}
+                  compact={true}
+                  onUserClick={(userId) => {
+                    // Navigate to user profile and close modal
+                    window.location.href = `/users/${userId}`
+                    onClose()
+                  }}
+                />
               ))}
             </div>
           )}
