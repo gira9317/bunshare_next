@@ -160,7 +160,45 @@ export async function getBookmarkFoldersAction() {
       folderList = refetchedFolders || []
     }
 
-    return { success: true, folders: folderList }
+    // 各フォルダの作品数を取得
+    const foldersWithCount = await Promise.all(
+      folderList.map(async (folder) => {
+        const { count } = await supabase
+          .from('bookmarks')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('folder', folder.folder_key)
+
+        // 最新の作品情報を1件取得（サムネイル用）
+        const { data: latestBookmark } = await supabase
+          .from('bookmarks')
+          .select('work_id, bookmarked_at')
+          .eq('user_id', user.id)
+          .eq('folder', folder.folder_key)
+          .order('bookmarked_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        let thumbnail_url = null
+        if (latestBookmark) {
+          const { data: work } = await supabase
+            .from('works')
+            .select('image_url')
+            .eq('work_id', latestBookmark.work_id)
+            .single()
+          thumbnail_url = work?.image_url
+        }
+
+        return {
+          ...folder,
+          work_count: count || 0,
+          thumbnail_url,
+          last_updated: latestBookmark?.bookmarked_at
+        }
+      })
+    )
+
+    return { success: true, folders: foldersWithCount }
   } catch (error) {
     console.error('ブックマークフォルダ取得エラー:', error)
     return { error: 'フォルダの取得に失敗しました' }
