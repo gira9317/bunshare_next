@@ -104,7 +104,8 @@ export async function toggleBookmarkAction(workId: string) {
         .from('bookmarks')
         .insert({
           work_id: workId,
-          user_id: user.id
+          user_id: user.id,
+          folder: 'default' // デフォルトフォルダに追加
         })
 
       if (error) throw error
@@ -257,15 +258,12 @@ export async function saveBookmarkToFoldersAction(workId: string, folderKeys: st
       .eq('user_id', user.id)
 
     if (folderKeys.length > 0) {
-      // 複数フォルダの場合は複数レコードとして保存（マイグレーション適用後）
+      // 複数フォルダの場合は複数レコードとして保存
       const bookmarks = folderKeys.map(folderKey => ({
         user_id: user.id,
         work_id: workId,
         folder: folderKey, // 単一フォルダとして保存
-        memo: memo || null,
-        is_private: false,
-        bookmarked_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        memo: memo || null
       }))
 
       const { error: insertError } = await supabase
@@ -362,6 +360,196 @@ export async function toggleFolderPrivateAction(folderId: string, isPrivate: boo
   } catch (error) {
     console.error('フォルダプライベート設定エラー:', error)
     return { error: 'プライベート設定の変更に失敗しました' }
+  }
+}
+
+/**
+ * ブックマークフォルダ名を更新
+ */
+export async function updateBookmarkFolderAction(folderId: string, folderName: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // システムフォルダの場合はエラー
+    const { data: folder, error: fetchError } = await supabase
+      .from('bookmark_folders')
+      .select('is_system, user_id')
+      .eq('id', folderId)
+      .single()
+
+    if (fetchError) throw fetchError
+    
+    if (folder.is_system || folder.user_id !== user.id) {
+      return { error: 'システムフォルダまたは他のユーザーのフォルダは変更できません' }
+    }
+
+    // フォルダ名を更新
+    const { error: updateError } = await supabase
+      .from('bookmark_folders')
+      .update({ 
+        folder_name: folderName,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', folderId)
+      .eq('user_id', user.id)
+
+    if (updateError) throw updateError
+
+    // キャッシュを無効化
+    revalidateTag(`user:${user.id}:bookmark_folders`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('フォルダ名更新エラー:', error)
+    return { error: 'フォルダ名の更新に失敗しました' }
+  }
+}
+
+/**
+ * ブックマークフォルダを削除
+ */
+export async function deleteBookmarkFolderAction(folderId: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // システムフォルダの場合はエラー
+    const { data: folder, error: fetchError } = await supabase
+      .from('bookmark_folders')
+      .select('is_system, user_id, folder_key')
+      .eq('id', folderId)
+      .single()
+
+    if (fetchError) throw fetchError
+    
+    if (folder.is_system || folder.user_id !== user.id) {
+      return { error: 'システムフォルダまたは他のユーザーのフォルダは削除できません' }
+    }
+
+    // フォルダ内のブックマークを削除
+    await supabase
+      .from('bookmarks')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('folder', folder.folder_key)
+
+    // フォルダを削除
+    const { error: deleteError } = await supabase
+      .from('bookmark_folders')
+      .delete()
+      .eq('id', folderId)
+      .eq('user_id', user.id)
+
+    if (deleteError) throw deleteError
+
+    // キャッシュを無効化
+    revalidateTag(`user:${user.id}:bookmark_folders`)
+    revalidateTag(`user:${user.id}:bookmarks`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('フォルダ削除エラー:', error)
+    return { error: 'フォルダの削除に失敗しました' }
+  }
+}
+
+/**
+ * フォルダ別のブックマーク作品を取得
+ */
+export async function getBookmarksByFolderAction(folderKey: string = 'all') {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // まず、ブックマークテーブルからwork_idを取得
+    let bookmarkQuery = supabase
+      .from('bookmarks')
+      .select('work_id, folder, memo, bookmarked_at')
+      .eq('user_id', user.id)
+      .order('bookmarked_at', { ascending: false })
+
+    // フォルダ指定の場合
+    if (folderKey && folderKey !== 'all') {
+      bookmarkQuery = bookmarkQuery.eq('folder', folderKey)
+    }
+
+    const { data: bookmarks, error: bookmarksError } = await bookmarkQuery
+
+    if (bookmarksError) throw bookmarksError
+
+    if (!bookmarks?.length) {
+      return { success: true, works: [], count: 0 }
+    }
+
+    // work_idの配列を取得
+    const workIds = bookmarks.map(bookmark => bookmark.work_id)
+
+    // 作品情報を別途取得
+    const { data: works, error: worksError } = await supabase
+      .from('works')
+      .select(`
+        work_id,
+        title,
+        description,
+        image_url,
+        category,
+        tags,
+        created_at,
+        updated_at,
+        user_id,
+        series_id,
+        is_published,
+        views,
+        likes,
+        episode_number
+      `)
+      .in('work_id', workIds)
+      .eq('is_published', true)
+
+    if (worksError) throw worksError
+
+    // 作者情報を取得
+    const userIds = [...new Set(works?.map(work => work.user_id).filter(Boolean))] || []
+    let userMap: { [key: string]: any } = {}
+    
+    if (userIds.length > 0) {
+      const { data: users, error: usersError } = await supabase
+        .from('users')
+        .select('id, username')
+        .in('id', userIds)
+      
+      if (!usersError && users) {
+        userMap = users.reduce((acc, user) => {
+          acc[user.id] = user
+          return acc
+        }, {} as { [key: string]: any })
+      }
+    }
+
+    // 作品データに作者情報を追加
+    const worksWithAuthor = works?.map(work => ({
+      ...work,
+      author: userMap[work.user_id]?.username || '不明',
+      author_username: userMap[work.user_id]?.username
+    })) || []
+
+    return { success: true, works: worksWithAuthor, count: worksWithAuthor.length }
+  } catch (error) {
+    console.error('フォルダ別ブックマーク取得エラー:', error)
+    return { error: 'ブックマークの取得に失敗しました' }
   }
 }
 

@@ -159,8 +159,7 @@ export const getUserPublishedWorks = cache(async (userId: string, limit: number 
       views,
       likes,
       comments,
-      rating,
-      users!inner(username)
+      rating
     `)
     .eq('user_id', userId)
     .eq('is_published', true)
@@ -172,9 +171,19 @@ export const getUserPublishedWorks = cache(async (userId: string, limit: number 
     return []
   }
 
+  // 作者情報を別途取得
+  const { data: user } = await supabase
+    .from('users')
+    .select('username')
+    .eq('id', userId)
+    .single()
+
+  const author = user?.username || 'Unknown'
+
   return (data || []).map(work => ({
     ...work,
-    author: work.users?.username || 'Unknown',
+    author,
+    author_username: user?.username
   })) as Work[]
 })
 
@@ -200,8 +209,7 @@ export const getUserDraftWorks = cache(async (userId: string): Promise<Work[]> =
       views,
       likes,
       comments,
-      rating,
-      users!inner(username)
+      rating
     `)
     .eq('user_id', userId)
     .eq('is_published', false)
@@ -212,9 +220,19 @@ export const getUserDraftWorks = cache(async (userId: string): Promise<Work[]> =
     return []
   }
 
+  // 作者情報を別途取得
+  const { data: user } = await supabase
+    .from('users')
+    .select('username')
+    .eq('id', userId)
+    .single()
+
+  const author = user?.username || 'Unknown'
+
   return (data || []).map(work => ({
     ...work,
-    author: work.users?.username || 'Unknown',
+    author,
+    author_username: user?.username
   })) as Work[]
 })
 
@@ -254,8 +272,7 @@ export const getUserLikedWorks = cache(async (userId: string): Promise<Work[]> =
       views,
       likes,
       comments,
-      rating,
-      users!inner(username)
+      rating
     `)
     .in('work_id', workIds)
     .eq('is_published', true)
@@ -265,21 +282,40 @@ export const getUserLikedWorks = cache(async (userId: string): Promise<Work[]> =
     return []
   }
 
+  // 作者情報を別途取得
+  const userIds = [...new Set(data?.map(work => work.user_id).filter(Boolean))] || []
+  let userMap: { [key: string]: any } = {}
+  
+  if (userIds.length > 0) {
+    const { data: users, error: usersError } = await supabase
+      .from('users')
+      .select('id, username')
+      .in('id', userIds)
+    
+    if (!usersError && users) {
+      userMap = users.reduce((acc, user) => {
+        acc[user.id] = user
+        return acc
+      }, {} as { [key: string]: any })
+    }
+  }
+
   return (data || []).map(work => ({
     ...work,
-    author: work.users?.username || 'Unknown',
+    author: userMap[work.user_id]?.username || '不明',
+    author_username: userMap[work.user_id]?.username
   })) as Work[]
 })
 
 export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work[]> => {
   const supabase = await createClient()
   
-  // Use reading_bookmarks table instead of bookmarks
+  // Use bookmarks table
   const { data: bookmarkedWorkIds, error: bookmarksError } = await supabase
-    .from('reading_bookmarks')
+    .from('bookmarks')
     .select('work_id')
     .eq('user_id', userId)
-    .order('updated_at', { ascending: false })
+    .order('bookmarked_at', { ascending: false })
 
   if (bookmarksError || !bookmarkedWorkIds?.length) {
     console.error('Error fetching user bookmarks:', bookmarksError)
@@ -307,8 +343,7 @@ export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work
       views,
       likes,
       comments,
-      rating,
-      users!inner(username)
+      rating
     `)
     .in('work_id', workIds)
     .eq('is_published', true)
@@ -318,8 +353,27 @@ export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work
     return []
   }
 
+  // 作者情報を別途取得
+  const userIds = [...new Set(data?.map(work => work.user_id).filter(Boolean))] || []
+  let userMap: { [key: string]: any } = {}
+  
+  if (userIds.length > 0) {
+    const { data: users, error: usersError } = await supabase
+      .from('users')
+      .select('id, username')
+      .in('id', userIds)
+    
+    if (!usersError && users) {
+      userMap = users.reduce((acc, user) => {
+        acc[user.id] = user
+        return acc
+      }, {} as { [key: string]: any })
+    }
+  }
+
   return (data || []).map(work => ({
     ...work,
-    author: work.users?.username || 'Unknown',
+    author: userMap[work.user_id]?.username || '不明',
+    author_username: userMap[work.user_id]?.username
   })) as Work[]
 })
