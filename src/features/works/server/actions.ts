@@ -515,8 +515,9 @@ export async function getBookmarksByFolderAction(folderKey: string = 'all') {
     // まず、ブックマークテーブルからwork_idを取得
     let bookmarkQuery = supabase
       .from('bookmarks')
-      .select('work_id, folder, memo, bookmarked_at')
+      .select('work_id, folder, memo, bookmarked_at, sort_order')
       .eq('user_id', user.id)
+      .order('sort_order', { ascending: true })
       .order('bookmarked_at', { ascending: false })
 
     // フォルダ指定の場合
@@ -619,5 +620,151 @@ export async function getShareUrlAction(workId: string) {
   } catch (error) {
     console.error('シェアURL生成エラー:', error)
     return { error: 'シェア情報の取得に失敗しました' }
+  }
+}
+
+/**
+ * ブックマークの順序を更新
+ */
+export async function updateBookmarkOrderAction(workId: string, folderKey: string, newOrder: number) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { error } = await supabase
+      .from('bookmarks')
+      .update({ sort_order: newOrder })
+      .eq('user_id', user.id)
+      .eq('work_id', workId)
+      .eq('folder', folderKey)
+
+    if (error) throw error
+
+    // キャッシュを無効化
+    revalidateTag(`user:${user.id}:bookmarks:${folderKey}`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('ブックマーク順序更新エラー:', error)
+    return { error: 'ブックマークの順序更新に失敗しました' }
+  }
+}
+
+/**
+ * ブックマークをフォルダから削除
+ */
+export async function removeBookmarkFromFolderAction(workId: string, folderKey: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { error } = await supabase
+      .from('bookmarks')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('work_id', workId)
+      .eq('folder', folderKey)
+
+    if (error) throw error
+
+    // キャッシュを無効化
+    revalidateTag(`user:${user.id}:bookmarks:${folderKey}`)
+    revalidateTag(`user:${user.id}:bookmark_folders`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('ブックマーク削除エラー:', error)
+    return { error: 'ブックマークの削除に失敗しました' }
+  }
+}
+
+/**
+ * ブックマークを他のフォルダに移動
+ */
+export async function moveBookmarkToFolderAction(workId: string, fromFolder: string, toFolder: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // 移動先フォルダの最大sort_orderを取得
+    const { data: maxOrderData } = await supabase
+      .from('bookmarks')
+      .select('sort_order')
+      .eq('user_id', user.id)
+      .eq('folder', toFolder)
+      .order('sort_order', { ascending: false })
+      .limit(1)
+
+    const nextOrder = (maxOrderData?.[0]?.sort_order || 0) + 1
+
+    // ブックマークを更新（フォルダとsort_orderを変更）
+    const { error } = await supabase
+      .from('bookmarks')
+      .update({ 
+        folder: toFolder,
+        sort_order: nextOrder,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', user.id)
+      .eq('work_id', workId)
+      .eq('folder', fromFolder)
+
+    if (error) throw error
+
+    // 両方のフォルダのキャッシュを無効化
+    revalidateTag(`user:${user.id}:bookmarks:${fromFolder}`)
+    revalidateTag(`user:${user.id}:bookmarks:${toFolder}`)
+    revalidateTag(`user:${user.id}:bookmark_folders`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('ブックマーク移動エラー:', error)
+    return { error: 'ブックマークの移動に失敗しました' }
+  }
+}
+
+/**
+ * ブックマークのメモを更新
+ */
+export async function updateBookmarkMemoAction(workId: string, folderKey: string, memo: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { error } = await supabase
+      .from('bookmarks')
+      .update({ 
+        memo: memo,
+        updated_at: new Date().toISOString()
+      })
+      .eq('user_id', user.id)
+      .eq('work_id', workId)
+      .eq('folder', folderKey)
+
+    if (error) throw error
+
+    // キャッシュを無効化
+    revalidateTag(`user:${user.id}:bookmarks:${folderKey}`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('ブックマークメモ更新エラー:', error)
+    return { error: 'メモの更新に失敗しました' }
   }
 }

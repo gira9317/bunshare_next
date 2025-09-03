@@ -27,6 +27,11 @@ export interface WorkCardProps {
   isBookmarked?: boolean
   hasReadingProgress?: boolean
   readingProgress?: number
+  isManagementMode?: boolean
+  onRemove?: (workId: string) => void
+  onMove?: (workId: string, targetFolder: string) => void
+  availableFolders?: Array<{ folder_key: string; folder_name: string }>
+  disableNavigation?: boolean
 }
 
 export interface CategoryChipProps {

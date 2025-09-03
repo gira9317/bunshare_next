@@ -13,7 +13,12 @@ export function WorkCard({
   isLiked = false, 
   isBookmarked = false,
   hasReadingProgress = false,
-  readingProgress = 0 
+  readingProgress = 0,
+  isManagementMode = false,
+  onRemove,
+  onMove,
+  availableFolders = [],
+  disableNavigation = false
 }: WorkCardProps) {
   const [liked, setLiked] = useState(isLiked)
   const [bookmarked, setBookmarked] = useState(isBookmarked)
@@ -49,6 +54,20 @@ export function WorkCard({
     e.stopPropagation()
     setShowMoreMenu(false)
     setShowBookmarkModal(true)
+  }
+
+  const handleRemove = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowMoreMenu(false)
+    onRemove?.(work.work_id)
+  }
+
+  const handleMoveToFolder = (e: React.MouseEvent, folderKey: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowMoreMenu(false)
+    onMove?.(work.work_id, folderKey)
   }
 
   const handleMoreMenu = (e: React.MouseEvent) => {
@@ -134,7 +153,7 @@ export function WorkCard({
         const isButton = target.tagName === 'BUTTON' || target.closest('button')
         const isInteractive = target.closest('.interactive-button, .clickable')
         
-        if (!isButton && !isInteractive) {
+        if (!isButton && !isInteractive && !disableNavigation) {
           window.location.href = `/works/${work.work_id}`
         }
         
@@ -143,8 +162,8 @@ export function WorkCard({
         <article 
         className={cn(
           'group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700',
-          'hover:border-transparent hover:shadow-2xl transition-all duration-500 cursor-pointer',
-          'transform hover:-translate-y-1 hover:scale-[1.02]',
+          !disableNavigation && 'hover:border-transparent hover:shadow-2xl transition-all duration-500 cursor-pointer',
+          !disableNavigation && 'transform hover:-translate-y-1 hover:scale-[1.02]',
           'aspect-[16/9]'
         )}
         onMouseEnter={() => setIsHovered(true)}
@@ -157,12 +176,16 @@ export function WorkCard({
               src={work.image_url}
               alt={work.title}
               fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
+              className={cn(
+                "object-cover",
+                !disableNavigation && "transition-transform duration-700 group-hover:scale-110"
+              )}
             />
             <div className={cn(
-              'absolute inset-0 transition-all duration-500',
+              'absolute inset-0',
               'bg-gradient-to-br from-black/20 to-black/40',
-              'group-hover:from-black/60 group-hover:to-black/50'
+              !disableNavigation && 'transition-all duration-500',
+              !disableNavigation && 'group-hover:from-black/60 group-hover:to-black/50'
             )} />
           </div>
         ) : null}
@@ -185,8 +208,8 @@ export function WorkCard({
               'font-bold text-sm sm:text-base md:text-lg lg:text-base xl:text-sm leading-tight line-clamp-2',
               'transition-colors duration-300',
               work.image_url 
-                ? 'text-white group-hover:text-gray-100' 
-                : 'text-gray-900 dark:text-white group-hover:text-purple-600'
+                ? cn('text-white', !disableNavigation && 'group-hover:text-gray-100')
+                : cn('text-gray-900 dark:text-white', !disableNavigation && 'group-hover:text-purple-600')
             )}>
               {work.title}
             </h3>
@@ -194,8 +217,8 @@ export function WorkCard({
             <p className={cn(
               'text-xs sm:text-sm font-medium transition-colors duration-300',
               work.image_url 
-                ? 'text-gray-200 group-hover:text-gray-100' 
-                : 'text-gray-600 dark:text-gray-400 group-hover:text-purple-500'
+                ? cn('text-gray-200', !disableNavigation && 'group-hover:text-gray-100')
+                : cn('text-gray-600 dark:text-gray-400', !disableNavigation && 'group-hover:text-purple-500')
             )}>
               by {work.author}
             </p>
@@ -206,7 +229,7 @@ export function WorkCard({
             'text-xs sm:text-sm leading-relaxed line-clamp-2 my-2',
             'transition-all duration-300',
             work.image_url 
-              ? 'text-gray-100 group-hover:text-white' 
+              ? cn('text-gray-100', !disableNavigation && 'group-hover:text-white')
               : 'text-gray-700 dark:text-gray-300'
           )}>
             {excerpt}
@@ -318,7 +341,8 @@ export function WorkCard({
         {/* Hover overlay effect */}
         <div className={cn(
           'absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent',
-          'opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none'
+          'opacity-0 transition-opacity duration-500 pointer-events-none',
+          !disableNavigation && 'group-hover:opacity-100'
         )} />
         </article>
       </div>
@@ -339,40 +363,92 @@ export function WorkCard({
             e.stopPropagation()
           }}
         >
-          <button
-            onClick={(e) => {
-              handleBookmark(e)
-            }}
-            className={cn(
-              'dropdown-item w-full px-3 py-2 text-sm text-left',
-              'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
-              'transition-colors duration-200',
-              bookmarked ? 'text-yellow-600' : 'text-gray-700 dark:text-gray-300'
-            )}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill={bookmarked ? "currentColor" : "none"}>
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-            <span>{bookmarked ? 'ブックマーク済み' : 'ブックマーク'}</span>
-          </button>
-          
-          <button
-            onClick={(e) => {
-              handleShare(e)
-            }}
-            className={cn(
-              'dropdown-item w-full px-3 py-2 text-sm text-left',
-              'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
-              'transition-colors duration-200 text-gray-700 dark:text-gray-300'
-            )}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="currentColor" strokeWidth="2"/>
-              <polyline points="16,6 12,2 8,6" stroke="currentColor" strokeWidth="2"/>
-              <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" strokeWidth="2"/>
-            </svg>
-            <span>シェア</span>
-          </button>
+          {isManagementMode ? (
+            <>
+              {/* Management Mode Menu */}
+              <button
+                onClick={handleRemove}
+                className={cn(
+                  'dropdown-item w-full px-3 py-2 text-sm text-left',
+                  'flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20',
+                  'transition-colors duration-200 text-red-600 dark:text-red-400'
+                )}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 6h18" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+                <span>フォルダから削除</span>
+              </button>
+              
+              {availableFolders.length > 0 && (
+                <div className="border-t border-gray-200 dark:border-gray-600 my-1">
+                  <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                    他のフォルダに移動
+                  </div>
+                  {availableFolders.map((folder) => (
+                    <button
+                      key={folder.folder_key}
+                      onClick={(e) => handleMoveToFolder(e, folder.folder_key)}
+                      className={cn(
+                        'dropdown-item w-full px-3 py-2 text-sm text-left',
+                        'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
+                        'transition-colors duration-200 text-gray-700 dark:text-gray-300'
+                      )}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" strokeWidth="2"/>
+                        <polyline points="14,2 14,8 20,8" stroke="currentColor" strokeWidth="2"/>
+                        <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" strokeWidth="2"/>
+                        <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" strokeWidth="2"/>
+                        <polyline points="10,9 9,9 8,9" stroke="currentColor" strokeWidth="2"/>
+                      </svg>
+                      <span>{folder.folder_name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              {/* Normal Mode Menu */}
+              <button
+                onClick={(e) => {
+                  handleBookmark(e)
+                }}
+                className={cn(
+                  'dropdown-item w-full px-3 py-2 text-sm text-left',
+                  'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
+                  'transition-colors duration-200',
+                  bookmarked ? 'text-yellow-600' : 'text-gray-700 dark:text-gray-300'
+                )}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={bookmarked ? "currentColor" : "none"}>
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+                <span>{bookmarked ? 'ブックマーク済み' : 'ブックマーク'}</span>
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  handleShare(e)
+                }}
+                className={cn(
+                  'dropdown-item w-full px-3 py-2 text-sm text-left',
+                  'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
+                  'transition-colors duration-200 text-gray-700 dark:text-gray-300'
+                )}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="currentColor" strokeWidth="2"/>
+                  <polyline points="16,6 12,2 8,6" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="12" y1="2" x2="12" y2="15" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+                <span>シェア</span>
+              </button>
+            </>
+          )}
         </div>
       )}
 
