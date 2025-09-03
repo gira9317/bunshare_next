@@ -3,6 +3,10 @@ import { redirect } from 'next/navigation'
 import { 
   getUserWithStats, 
   getUserWorks,
+  getUserPublishedWorks,
+  getUserDraftWorks,
+  getUserLikedWorks,
+  getUserBookmarkedWorks,
   UserProfileSection,
   UserWorksSection,
   UserStatsSection
@@ -31,7 +35,12 @@ export default async function ProfilePage() {
   }
 
   // ユーザーの作品を取得
-  const works = await getUserWorks(user.id, 10, 0)
+  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks] = await Promise.all([
+    getUserPublishedWorks(user.id, 12),
+    getUserDraftWorks(user.id),
+    getUserLikedWorks(user.id),
+    getUserBookmarkedWorks(user.id)
+  ])
 
   // タブの定義
   const tabs = [
@@ -44,7 +53,7 @@ export default async function ProfilePage() {
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" strokeWidth="2"/>
         </svg>
       ),
-      content: <DashboardTabContent user={userWithStats} />
+      content: <DashboardTabContent user={userWithStats} publishedWorks={publishedWorks} />
     },
     {
       id: 'works',
@@ -54,7 +63,7 @@ export default async function ProfilePage() {
           <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" strokeWidth="2"/>
         </svg>
       ),
-      content: <WorksTabContent user={userWithStats} />
+      content: <WorksTabContent user={userWithStats} publishedWorks={publishedWorks} draftWorks={draftWorks} />
     },
     {
       id: 'library',
@@ -65,7 +74,7 @@ export default async function ProfilePage() {
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" stroke="currentColor" strokeWidth="2"/>
         </svg>
       ),
-      content: <LibraryTabContent user={userWithStats} />
+      content: <LibraryTabContent user={userWithStats} likedWorks={likedWorks} bookmarkedWorks={bookmarkedWorks} />
     },
     {
       id: 'settings',

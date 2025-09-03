@@ -59,6 +59,7 @@ export function FollowButton({
           </svg>
         ),
         text: 'リクエスト中',
+        mobileText: '申請中',
         variant: 'outline' as const,
         className: 'border-yellow-300 text-yellow-600 hover:bg-yellow-50'
       }
@@ -74,6 +75,7 @@ export function FollowButton({
           </svg>
         ),
         text: 'フォロー中',
+        mobileText: 'フォロー中',
         variant: 'outline' as const,
         className: 'hover:border-red-300 hover:text-red-600 hover:bg-red-50'
       }
@@ -89,12 +91,13 @@ export function FollowButton({
         </svg>
       ),
       text: 'フォローする',
+      mobileText: 'フォロー',
       variant: 'default' as const,
       className: ''
     }
   }
 
-  const { icon, text, variant, className: buttonClassName } = getButtonContent()
+  const { icon, text, mobileText, variant, className: buttonClassName } = getButtonContent()
 
   return (
     <Button
@@ -102,13 +105,18 @@ export function FollowButton({
       onClick={handleFollowAction}
       disabled={isTransitionPending}
       className={cn(
-        'min-w-[120px] transition-all duration-200',
+        'transition-all duration-200 whitespace-nowrap font-medium',
+        // Default Twitter-like styling
+        className?.includes('rounded-full') 
+          ? '' 
+          : 'min-w-[80px] md:min-w-[120px]',
         buttonClassName,
         className
       )}
     >
-      <span className="mr-2">{icon}</span>
-      {text}
+      {!className?.includes('rounded-full') && <span className="mr-2">{icon}</span>}
+      <span className="hidden sm:inline">{text}</span>
+      <span className="sm:hidden">{mobileText || text}</span>
     </Button>
   )
 }

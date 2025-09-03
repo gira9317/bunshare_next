@@ -177,50 +177,50 @@ export function UserCard({
               )}
             </div>
 
-            {/* Bio - Only show on mobile if compact=false */}
+            {/* Bio - Improved mobile readability */}
             {user.bio && !compact && (
               <p className={cn(
                 'text-gray-600 dark:text-gray-300 line-clamp-2',
-                // Mobile: 12px, hide on very small screens
-                'text-xs hidden xs:block',
-                // Desktop: 14px, always show
-                'md:text-sm md:block'
+                // Mobile: 12px, always show but truncated
+                'text-xs',
+                // Desktop: 14px
+                'md:text-sm'
               )}>
                 {user.bio}
               </p>
             )}
 
-            {/* Stats - Mobile horizontal layout */}
+            {/* Stats - Mobile optimized layout */}
             <div className={cn(
-              'flex gap-4 pt-1',
-              // Mobile: smaller spacing
-              'gap-3 text-xs',
+              'flex pt-1',
+              // Mobile: tight spacing, minimal text
+              'gap-2 text-xs',
               // Desktop: more spacing
-              'md:gap-6 md:text-sm'
+              'md:gap-4 md:text-sm'
             )}>
-              <div className="text-center">
-                <div className="font-bold text-gray-900 dark:text-gray-100">
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-gray-900 dark:text-gray-100">
                   {formatNumber(stats.works_count)}
-                </div>
-                <div className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
+                </span>
+                <span className="text-gray-500 dark:text-gray-400">
                   作品
-                </div>
+                </span>
               </div>
-              <div className="text-center">
-                <div className="font-bold text-gray-900 dark:text-gray-100">
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-gray-900 dark:text-gray-100">
                   {formatNumber(stats.following_count)}
-                </div>
-                <div className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
+                </span>
+                <span className="text-gray-500 dark:text-gray-400">
                   フォロー
-                </div>
+                </span>
               </div>
-              <div className="text-center">
-                <div className="font-bold text-gray-900 dark:text-gray-100">
+              <div className="flex items-center gap-1">
+                <span className="font-bold text-gray-900 dark:text-gray-100">
                   {formatNumber(stats.followers_count)}
-                </div>
-                <div className="text-gray-500 dark:text-gray-400 text-xs md:text-sm">
+                </span>
+                <span className="text-gray-500 dark:text-gray-400">
                   フォロワー
-                </div>
+                </span>
               </div>
             </div>
           </div>
@@ -234,10 +234,10 @@ export function UserCard({
               isFollowing={isFollowing}
               isPending={isPending}
               className={cn(
-                // Mobile: compact button
-                'min-w-[80px] h-8 text-xs px-3',
+                // Mobile: compact button with whitespace control
+                'h-8 text-xs px-2',
                 // Desktop: larger button
-                'md:min-w-[100px] md:h-10 md:text-sm md:px-4'
+                'md:h-10 md:text-sm md:px-4'
               )}
             />
           </div>

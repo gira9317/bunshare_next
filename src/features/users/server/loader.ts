@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cache } from 'react'
 import { UserProfile, UserStats, UserWithStats, UserWork, FollowRelation } from '../schemas'
+import type { Work } from '@/features/works/types'
 
 export const getUserProfile = cache(async (userId: string): Promise<UserProfile | null> => {
   const supabase = await createClient()
@@ -133,4 +134,172 @@ export const canViewProfile = cache(async (viewerId: string | null, profileUserI
   // フォロー関係をチェック
   const isFollowingUser = await isFollowing(viewerId, profileUserId)
   return isFollowingUser
+})
+
+// 新しい作品取得関数
+export const getUserPublishedWorks = cache(async (userId: string, limit: number = 12): Promise<Work[]> => {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('works')
+    .select(`
+      work_id,
+      user_id,
+      title,
+      description,
+      content,
+      category,
+      tags,
+      image_url,
+      series_id,
+      series_title,
+      episode_number,
+      is_adult_content,
+      created_at,
+      updated_at,
+      views,
+      likes,
+      comments,
+      rating,
+      users!inner(username)
+    `)
+    .eq('user_id', userId)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) {
+    console.error('Error fetching user published works:', error)
+    return []
+  }
+
+  return (data || []).map(work => ({
+    ...work,
+    author: work.users?.username || 'Unknown',
+  })) as Work[]
+})
+
+export const getUserDraftWorks = cache(async (userId: string): Promise<Work[]> => {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('works')
+    .select(`
+      work_id,
+      user_id,
+      title,
+      description,
+      content,
+      category,
+      tags,
+      image_url,
+      series_id,
+      series_title,
+      episode_number,
+      is_adult_content,
+      created_at,
+      updated_at,
+      views,
+      likes,
+      comments,
+      rating,
+      users!inner(username)
+    `)
+    .eq('user_id', userId)
+    .eq('is_published', false)
+    .order('updated_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching user draft works:', error)
+    return []
+  }
+
+  return (data || []).map(work => ({
+    ...work,
+    author: work.users?.username || 'Unknown',
+  })) as Work[]
+})
+
+export const getUserLikedWorks = cache(async (userId: string): Promise<Work[]> => {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('likes')
+    .select(`
+      works!inner(
+        work_id,
+        user_id,
+        title,
+        description,
+        content,
+        category,
+        tags,
+        image_url,
+        series_id,
+        series_title,
+        episode_number,
+        is_adult_content,
+        created_at,
+        updated_at,
+        views,
+        likes,
+        comments,
+        rating,
+        users!inner(username)
+      )
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching user liked works:', error)
+    return []
+  }
+
+  return (data || []).map(item => ({
+    ...item.works,
+    author: item.works.users?.username || 'Unknown',
+  })) as Work[]
+})
+
+export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work[]> => {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('bookmarks')
+    .select(`
+      works!inner(
+        work_id,
+        user_id,
+        title,
+        description,
+        content,
+        category,
+        tags,
+        image_url,
+        series_id,
+        series_title,
+        episode_number,
+        is_adult_content,
+        created_at,
+        updated_at,
+        views,
+        likes,
+        comments,
+        rating,
+        users!inner(username)
+      )
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error fetching user bookmarked works:', error)
+    return []
+  }
+
+  return (data || []).map(item => ({
+    ...item.works,
+    author: item.works.users?.username || 'Unknown',
+  })) as Work[]
 })

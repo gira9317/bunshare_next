@@ -3,6 +3,8 @@
 import { useState, ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 import { UserWithStats } from '../schemas'
+import { WorkCard } from '@/components/domain/WorkCard'
+import type { Work } from '@/features/works/types'
 
 interface Tab {
   id: string
@@ -32,9 +34,9 @@ export function ProfileTabsSection({
 
   return (
     <div className={cn('space-y-6', className)}>
-      {/* Tab Navigation */}
+      {/* Tab Navigation - Mobile first */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-8">
+        <nav className="flex space-x-4 md:space-x-8 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -42,13 +44,19 @@ export function ProfileTabsSection({
               className={cn(
                 'flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors',
                 'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
+                'whitespace-nowrap flex-shrink-0', // Prevent text wrapping
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
               )}
             >
               <span className="flex-shrink-0">{tab.icon}</span>
-              <span>{tab.label}</span>
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">
+                {tab.label === '投稿作品一覧' ? '作品' : 
+                 tab.label === '作品管理' ? '管理' :
+                 tab.label === 'ライブラリ' ? 'ライブラリ' : '設定'}
+              </span>
             </button>
           ))}
         </nav>
@@ -63,22 +71,31 @@ export function ProfileTabsSection({
 }
 
 // Tab content components
-export function DashboardTabContent({ user }: { user: UserWithStats }) {
+export function DashboardTabContent({ user, publishedWorks }: { user: UserWithStats; publishedWorks: Work[] }) {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
         📚 投稿作品一覧
       </h2>
-      <div className="grid gap-4">
+      {publishedWorks.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {publishedWorks.map((work) => (
+            <WorkCard
+              key={work.work_id}
+              work={work}
+            />
+          ))}
+        </div>
+      ) : (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
           まだ投稿された作品がありません
         </div>
-      </div>
+      )}
     </div>
   )
 }
 
-export function WorksTabContent({ user }: { user: UserWithStats }) {
+export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: UserWithStats; publishedWorks: Work[]; draftWorks: Work[] }) {
   const [activeWorksTab, setActiveWorksTab] = useState('published')
 
   const worksTabOptions = [
@@ -87,54 +104,127 @@ export function WorksTabContent({ user }: { user: UserWithStats }) {
     { id: 'scheduled', label: '⏰ 予約投稿' }
   ]
 
+  const renderWorksGrid = () => {
+    let works: Work[] = []
+    
+    if (activeWorksTab === 'works') {
+      works = publishedWorks
+    } else if (activeWorksTab === 'published') {
+      // For series, we could group by series_id, but for now show published works
+      works = publishedWorks.filter(work => work.series_id)
+    } else if (activeWorksTab === 'scheduled') {
+      // For scheduled works, we would need a separate query
+      works = []
+    }
+
+    if (works.length === 0) {
+      return (
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          {activeWorksTab === 'published' && 'まだシリーズがありません'}
+          {activeWorksTab === 'works' && 'まだ投稿された作品がありません'}
+          {activeWorksTab === 'scheduled' && '予約投稿された作品がありません'}
+        </div>
+      )
+    }
+
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {works.map((work) => (
+          <WorkCard
+            key={work.work_id}
+            work={work}
+          />
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100">
           ✍️ 作品管理
         </h2>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-          ✨ 新規作品
+        <button className="bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm whitespace-nowrap">
+          <span className="hidden sm:inline">✨ 新規作品</span>
+          <span className="sm:hidden">✨ 新規</span>
         </button>
       </div>
 
-      {/* Sub-tabs */}
+      {/* Sub-tabs - Mobile first */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-6">
+        <nav className="flex space-x-4 md:space-x-6 overflow-x-auto scrollbar-hide">
           {worksTabOptions.map((option) => (
             <button
               key={option.id}
               onClick={() => setActiveWorksTab(option.id)}
               className={cn(
                 'py-2 px-1 border-b-2 text-sm font-medium transition-colors',
+                'whitespace-nowrap flex-shrink-0',
                 activeWorksTab === option.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               )}
             >
-              {option.label}
+              <span className="hidden sm:inline">{option.label}</span>
+              <span className="sm:hidden">
+                {option.label.includes('シリーズ') ? '📚 シリーズ' :
+                 option.label.includes('作品') ? '📝 作品' : '⏰ 予約'}
+              </span>
             </button>
           ))}
         </nav>
       </div>
 
-      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-        {activeWorksTab === 'published' && 'まだシリーズがありません'}
-        {activeWorksTab === 'works' && 'まだ投稿された作品がありません'}
-        {activeWorksTab === 'scheduled' && '予約投稿された作品がありません'}
-      </div>
+      {renderWorksGrid()}
     </div>
   )
 }
 
-export function LibraryTabContent({ user }: { user: UserWithStats }) {
+export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user: UserWithStats; likedWorks: Work[]; bookmarkedWorks: Work[] }) {
   const [activeLibraryTab, setActiveLibraryTab] = useState('liked')
 
   const libraryTabOptions = [
-    { id: 'liked', label: '❤️ いいねした作品', count: 0 },
-    { id: 'bookmarked', label: '🔖 ブックマーク', count: user.stats.bookmarks_count },
+    { id: 'liked', label: '❤️ いいねした作品', count: likedWorks.length },
+    { id: 'bookmarked', label: '🔖 ブックマーク', count: bookmarkedWorks.length },
     { id: 'history', label: '📖 閲覧履歴', count: 0 }
   ]
+
+  const renderLibraryGrid = () => {
+    let works: Work[] = []
+    
+    if (activeLibraryTab === 'liked') {
+      works = likedWorks
+    } else if (activeLibraryTab === 'bookmarked') {
+      works = bookmarkedWorks
+    } else if (activeLibraryTab === 'history') {
+      // For reading history, we would need a separate query
+      works = []
+    }
+
+    if (works.length === 0) {
+      return (
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          {activeLibraryTab === 'liked' && 'いいねした作品がありません'}
+          {activeLibraryTab === 'bookmarked' && 'ブックマークした作品がありません'}
+          {activeLibraryTab === 'history' && '閲覧履歴がありません'}
+        </div>
+      )
+    }
+
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {works.map((work) => (
+          <WorkCard
+            key={work.work_id}
+            work={work}
+            isLiked={activeLibraryTab === 'liked'}
+            isBookmarked={activeLibraryTab === 'bookmarked'}
+          />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -142,21 +232,26 @@ export function LibraryTabContent({ user }: { user: UserWithStats }) {
         📚 ライブラリ
       </h2>
 
-      {/* Sub-tabs */}
+      {/* Sub-tabs - Mobile first */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-6">
+        <nav className="flex space-x-4 md:space-x-6 overflow-x-auto scrollbar-hide">
           {libraryTabOptions.map((option) => (
             <button
               key={option.id}
               onClick={() => setActiveLibraryTab(option.id)}
               className={cn(
                 'flex items-center gap-2 py-2 px-1 border-b-2 text-sm font-medium transition-colors',
+                'whitespace-nowrap flex-shrink-0',
                 activeLibraryTab === option.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               )}
             >
-              <span>{option.label}</span>
+              <span className="hidden sm:inline">{option.label}</span>
+              <span className="sm:hidden">
+                {option.label.includes('いいね') ? '❤️' :
+                 option.label.includes('ブックマーク') ? '🔖' : '📖'}
+              </span>
               {option.count > 0 && (
                 <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full text-xs">
                   {option.count}
@@ -167,11 +262,7 @@ export function LibraryTabContent({ user }: { user: UserWithStats }) {
         </nav>
       </div>
 
-      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-        {activeLibraryTab === 'liked' && 'いいねした作品がありません'}
-        {activeLibraryTab === 'bookmarked' && 'ブックマークした作品がありません'}
-        {activeLibraryTab === 'history' && '閲覧履歴がありません'}
-      </div>
+      {renderLibraryGrid()}
     </div>
   )
 }
