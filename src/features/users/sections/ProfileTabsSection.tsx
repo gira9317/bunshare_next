@@ -73,12 +73,12 @@ export function ProfileTabsSection({
 // Tab content components
 export function DashboardTabContent({ user, publishedWorks }: { user: UserWithStats; publishedWorks: Work[] }) {
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
         📚 投稿作品一覧
       </h2>
       {publishedWorks.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
           {publishedWorks.map((work) => (
             <WorkCard
               key={work.work_id}
@@ -128,7 +128,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: Us
     }
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
         {works.map((work) => (
           <WorkCard
             key={work.work_id}
@@ -140,9 +140,9 @@ export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: Us
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           ✍️ 作品管理
         </h2>
         <button className="bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm whitespace-nowrap">
@@ -213,7 +213,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
     }
 
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
         {works.map((work) => (
           <WorkCard
             key={work.work_id}
@@ -227,8 +227,8 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+    <div className="space-y-4">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
         📚 ライブラリ
       </h2>
 
@@ -280,7 +280,7 @@ export function SettingsTabContent({ user, currentUserId }: { user: UserWithStat
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
         ⚙️ 設定
       </h2>
 
