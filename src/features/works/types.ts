@@ -10,6 +10,7 @@ export interface Work {
   tags?: string[]
   image_url?: string
   series_id?: string
+  series_title?: string
   episode_number?: number
   is_adult_content?: boolean
   created_at: string

@@ -12,6 +12,10 @@ export async function getWorks(limit = 10, offset = 0) {
       *,
       users (
         username
+      ),
+      series (
+        id,
+        title
       )
     `)
     .eq('is_published', true)
@@ -28,7 +32,8 @@ export async function getWorks(limit = 10, offset = 0) {
   return data.map((work: any) => ({
     ...work,
     author: work.users?.username || 'Unknown',
-    author_username: work.users?.username || 'Unknown'
+    author_username: work.users?.username || 'Unknown',
+    series_title: work.series?.title || null
   })) as Work[]
 }
 
@@ -41,6 +46,10 @@ export async function getWorksByCategory(category: string, limit = 10, offset = 
       *,
       users (
         username
+      ),
+      series (
+        id,
+        title
       )
     `)
     .eq('category', category)
@@ -56,7 +65,8 @@ export async function getWorksByCategory(category: string, limit = 10, offset = 
   return data.map((work: any) => ({
     ...work,
     author: work.users?.username || 'Unknown',
-    author_username: work.users?.username || 'Unknown'
+    author_username: work.users?.username || 'Unknown',
+    series_title: work.series?.title || null
   })) as Work[]
 }
 
@@ -97,6 +107,10 @@ export async function getContinueReadingWorks(userId: string) {
         *,
         users!author_id (
           username
+        ),
+        series (
+          id,
+          title
         )
       )
     `)
@@ -113,6 +127,7 @@ export async function getContinueReadingWorks(userId: string) {
     ...item.works,
     author: item.works.users?.username || item.works.author,
     readingProgress: item.last_position,
+    series_title: item.works.series?.title || null
   })) as Work[]
 }
 
@@ -140,6 +155,10 @@ export async function getWorkById(workId: string): Promise<Work | null> {
       *,
       users (
         username
+      ),
+      series (
+        id,
+        title
       )
     `)
     .eq('work_id', workId)
@@ -157,6 +176,7 @@ export async function getWorkById(workId: string): Promise<Work | null> {
   return {
     ...data,
     author: data.users?.username || 'Unknown',
-    author_username: data.users?.username || 'Unknown'
+    author_username: data.users?.username || 'Unknown',
+    series_title: data.series?.title || null
   } as Work
 }

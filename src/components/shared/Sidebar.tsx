@@ -176,7 +176,7 @@ export function Sidebar() {
         'border-t border-gray-200/50 dark:border-gray-700/50'
       )}>
         <Link
-          href="/post"
+          href="/works/create"
           className={cn(
             'flex items-center justify-center gap-2 w-full',
             'py-2.5 lg:py-3 px-3 lg:px-4 rounded-lg lg:rounded-xl',

@@ -202,7 +202,7 @@ export function WorkCard({
                 'bg-white/20 backdrop-blur-sm',
                 work.image_url ? 'text-white' : 'text-gray-600 dark:text-gray-400'
               )}>
-                シリーズ 第{work.episode_number}話
+                {work.series_title ? `${work.series_title} 第${work.episode_number}話` : `シリーズ 第${work.episode_number}話`}
               </div>
             )}
 
