@@ -34,6 +34,7 @@ export function WorkCreateSettingsSection() {
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
+              name="allow_comments"
               checked={allowComments}
               onChange={(e) => setAllowComments(e.target.checked)}
               className={cn(
@@ -56,6 +57,7 @@ export function WorkCreateSettingsSection() {
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
+              name="is_adult_content"
               checked={isAdultContent}
               onChange={(e) => setIsAdultContent(e.target.checked)}
               className={cn(

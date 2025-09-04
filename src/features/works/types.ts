@@ -11,7 +11,9 @@ export interface Work {
   image_url?: string
   series_id?: string
   series_title?: string
+  series_cover_image_url?: string
   episode_number?: number
+  use_series_image?: boolean
   is_adult_content?: boolean
   created_at: string
   updated_at: string

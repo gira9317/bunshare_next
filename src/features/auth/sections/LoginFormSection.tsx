@@ -15,6 +15,7 @@ export function LoginFormSection() {
   })
   const [errors, setErrors] = useState<Partial<Record<keyof LoginForm, string>>>({})
   const [loading, setLoading] = useState(false)
+  const [socialLoading, setSocialLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,8 +44,18 @@ export function LoginFormSection() {
     }
   }
 
-  const handleSocialLogin = () => {
-    console.log('Google ログイン')
+  const handleSocialLogin = async () => {
+    setSocialLoading(true)
+    setErrors({})
+    
+    try {
+      const { signInWithGoogle } = await import('../server/actions')
+      await signInWithGoogle()
+    } catch (error) {
+      console.error('Google ログインエラー:', error)
+      setErrors({ email: 'Googleログインに失敗しました' })
+      setSocialLoading(false)
+    }
   }
 
   return (
@@ -136,20 +147,8 @@ export function LoginFormSection() {
         <SocialLoginButton
           provider="google"
           onClick={handleSocialLogin}
-          loading={false}
+          loading={socialLoading}
         />
-      </div>
-
-      <div className="mt-8 text-center">
-        <p className="text-gray-600">
-          初めてのご利用ですか？{' '}
-          <Link
-            href="/auth/signup"
-            className="text-purple-600 hover:text-purple-500 font-medium transition-colors"
-          >
-            新規アカウントを作成
-          </Link>
-        </p>
       </div>
     </div>
   )

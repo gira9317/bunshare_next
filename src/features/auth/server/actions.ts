@@ -97,13 +97,31 @@ export async function forgotPasswordAction(formData: FormData) {
   }
 }
 
-export async function googleAuthAction() {
-  try {
-    // TODO: Supabase Google OAuth実装
-    console.log('Google認証処理')
-    
-    redirect('/')
-  } catch (error) {
+export async function signInWithGoogle() {
+  const { createClient } = await import('@/lib/supabase/server')
+  
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  })
+
+  if (error) {
+    console.error('Google OAuth error:', error)
     redirect('/auth/login?error=google_auth_failed')
   }
+
+  if (data.url) {
+    redirect(data.url)
+  }
+  
+  // Fallback redirect if no URL is provided
+  redirect('/auth/login?error=google_auth_no_url')
 }

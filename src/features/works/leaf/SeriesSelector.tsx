@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createSeriesAction } from '../server/actions'
+import { ImageUpload } from './ImageUpload'
 
 interface Series {
   series_id: string
   title: string
   description?: string | null
+  cover_image_url?: string | null
 }
 
 interface SeriesSelectorProps {
@@ -32,6 +34,22 @@ export function SeriesSelector({
   const [newSeriesTitle, setNewSeriesTitle] = useState('')
   const [newSeriesDescription, setNewSeriesDescription] = useState('')
   const [isCreating, setIsCreating] = useState(false)
+  const [seriesImageUrl, setSeriesImageUrl] = useState<string>('')
+  const [isImageUploading, setIsImageUploading] = useState(false)
+
+  // グローバルな画像ファイル管理（SeriesSelector専用）
+  const [seriesImageFile, setSeriesImageFile] = useState<File | null>(null)
+
+  const handleSeriesImageChange = (url: string, file?: File) => {
+    console.log('🖼️ [SeriesSelector] Series image changed:', {
+      url: url.substring(0, 50) + '...',
+      fileName: file?.name,
+      fileSize: file?.size
+    })
+    
+    setSeriesImageUrl(url)
+    setSeriesImageFile(file || null)
+  }
 
   const handleCreateSeries = async () => {
     if (!newSeriesTitle.trim()) {
@@ -42,7 +60,22 @@ export function SeriesSelector({
     setIsCreating(true)
     
     try {
-      const result = await createSeriesAction(newSeriesTitle, newSeriesDescription)
+      // FormDataを作成
+      const formData = new FormData()
+      formData.append('title', newSeriesTitle)
+      if (newSeriesDescription) {
+        formData.append('description', newSeriesDescription)
+      }
+      if (seriesImageFile) {
+        formData.append('image_file', seriesImageFile)
+        console.log('📎 [SeriesSelector] Image file added to FormData:', {
+          name: seriesImageFile.name,
+          size: seriesImageFile.size,
+          type: seriesImageFile.type
+        })
+      }
+
+      const result = await createSeriesAction(formData)
       
       if (result.success && result.series) {
         // 新しく作成されたシリーズを選択
@@ -56,6 +89,8 @@ export function SeriesSelector({
         setShowCreateModal(false)
         setNewSeriesTitle('')
         setNewSeriesDescription('')
+        setSeriesImageUrl('')
+        setSeriesImageFile(null)
         
         console.log('✅ Series created successfully:', result.series)
       } else {
@@ -155,7 +190,7 @@ export function SeriesSelector({
       {/* シリーズ作成モーダル */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full space-y-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               新しいシリーズを作成
             </h3>
@@ -200,6 +235,24 @@ export function SeriesSelector({
                 maxLength={500}
               />
             </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                カバー画像（任意）
+              </label>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                シリーズのカバー画像です。16:9の比率でトリミングされます。
+              </p>
+              <ImageUpload
+                imageUrl={seriesImageUrl}
+                onImageChange={handleSeriesImageChange}
+                isUploading={isImageUploading}
+                setIsUploading={setIsImageUploading}
+                aspectRatio={16 / 9}
+                outputFormat="webp"
+                quality={0.9}
+              />
+            </div>
             
             <div className="flex justify-end gap-2">
               <button
@@ -208,6 +261,8 @@ export function SeriesSelector({
                   setShowCreateModal(false)
                   setNewSeriesTitle('')
                   setNewSeriesDescription('')
+                  setSeriesImageUrl('')
+                  setSeriesImageFile(null)
                 }}
                 className={cn(
                   "px-4 py-2 rounded-lg",

@@ -25,7 +25,7 @@ export default async function WorkCreatePage() {
   // ユーザーの既存シリーズを取得
   const { data: userSeries } = await supabase
     .from('series')
-    .select('id, title, description')
+    .select('id, title, description, cover_image_url')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
@@ -47,7 +47,8 @@ export default async function WorkCreatePage() {
         <WorkCreateBasicSection userSeries={(userSeries || []).map(series => ({
           series_id: series.id,
           title: series.title,
-          description: series.description
+          description: series.description,
+          cover_image_url: series.cover_image_url
         }))} />
 
         {/* メディアセクション */}

@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import type { WorkCardProps } from '@/features/works/types'
 import { toggleLikeAction } from '@/features/works/server/actions'
+import { useRequireAuth } from '@/features/auth/hooks/useRequireAuth'
 import { ShareModal } from './ShareModal'
 import { BookmarkModal } from './BookmarkModal'
 
@@ -32,30 +33,42 @@ export function WorkCard({
   const dropdownMenuRef = useRef<HTMLDivElement>(null)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const { requireAuthAsync } = useRequireAuth()
+
+  // 表示する画像URLを決定
+  const displayImageUrl = work.use_series_image && work.series_cover_image_url 
+    ? work.series_cover_image_url 
+    : work.image_url
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     
-    // 楽観的UI更新
-    setLiked(!liked)
+    // 認証チェック & 楽観的UI更新
+    const result = await requireAuthAsync(async () => {
+      setLiked(!liked)
+      return await toggleLikeAction(work.work_id)
+    })
     
-    // Server Action呼び出し
-    startTransition(async () => {
-      const result = await toggleLikeAction(work.work_id)
-      if (result.error) {
-        // エラー時は元に戻す
-        setLiked(liked)
+    // エラー時は元に戻す
+    if (result.error) {
+      setLiked(liked)
+      if (result.error !== 'ログインが必要です') {
         console.error(result.error)
       }
-    })
+    }
   }
 
   const handleBookmark = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setShowMoreMenu(false)
-    setShowBookmarkModal(true)
+    
+    // 認証チェック
+    requireAuthAsync(async () => {
+      setShowBookmarkModal(true)
+      return { success: true }
+    })
   }
 
   const handleRemove = (e: React.MouseEvent) => {
@@ -172,10 +185,10 @@ export function WorkCard({
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Background image with enhanced overlay */}
-        {work.image_url ? (
+        {displayImageUrl ? (
           <div className="absolute inset-0">
             <Image
-              src={work.image_url}
+              src={displayImageUrl}
               alt={work.title}
               fill
               className={cn(
@@ -200,7 +213,7 @@ export function WorkCard({
               <div className={cn(
                 'text-xs font-medium px-2 py-1 rounded-full inline-block',
                 'bg-white/20 backdrop-blur-sm',
-                work.image_url ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                displayImageUrl ? 'text-white' : 'text-gray-600 dark:text-gray-400'
               )}>
                 {work.series_title ? `${work.series_title} 第${work.episode_number}話` : `シリーズ 第${work.episode_number}話`}
               </div>
@@ -209,7 +222,7 @@ export function WorkCard({
             <h3 className={cn(
               'font-bold text-sm sm:text-base md:text-lg lg:text-base xl:text-sm leading-tight line-clamp-2',
               'transition-colors duration-300',
-              work.image_url 
+              displayImageUrl 
                 ? cn('text-white', !disableNavigation && 'group-hover:text-gray-100')
                 : cn('text-gray-900 dark:text-white', !disableNavigation && 'group-hover:text-purple-600')
             )}>
@@ -218,7 +231,7 @@ export function WorkCard({
             
             <p className={cn(
               'text-xs sm:text-sm font-medium transition-colors duration-300',
-              work.image_url 
+              displayImageUrl 
                 ? cn('text-gray-200', !disableNavigation && 'group-hover:text-gray-100')
                 : cn('text-gray-600 dark:text-gray-400', !disableNavigation && 'group-hover:text-purple-500')
             )}>
@@ -230,7 +243,7 @@ export function WorkCard({
           <p className={cn(
             'text-xs sm:text-sm leading-relaxed line-clamp-2 my-2',
             'transition-all duration-300',
-            work.image_url 
+            displayImageUrl 
               ? cn('text-gray-100', !disableNavigation && 'group-hover:text-white')
               : 'text-gray-700 dark:text-gray-300'
           )}>
@@ -256,7 +269,7 @@ export function WorkCard({
                 {/* Views */}
                 <div className={cn(
                   'stat-item flex items-center gap-1 text-xs sm:text-sm',
-                  work.image_url ? 'text-white/80' : 'text-gray-500'
+                  displayImageUrl ? 'text-white/80' : 'text-gray-500'
                 )}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="icon">
                     <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke="currentColor" strokeWidth="2"/>
@@ -273,7 +286,7 @@ export function WorkCard({
                     'hover:scale-110 active:scale-95 clickable',
                     liked 
                       ? 'text-red-500' 
-                      : work.image_url 
+                      : displayImageUrl 
                         ? 'text-white/80 hover:text-red-400' 
                         : 'text-gray-500 hover:text-red-500'
                   )}
@@ -287,7 +300,7 @@ export function WorkCard({
                 {/* Comments */}
                 <div className={cn(
                   'stat-item flex items-center gap-1 text-xs sm:text-sm',
-                  work.image_url ? 'text-white/80' : 'text-gray-500'
+                  displayImageUrl ? 'text-white/80' : 'text-gray-500'
                 )}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="icon">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2"/>
@@ -302,7 +315,7 @@ export function WorkCard({
                   className={cn(
                     'more-menu-btn interactive-button p-1 rounded transition-all duration-300',
                     'hover:bg-black/10 active:scale-95',
-                    work.image_url ? 'text-white/80' : 'text-gray-500'
+                    displayImageUrl ? 'text-white/80' : 'text-gray-500'
                   )}
                   title="その他のオプション"
                 >
@@ -320,10 +333,10 @@ export function WorkCard({
           {hasReadingProgress && (
             <div className="space-y-1 mt-3">
               <div className="flex justify-between text-xs">
-                <span className={work.image_url ? 'text-white/80' : 'text-gray-500'}>
+                <span className={displayImageUrl ? 'text-white/80' : 'text-gray-500'}>
                   読書進捗
                 </span>
-                <span className={work.image_url ? 'text-white' : 'text-gray-700'}>
+                <span className={displayImageUrl ? 'text-white' : 'text-gray-700'}>
                   {readingProgress}%
                 </span>
               </div>

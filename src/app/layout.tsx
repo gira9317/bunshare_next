@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeScript } from '@/components/shared/ThemeScript'
+import { ClientProviders } from '@/components/shared/ClientProviders'
+import { getAuthenticatedUser } from '@/lib/auth'
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,18 +20,22 @@ export const metadata: Metadata = {
   description: "創作物語を共有するプラットフォーム",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getAuthenticatedUser()
+
   return (
     <html lang="ja" className="h-full">
       <head>
         <ThemeScript />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
-        {children}
+        <ClientProviders user={user}>
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );

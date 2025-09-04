@@ -819,8 +819,8 @@ export async function updateReadingProgressAction(workId: string, progress: numb
 /**
  * シリーズを作成
  */
-export async function createSeriesAction(title: string, description?: string) {
-  console.log('🔥 [createSeriesAction] Action started:', { title, description })
+export async function createSeriesAction(formData: FormData) {
+  console.log('🔥 [createSeriesAction] Action started')
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -831,17 +831,79 @@ export async function createSeriesAction(title: string, description?: string) {
   console.log('✅ [createSeriesAction] User authenticated:', user.id)
 
   try {
+    // FormDataから値を取得
+    const title = formData.get('title') as string
+    const description = formData.get('description') as string
+    const imageFile = formData.get('image_file') as File | null
+
+    console.log('📋 [createSeriesAction] Form data:', {
+      title,
+      description,
+      hasImageFile: !!imageFile,
+      imageFileName: imageFile?.name,
+      imageFileSize: imageFile?.size
+    })
+
     // バリデーション
     if (!title || title.trim().length === 0) {
       console.log('❌ [createSeriesAction] Validation failed: empty title')
       return { error: 'シリーズタイトルは必須です' }
     }
 
+    let coverImageUrl: string | null = null
+
+    // 画像がある場合はアップロード処理
+    if (imageFile && imageFile.size > 0) {
+      console.log('📸 [createSeriesAction] Processing image upload...')
+      
+      try {
+        // ファイル名を生成（タイムスタンプ + ランダム文字列）
+        const timestamp = Date.now()
+        const randomString = Math.random().toString(36).substring(2, 15)
+        const fileExtension = imageFile.name.split('.').pop()
+        const fileName = `${timestamp}-${randomString}.${fileExtension}`
+
+        console.log('📁 [createSeriesAction] Uploading to work-assets/series/', {
+          fileName,
+          fileSize: imageFile.size,
+          fileType: imageFile.type
+        })
+
+        // Supabase Storageにアップロード
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('work-assets')
+          .upload(`series/${fileName}`, imageFile, {
+            contentType: imageFile.type,
+            upsert: false
+          })
+
+        if (uploadError) {
+          console.error('❌ [createSeriesAction] Storage upload error:', uploadError)
+          return { error: '画像のアップロードに失敗しました: ' + uploadError.message }
+        }
+
+        console.log('✅ [createSeriesAction] Image upload successful:', uploadData.path)
+
+        // 公開URLを生成
+        const { data: publicUrlData } = supabase.storage
+          .from('work-assets')
+          .getPublicUrl(uploadData.path)
+
+        coverImageUrl = publicUrlData.publicUrl
+        console.log('✅ [createSeriesAction] Public URL generated:', coverImageUrl)
+
+      } catch (error) {
+        console.error('💥 [createSeriesAction] Image processing error:', error)
+        return { error: '画像の処理中にエラーが発生しました' }
+      }
+    }
+
     // シリーズデータを作成
     const seriesData = {
       user_id: user.id,
       title: title.trim(),
-      description: description?.trim() || null
+      description: description?.trim() || null,
+      cover_image_url: coverImageUrl
     }
 
     console.log('💾 [createSeriesAction] Inserting series data:', seriesData)
@@ -868,7 +930,8 @@ export async function createSeriesAction(title: string, description?: string) {
       series: {
         series_id: data.id,
         title: data.title,
-        description: data.description
+        description: data.description,
+        cover_image_url: data.cover_image_url
       }
     }
   } catch (error) {
@@ -898,10 +961,31 @@ export async function createWorkAction(formData: FormData) {
     const description = formData.get('description') as string
     const content = formData.get('content') as string
     const category = formData.get('category') as string
-    const tags = formData.get('tags') ? JSON.parse(formData.get('tags') as string) : []
-    const image_url = formData.get('image_url') as string
+    // タグの処理 - JSONまたはカンマ区切り文字列に対応
+    let tags: string[] = []
+    const tagsData = formData.get('tags') as string
+    if (tagsData) {
+      try {
+        // まずJSONとして解析を試行
+        tags = JSON.parse(tagsData)
+      } catch {
+        // JSON解析に失敗した場合はカンマ区切り文字列として処理
+        tags = tagsData.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+      }
+    }
+    let image_url = formData.get('image_url') as string
+    const image_file = formData.get('image_file') as File | null
+    
+    console.log('📎 [createWorkAction] Image processing:', {
+      hasImageUrl: !!image_url,
+      hasImageFile: !!image_file,
+      imageFileName: image_file?.name,
+      imageFileSize: image_file?.size,
+      imageFileType: image_file?.type
+    })
     const series_id = formData.get('series_id') as string
     const episode_number = formData.get('episode_number') ? parseInt(formData.get('episode_number') as string) : null
+    const use_series_image = formData.get('use_series_image') === 'true'
     const is_adult_content = formData.get('is_adult_content') === 'true'
     const allow_comments = formData.get('allow_comments') !== 'false'
     const publish_timing = formData.get('publish_timing') as string
@@ -916,13 +1000,60 @@ export async function createWorkAction(formData: FormData) {
       image_url: !!image_url ? `"${image_url}"` : 'EMPTY',
       series_id: !!series_id ? `"${series_id}"` : 'EMPTY',
       episode_number,
+      use_series_image,
       is_adult_content,
       allow_comments,
       publish_timing,
       scheduled_at: !!scheduled_at ? `"${scheduled_at}"` : 'EMPTY'
     })
 
+    // FormDataの全キーを確認
+    console.log('📋 [createWorkAction] All FormData keys:')
+    for (const [key, value] of formData.entries()) {
+      console.log(`  ${key}: ${typeof value === 'string' ? (value.length > 50 ? value.substring(0, 50) + '...' : value) : '[File]'}`)
+    }
+
     // バリデーション
+    // 画像ファイルのアップロード処理
+    if (image_file && image_file.size > 0) {
+      try {
+        console.log('📤 [createWorkAction] Uploading image file to Supabase Storage...')
+        
+        // ファイル名を一意にする
+        const fileExt = image_file.name.split('.').pop()
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+        
+        // Supabase Storageにアップロード (work-assets バケット)
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('work-assets')
+          .upload(`headers/${fileName}`, image_file, {
+            cacheControl: '3600',
+            upsert: false
+          })
+        
+        if (uploadError) {
+          console.error('❌ [createWorkAction] Image upload error:', uploadError)
+          return { success: false, error: 'Image upload failed' }
+        }
+        
+        // 公開URLを取得
+        const { data: urlData } = supabase.storage
+          .from('work-assets')
+          .getPublicUrl(`headers/${fileName}`)
+        
+        image_url = urlData.publicUrl
+        
+        console.log('✅ [createWorkAction] Image uploaded successfully:', {
+          fileName,
+          publicUrl: image_url
+        })
+        
+      } catch (error) {
+        console.error('❌ [createWorkAction] Image upload error:', error)
+        return { success: false, error: 'Image upload failed' }
+      }
+    }
+
     console.log('⚡ [createWorkAction] Validating required fields...')
     if (!title || !content || !category) {
       console.log('❌ [createWorkAction] Validation failed:', {
@@ -937,6 +1068,45 @@ export async function createWorkAction(formData: FormData) {
     // 作品IDを生成
     const work_id = crypto.randomUUID()
 
+    // シリーズ画像使用時の処理
+    if (use_series_image && series_id) {
+      console.log('🔄 [createWorkAction] Using series image for work, series_id:', series_id)
+      
+      // シリーズのcover_image_urlを取得
+      const { data: seriesData, error: seriesError } = await supabase
+        .from('series')
+        .select('*')
+        .eq('id', series_id)
+        .single()
+      
+      console.log('🔍 [createWorkAction] Series query result:', {
+        series_id,
+        seriesData,
+        seriesError,
+        hasCoverImage: !!seriesData?.cover_image_url,
+        coverImageUrl: seriesData?.cover_image_url
+      })
+      
+      if (seriesError) {
+        console.error('❌ [createWorkAction] Series data fetch error:', seriesError)
+        return { error: 'シリーズ情報の取得に失敗しました: ' + seriesError.message }
+      }
+      
+      if (seriesData?.cover_image_url) {
+        image_url = seriesData.cover_image_url
+        console.log('✅ [createWorkAction] Set series image as work image:', image_url)
+      } else {
+        console.log('⚠️ [createWorkAction] Series has no cover image')
+        console.log('⚠️ [createWorkAction] Full series data:', JSON.stringify(seriesData, null, 2))
+      }
+    }
+
+    console.log('🏗️ [createWorkAction] Final image settings:', {
+      use_series_image,
+      has_series_id: !!series_id,
+      final_image_url: image_url || 'NULL'
+    })
+
     // 作品データを作成
     const workData = {
       work_id,
@@ -949,6 +1119,7 @@ export async function createWorkAction(formData: FormData) {
       image_url: image_url || null,
       series_id: series_id || null,
       episode_number: episode_number,
+      use_series_image: use_series_image,
       is_adult_content,
       allow_comments,
       is_published: publish_timing === 'now',

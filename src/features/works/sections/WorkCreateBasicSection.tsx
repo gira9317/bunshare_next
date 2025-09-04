@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SeriesSelector } from '../leaf/SeriesSelector'
 import { CategorySelect } from '../leaf/CategorySelect'
 import { cn } from '@/lib/utils'
@@ -9,6 +9,7 @@ interface Series {
   series_id: string
   title: string
   description?: string | null
+  cover_image_url?: string | null
 }
 
 interface WorkCreateBasicSectionProps {
@@ -22,11 +23,32 @@ export function WorkCreateBasicSection({ userSeries }: WorkCreateBasicSectionPro
   const [episodeNumber, setEpisodeNumber] = useState<number | null>(null)
   const [description, setDescription] = useState('')
   const [currentUserSeries, setCurrentUserSeries] = useState(userSeries)
+  const [useSeriesImage, setUseSeriesImage] = useState(false)
+
+  // 選択されたシリーズデータをグローバルに保存
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const selectedSeriesData = currentUserSeries.find(series => series.series_id === selectedSeries)
+      if (selectedSeriesData) {
+        (window as any).selectedSeriesData = selectedSeriesData
+        console.log('📚 [WorkCreateBasicSection] Selected series data saved:', selectedSeriesData)
+      } else if (selectedSeries === '') {
+        (window as any).selectedSeriesData = null
+        console.log('📚 [WorkCreateBasicSection] No series selected, cleared series data')
+      }
+    }
+  }, [selectedSeries, currentUserSeries])
 
   // 新しいシリーズが作成されたときの処理
   const handleSeriesCreated = (newSeries: Series) => {
     console.log('📝 [WorkCreateBasicSection] New series created:', newSeries)
     setCurrentUserSeries(prev => [...prev, newSeries])
+    
+    // 新しく作成されたシリーズのデータもグローバルに保存
+    if (typeof window !== 'undefined') {
+      (window as any).selectedSeriesData = newSeries
+      console.log('📚 [WorkCreateBasicSection] New series data saved globally:', newSeries)
+    }
   }
 
   return (
@@ -78,6 +100,37 @@ export function WorkCreateBasicSection({ userSeries }: WorkCreateBasicSectionPro
         onEpisodeNumberChange={setEpisodeNumber}
         onSeriesCreated={handleSeriesCreated}
       />
+
+      {/* シリーズ画像使用オプション */}
+      {selectedSeries && (
+        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-3">
+          <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+            シリーズ設定
+          </h3>
+          
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              name="use_series_image"
+              checked={useSeriesImage}
+              onChange={(e) => setUseSeriesImage(e.target.checked)}
+              className={cn(
+                "w-4 h-4 rounded border-gray-300 dark:border-gray-600",
+                "text-blue-600 focus:ring-blue-500",
+                "transition-colors"
+              )}
+            />
+            <div className="flex-1">
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                シリーズのカバー画像を使用する
+              </span>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                チェックすると、個別の画像の代わりにシリーズのカバー画像が表示されます
+              </p>
+            </div>
+          </label>
+        </div>
+      )}
 
       {/* 概要 */}
       <div className="space-y-2">

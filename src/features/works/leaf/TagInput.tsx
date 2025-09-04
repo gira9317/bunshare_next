@@ -122,6 +122,9 @@ export function TagInput({ tags, onChange, maxTags = 10 }: TagInputProps) {
         <p className="text-xs text-red-500">{error}</p>
       )}
 
+      {/* 隠し入力フィールド（フォームデータ収集用） */}
+      <input type="hidden" name="tags" value={tags.join(',')} />
+
       {/* ヒント */}
       <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
         <span>

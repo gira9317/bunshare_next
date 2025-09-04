@@ -2,25 +2,35 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
-import { Upload, X, Camera } from 'lucide-react'
+import { Upload, X, Camera, Crop } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ImageCropper } from './ImageCropper'
 
 interface ImageUploadProps {
   imageUrl: string
-  onImageChange: (url: string) => void
+  onImageChange: (url: string, file?: File) => void
   isUploading: boolean
   setIsUploading: (uploading: boolean) => void
+  aspectRatio?: number
+  outputFormat?: 'webp' | 'jpeg' | 'png'
+  quality?: number
 }
 
 export function ImageUpload({ 
   imageUrl, 
   onImageChange, 
   isUploading, 
-  setIsUploading 
+  setIsUploading,
+  aspectRatio = 16 / 9,
+  outputFormat = 'webp',
+  quality = 0.9
 }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [dragActive, setDragActive] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string>(imageUrl)
+  const [showCropper, setShowCropper] = useState(false)
+  const [originalImageSrc, setOriginalImageSrc] = useState<string>('')
+  const [fullSizeImageSrc, setFullSizeImageSrc] = useState<string>('')
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -65,22 +75,66 @@ export function ImageUpload({
     // プレビューURL生成
     const url = URL.createObjectURL(file)
     setPreviewUrl(url)
+    setOriginalImageSrc(url)
+    setFullSizeImageSrc(url) // 元サイズの画像を保持
 
     // TODO: 実際のアップロード処理
     setIsUploading(true)
     
     // 仮のアップロード処理（実際はSupabase Storageへアップロード）
     setTimeout(() => {
-      onImageChange(url)
+      onImageChange(url, file)
       setIsUploading(false)
     }, 1000)
   }
 
   const handleRemove = () => {
+    console.log('🗑️ [ImageUpload] Removing image')
+
+    // URLを解放
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl)
+    }
+    if (originalImageSrc && originalImageSrc.startsWith('blob:')) {
+      URL.revokeObjectURL(originalImageSrc)
+    }
+    if (fullSizeImageSrc && fullSizeImageSrc.startsWith('blob:')) {
+      URL.revokeObjectURL(fullSizeImageSrc)
+    }
+
     setPreviewUrl('')
+    setOriginalImageSrc('')
+    setFullSizeImageSrc('')
     onImageChange('')
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
+    }
+  }
+
+  const handleCropComplete = (croppedFile: File, croppedUrl: string) => {
+    console.log('🖼️ [ImageUpload] Crop completed:', {
+      fileName: croppedFile.name,
+      fileSize: croppedFile.size,
+      fileType: croppedFile.type,
+      url: croppedUrl.substring(0, 50) + '...'
+    })
+
+    // 古いプレビューURLがあれば解放（ただしoriginalImageSrcは残す）
+    if (previewUrl && previewUrl.startsWith('blob:') && previewUrl !== originalImageSrc) {
+      URL.revokeObjectURL(previewUrl)
+    }
+
+    setPreviewUrl(croppedUrl)
+    // トリミング後はpreviewを更新するが、originalImageSrcは元の画像を保持
+    // （fullSizeImageSrcが元画像、originalImageSrcはトリミング用に使用）
+    setOriginalImageSrc(croppedUrl)
+    onImageChange(croppedUrl, croppedFile)
+    setShowCropper(false)
+  }
+
+  const handleOpenCropper = () => {
+    if (fullSizeImageSrc) {
+      setShowCropper(true)
     }
   }
 
@@ -153,6 +207,20 @@ export function ImageUpload({
           <div className="absolute bottom-4 right-4 flex gap-2">
             <button
               type="button"
+              onClick={handleOpenCropper}
+              className={cn(
+                "p-2 rounded-lg",
+                "bg-blue-500/80 backdrop-blur-sm",
+                "hover:bg-blue-600/80",
+                "transition-colors"
+              )}
+              title="画像をトリミング"
+            >
+              <Crop className="w-5 h-5 text-white" />
+            </button>
+
+            <button
+              type="button"
               onClick={() => fileInputRef.current?.click()}
               className={cn(
                 "p-2 rounded-lg",
@@ -160,6 +228,7 @@ export function ImageUpload({
                 "hover:bg-white/30",
                 "transition-colors"
               )}
+              title="画像を変更"
             >
               <Camera className="w-5 h-5 text-white" />
             </button>
@@ -173,6 +242,7 @@ export function ImageUpload({
                 "hover:bg-red-600/80",
                 "transition-colors"
               )}
+              title="画像を削除"
             >
               <X className="w-5 h-5 text-white" />
             </button>
@@ -187,6 +257,17 @@ export function ImageUpload({
           />
         </div>
       )}
+
+      {/* Image Cropper Modal */}
+      <ImageCropper
+        imageSrc={fullSizeImageSrc}
+        isOpen={showCropper}
+        onClose={() => setShowCropper(false)}
+        onCropComplete={handleCropComplete}
+        aspectRatio={aspectRatio}
+        outputFormat={outputFormat}
+        quality={quality}
+      />
     </div>
   )
 }

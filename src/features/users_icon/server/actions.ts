@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 export async function signOut() {
   const supabase = await createClient()
   
+  console.log('Signing out user...')
   const { error } = await supabase.auth.signOut()
   
   if (error) {
@@ -14,8 +15,13 @@ export async function signOut() {
     throw new Error('ログアウトに失敗しました')
   }
   
+  console.log('Logout successful, clearing cache...')
+  
+  // キャッシュを完全にクリア
   revalidatePath('/', 'layout')
-  redirect('/auth/login')
+  revalidatePath('/')
+  
+  redirect('/')
 }
 
 export async function updateAvatar(userId: string, avatarUrl: string) {

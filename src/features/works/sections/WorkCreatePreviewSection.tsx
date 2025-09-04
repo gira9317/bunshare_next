@@ -15,14 +15,38 @@ export function WorkCreatePreviewSection() {
 
   // フォームデータを収集してプレビュー用の作品オブジェクトを生成
   const getPreviewWork = (): Work => {
-    // TODO: 実際のフォームデータから収集
+    // 実際のフォームデータから収集
+    const useSeriesImage = (document.querySelector('input[name="use_series_image"]') as HTMLInputElement)?.checked || false
+    const seriesId = (document.querySelector('select[name="series_id"]') as HTMLSelectElement)?.value || ''
+    
+    let imageUrl = ''
+    
+    if (useSeriesImage && seriesId) {
+      // シリーズ画像を使用する場合は、グローバルに保存されたシリーズデータから画像URLを取得
+      if (typeof window !== 'undefined') {
+        const selectedSeriesData = (window as any).selectedSeriesData
+        if (selectedSeriesData && selectedSeriesData.cover_image_url) {
+          imageUrl = selectedSeriesData.cover_image_url
+          console.log('🖼️ [WorkCreatePreview] Using series image:', imageUrl.substring(0, 50) + '...')
+        } else {
+          console.log('📝 [WorkCreatePreview] Series selected but no cover image available')
+          imageUrl = ''
+        }
+      }
+    } else {
+      // 通常の画像を使用
+      imageUrl = (document.querySelector('input[name="image_url"]') as HTMLInputElement)?.value || ''
+    }
+
     const formData = {
       title: (document.querySelector('input[name="title"]') as HTMLInputElement)?.value || '無題の作品',
       description: (document.querySelector('textarea[name="description"]') as HTMLTextAreaElement)?.value || '',
-      category: '小説', // TODO: 実際の選択値を取得
-      content: '', // TODO: エディターから取得
-      image_url: '', // TODO: アップロードした画像URL
-      tags: [], // TODO: タグ入力から取得
+      category: (document.querySelector('input[name="category"]') as HTMLInputElement)?.value || '小説',
+      content: (document.querySelector('textarea[name="content"]') as HTMLTextAreaElement)?.value || '',
+      image_url: imageUrl,
+      tags: (document.querySelector('input[name="tags"]') as HTMLInputElement)?.value?.split(',').map(tag => tag.trim()).filter(Boolean) || [],
+      use_series_image: useSeriesImage,
+      series_id: seriesId
     }
 
     return {
@@ -80,22 +104,45 @@ export function WorkCreatePreviewSection() {
       const imageInput = document.querySelector('input[name="image_url"]') as HTMLInputElement
       const seriesSelect = document.querySelector('select[name="series_id"]') as HTMLSelectElement
       const episodeInput = document.querySelector('input[name="episode_number"]') as HTMLInputElement
+      const useSeriesImageCheckbox = document.querySelector('input[name="use_series_image"]') as HTMLInputElement
       const adultCheckbox = document.querySelector('input[name="is_adult_content"]') as HTMLInputElement
       const commentsCheckbox = document.querySelector('input[name="allow_comments"]') as HTMLInputElement
+      
+      // 画像ファイルをグローバルから取得
+      const imageFile = (window as any).workImageFile as File | null
       
       console.log('🔍 [WorkCreatePreview] Additional elements found:', {
         tagsInput: !!tagsInput,
         imageInput: !!imageInput,
+        imageFile: !!imageFile,
+        imageFileName: imageFile?.name,
+        imageFileSize: imageFile?.size,
         seriesSelect: !!seriesSelect,
         episodeInput: !!episodeInput,
+        useSeriesImageCheckbox: !!useSeriesImageCheckbox,
+        useSeriesImageChecked: useSeriesImageCheckbox?.checked,
         adultCheckbox: !!adultCheckbox,
         commentsCheckbox: !!commentsCheckbox
       })
       
       if (tagsInput?.value) formData.append('tags', tagsInput.value)
-      if (imageInput?.value) formData.append('image_url', imageInput.value)
+      
+      // 画像ファイルを追加（blobURLではなく実際のFile）
+      if (imageFile) {
+        formData.append('image_file', imageFile)
+        console.log('📎 [WorkCreatePreview] Image file added to FormData:', {
+          name: imageFile.name,
+          size: imageFile.size,
+          type: imageFile.type
+        })
+      } else if (imageInput?.value) {
+        formData.append('image_url', imageInput.value)
+        console.log('📎 [WorkCreatePreview] Image URL added to FormData:', imageInput.value.substring(0, 50) + '...')
+      }
+      
       if (seriesSelect?.value) formData.append('series_id', seriesSelect.value)
       if (episodeInput?.value) formData.append('episode_number', episodeInput.value)
+      if (useSeriesImageCheckbox?.checked) formData.append('use_series_image', 'true')
       if (adultCheckbox?.checked) formData.append('is_adult_content', 'true')
       if (commentsCheckbox?.checked !== false) formData.append('allow_comments', 'true')
       

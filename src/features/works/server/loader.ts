@@ -22,12 +22,14 @@ export const getWorks = cache(async (limit = 10, offset = 0) => {
       image_url,
       series_id,
       episode_number,
+      use_series_image,
       users (
         username
       ),
       series (
         id,
-        title
+        title,
+        cover_image_url
       )
     `)
     .eq('is_published', true)
@@ -45,7 +47,8 @@ export const getWorks = cache(async (limit = 10, offset = 0) => {
     ...work,
     author: work.users?.username || 'Unknown',
     author_username: work.users?.username || 'Unknown',
-    series_title: work.series?.title || null
+    series_title: work.series?.title || null,
+    series_cover_image_url: work.series?.cover_image_url || null
   })) as Work[]
 })
 
@@ -61,7 +64,8 @@ export const getWorksByCategory = cache(async (category: string, limit = 10, off
       ),
       series (
         id,
-        title
+        title,
+        cover_image_url
       )
     `)
     .eq('category', category)
@@ -78,7 +82,8 @@ export const getWorksByCategory = cache(async (category: string, limit = 10, off
     ...work,
     author: work.users?.username || 'Unknown',
     author_username: work.users?.username || 'Unknown',
-    series_title: work.series?.title || null
+    series_title: work.series?.title || null,
+    series_cover_image_url: work.series?.cover_image_url || null
   })) as Work[]
 })
 
@@ -170,7 +175,8 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
       ),
       series (
         id,
-        title
+        title,
+        cover_image_url
       )
     `)
     .eq('work_id', workId)
@@ -189,6 +195,7 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
     ...data,
     author: data.users?.username || 'Unknown',
     author_username: data.users?.username || 'Unknown',
-    series_title: data.series?.title || null
+    series_title: data.series?.title || null,
+    series_cover_image_url: data.series?.cover_image_url || null
   } as Work
 })

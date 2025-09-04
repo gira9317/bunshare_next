@@ -2,21 +2,27 @@ import { createClient } from '@/lib/supabase/server'
 import { User } from '@supabase/supabase-js'
 import { cache } from 'react'
 
-export const getAuthenticatedUser = cache(async (): Promise<User | null> => {
+export const getAuthenticatedUser = async (): Promise<User | null> => {
   console.log('getAuthenticatedUser: Starting auth check...')
   const supabase = await createClient()
   
   try {
-    // Use getSession instead of getUser to reduce token refresh issues
-    console.log('getAuthenticatedUser: Calling getSession...')
-    const { data: { session }, error } = await supabase.auth.getSession()
+    // Use getUser for proper authentication validation
+    console.log('getAuthenticatedUser: Calling getUser...')
+    const { data: { user }, error } = await supabase.auth.getUser()
     
     if (error) {
-      console.error('Auth session error:', error)
+      // Handle AuthSessionMissingError as a normal case (user not logged in)
+      if (error.message.includes('Auth session missing')) {
+        console.log('No auth session found - user not logged in')
+        return null
+      }
       
-      // If refresh token is invalid, sign out to clear corrupted session
-      if (error.message.includes('Invalid Refresh Token') || error.message.includes('refresh_token_already_used')) {
-        console.log('Clearing corrupted session')
+      console.error('Auth user error:', error)
+      
+      // If token is invalid, clear session
+      if (error.message.includes('Invalid') || error.message.includes('expired')) {
+        console.log('Clearing invalid session')
         try {
           await supabase.auth.signOut()
         } catch (signOutError) {
@@ -27,10 +33,10 @@ export const getAuthenticatedUser = cache(async (): Promise<User | null> => {
       return null
     }
     
-    console.log('getAuthenticatedUser: Session result:', session ? { user: session.user?.id, email: session.user?.email } : 'No session')
-    return session?.user ?? null
+    console.log('getAuthenticatedUser: User result:', user ? { user: user.id, email: user.email } : 'No user')
+    return user
   } catch (error) {
-    console.error('Auth session exception:', error)
+    console.error('Auth user exception:', error)
     return null
   }
-})
+}

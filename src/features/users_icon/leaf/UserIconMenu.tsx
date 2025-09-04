@@ -3,6 +3,7 @@
 import { UserProfile } from '../types'
 import { UserIconMenuItem } from './UserIconMenuItem'
 import { ThemeSelector } from './ThemeSelector'
+import { signOut } from '../server/actions'
 import { cn } from '@/lib/utils'
 
 interface UserIconMenuProps {
@@ -20,10 +21,14 @@ export function UserIconMenu({
 }: UserIconMenuProps) {
   if (!isOpen) return null
   
-  const handleSignOut = () => {
-    // For now, just redirect to login page
-    // In a real app, you'd call a server action through a form or dedicated endpoint
-    window.location.href = '/auth/login'
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Fallback to direct redirect if server action fails
+      window.location.href = '/auth/login'
+    }
   }
   
   return (
