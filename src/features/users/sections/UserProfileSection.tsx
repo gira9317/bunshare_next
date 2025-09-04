@@ -38,7 +38,8 @@ export function UserProfileSection({
   const joinedDate = user.sign_in_time 
     ? new Date(user.sign_in_time).toLocaleDateString('ja-JP', {
         year: 'numeric',
-        month: 'long'
+        month: 'long',
+        timeZone: 'Asia/Tokyo'
       })
     : '不明'
 

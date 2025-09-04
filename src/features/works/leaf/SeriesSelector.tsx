@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { createSeriesAction } from '../server/actions'
+import { createSeriesAction, getLatestEpisodeNumberAction } from '../server/actions'
 import { ImageUpload } from './ImageUpload'
 
 interface Series {
@@ -80,7 +80,7 @@ export function SeriesSelector({
       if (result.success && result.series) {
         // 新しく作成されたシリーズを選択
         onSeriesChange(result.series.series_id)
-        onEpisodeNumberChange(1)
+        onEpisodeNumberChange(1) // 新規シリーズは常に第1話
         
         // 親コンポーネントに通知（リストを更新するため）
         onSeriesCreated?.(result.series)
@@ -116,10 +116,23 @@ export function SeriesSelector({
           <select
             name="series_id"
             value={selectedSeries}
-            onChange={(e) => {
-              onSeriesChange(e.target.value)
-              if (e.target.value) {
-                onEpisodeNumberChange(1) // デフォルトエピソード番号
+            onChange={async (e) => {
+              const seriesId = e.target.value
+              onSeriesChange(seriesId)
+              
+              if (seriesId) {
+                // シリーズが選択された場合、最新エピソード番号を取得
+                try {
+                  const result = await getLatestEpisodeNumberAction(seriesId)
+                  if (result.success && result.nextEpisodeNumber) {
+                    onEpisodeNumberChange(result.nextEpisodeNumber)
+                  } else {
+                    onEpisodeNumberChange(1) // フォールバック
+                  }
+                } catch (error) {
+                  console.error('エピソード番号取得エラー:', error)
+                  onEpisodeNumberChange(1) // エラー時はデフォルト値
+                }
               } else {
                 onEpisodeNumberChange(null)
               }

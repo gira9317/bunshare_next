@@ -5,9 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatDistanceToNow(date: Date): string {
+export function formatDistanceToNow(date: Date | string): string {
+  // UTC文字列が渡された場合は日本時間に変換
+  const targetDate = typeof date === 'string' ? new Date(date) : date
   const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
+  const diffMs = now.getTime() - targetDate.getTime()
   const diffMins = Math.floor(diffMs / (1000 * 60))
   const diffHours = Math.floor(diffMins / 60)
   const diffDays = Math.floor(diffHours / 24)
@@ -17,5 +19,6 @@ export function formatDistanceToNow(date: Date): string {
   if (diffHours < 24) return `${diffHours}時間前`
   if (diffDays < 7) return `${diffDays}日前`
   
-  return date.toLocaleDateString('ja-JP')
+  // 日本時間で表示
+  return targetDate.toLocaleDateString('ja-JP', { timeZone: 'Asia/Tokyo' })
 }

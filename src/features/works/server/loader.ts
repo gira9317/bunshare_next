@@ -191,8 +191,38 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
 
   console.log('Work data retrieved:', { title: data.title, author: data.users?.username })
 
+  // 予約投稿の自動公開判定
+  const now = new Date()
+  const scheduledAt = data.scheduled_at ? new Date(data.scheduled_at) : null
+  
+  console.log('🔍 Auto-publish check:', {
+    workId,
+    is_published: data.is_published,
+    scheduled_at: data.scheduled_at,
+    scheduledAt_parsed: scheduledAt?.toISOString(),
+    now: now.toISOString(),
+    comparison: scheduledAt ? scheduledAt <= now : 'no scheduled date',
+    shouldPublish: scheduledAt ? scheduledAt <= now : false
+  })
+  
+  const shouldBePublished = data.is_published || 
+    (scheduledAt && scheduledAt <= now)
+  
+  if (!data.is_published && shouldBePublished) {
+    console.log('🚨 Auto-publishing scheduled work:', workId)
+    // データベースを更新して公開状態にする
+    await supabase
+      .from('works')
+      .update({ 
+        is_published: true,
+        updated_at: new Date().toISOString()
+      })
+      .eq('work_id', workId)
+  }
+
   return {
     ...data,
+    is_published: shouldBePublished, // 動的に公開状態を判定
     author: data.users?.username || 'Unknown',
     author_username: data.users?.username || 'Unknown',
     series_title: data.series?.title || null,

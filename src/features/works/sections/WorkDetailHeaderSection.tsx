@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Calendar, User, Eye, Heart, MessageCircle, Bookmark } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import { convertUTCToJST } from '@/lib/utils/timezone'
 import { useState } from 'react'
 import { toggleLikeAction, toggleBookmarkAction } from '../server/actions'
 import { cn } from '@/lib/utils'
@@ -101,7 +102,7 @@ export function WorkDetailHeaderSection({
           <div className="flex items-center gap-1">
             <Calendar className="w-4 h-4" />
             <time dateTime={work.created_at}>
-              {formatDistanceToNow(new Date(work.created_at), { 
+              {formatDistanceToNow(convertUTCToJST(work.created_at), { 
                 addSuffix: true, 
                 locale: ja 
               })}

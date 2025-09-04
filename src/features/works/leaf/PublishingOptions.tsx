@@ -2,6 +2,7 @@
 
 import { Calendar, Rocket, Save } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { getMinDateTimeJST } from '@/lib/utils/timezone'
 
 interface PublishingOptionsProps {
   publishTiming: 'now' | 'scheduled' | 'draft'
@@ -16,15 +17,19 @@ export function PublishingOptions({
   onTimingChange,
   onDateChange
 }: PublishingOptionsProps) {
-  // 現在時刻の1時間後をデフォルト値として設定
+  // 現在時刻の1時間後をデフォルト値として設定（日本時間）
   const getMinDateTime = () => {
-    const now = new Date()
-    now.setHours(now.getHours() + 1)
-    return now.toISOString().slice(0, 16)
+    return getMinDateTimeJST()
   }
 
   return (
     <div className="space-y-4">
+      {/* Hidden inputs for form submission */}
+      <input type="hidden" name="publish_timing" value={publishTiming} />
+      {publishTiming === 'scheduled' && scheduledDate && (
+        <input type="hidden" name="scheduled_at" value={scheduledDate} />
+      )}
+      
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {/* 今すぐ公開 */}
         <button
@@ -107,7 +112,7 @@ export function PublishingOptions({
             required
           />
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            指定した日時に自動的に公開されます
+            指定した日時に自動的に公開されます（日本時間）
           </p>
         </div>
       )}

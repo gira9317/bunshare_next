@@ -60,8 +60,8 @@ export function WorkCreatePreviewSection() {
       tags: formData.tags,
       author: 'あなた',
       author_username: 'your-username',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+      created_at: new Date().toISOString(), // プレビュー用なので現在時刻でOK
+      updated_at: new Date().toISOString(), // プレビュー用なので現在時刻でOK
       views: 0,
       likes: 0,
       comments: 0,
@@ -70,6 +70,7 @@ export function WorkCreatePreviewSection() {
 
   const handleSubmit = async (type: 'publish' | 'draft') => {
     console.log('🚀 [WorkCreatePreview] Submit started:', { type })
+    console.log('🚀 [WorkCreatePreview] This function is being called!')
     setIsSubmitting(true)
     
     try {
@@ -146,8 +147,37 @@ export function WorkCreatePreviewSection() {
       if (adultCheckbox?.checked) formData.append('is_adult_content', 'true')
       if (commentsCheckbox?.checked !== false) formData.append('allow_comments', 'true')
       
-      // 公開設定
-      formData.append('publish_timing', type === 'publish' ? 'now' : 'draft')
+      // 公開設定を取得
+      const publishTimingInput = document.querySelector('input[name="publish_timing"]') as HTMLInputElement
+      const scheduledAtInput = document.querySelector('input[name="scheduled_at"]') as HTMLInputElement
+      
+      console.log('🔍 [WorkCreatePreview] Publishing settings:', {
+        publishTimingInput: !!publishTimingInput,
+        publishTiming: publishTimingInput?.value,
+        scheduledAtInput: !!scheduledAtInput,
+        scheduledAt: scheduledAtInput?.value,
+        type
+      })
+      
+      // さらに詳細なデバッグ
+      console.log('🔍 [WorkCreatePreview] All publish_timing inputs:', document.querySelectorAll('input[name="publish_timing"]'))
+      console.log('🔍 [WorkCreatePreview] All scheduled_at inputs:', document.querySelectorAll('input[name="scheduled_at"]'))
+      
+      if (type === 'publish') {
+        // 公開ボタンが押された場合は設定された公開設定を使用
+        if (publishTimingInput?.value) {
+          formData.append('publish_timing', publishTimingInput.value)
+        } else {
+          formData.append('publish_timing', 'now')
+        }
+        
+        if (publishTimingInput?.value === 'scheduled' && scheduledAtInput?.value) {
+          formData.append('scheduled_at', scheduledAtInput.value)
+        }
+      } else {
+        // 下書きボタンが押された場合は強制的に下書き
+        formData.append('publish_timing', 'draft')
+      }
       
       // FormDataの内容をログ出力
       console.log('📋 [WorkCreatePreview] FormData contents:')
