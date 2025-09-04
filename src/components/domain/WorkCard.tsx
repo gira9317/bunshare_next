@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import type { WorkCardProps } from '@/features/works/types'
@@ -30,6 +31,7 @@ export function WorkCard({
   const moreMenuButtonRef = useRef<HTMLButtonElement>(null)
   const dropdownMenuRef = useRef<HTMLDivElement>(null)
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault()
@@ -154,7 +156,7 @@ export function WorkCard({
         const isInteractive = target.closest('.interactive-button, .clickable')
         
         if (!isButton && !isInteractive && !disableNavigation) {
-          window.location.href = `/works/${work.work_id}`
+          router.push(`/works/${work.work_id}`)
         }
         
         setShowMoreMenu(false)

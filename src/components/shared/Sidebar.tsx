@@ -17,6 +17,16 @@ const navItems = [
     )
   },
   { 
+    href: '/works/create', 
+    label: '投稿',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M14.828 14.828a4 4 0 0 1-5.656 0M9 10h.01M15 10h.01M21 12c0 4.97-4.03 9-9 9-4.97 0-9-4.03-9-9s4.03-9 9-9 9 4.03 9 9z" stroke="currentColor" strokeWidth="2"/>
+        <path d="M17 7l-3 3-3-3" stroke="currentColor" strokeWidth="2"/>
+      </svg>
+    )
+  },
+  { 
     href: '/explore', 
     label: '探索',
     icon: (

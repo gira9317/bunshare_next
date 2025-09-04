@@ -768,3 +768,221 @@ export async function updateBookmarkMemoAction(workId: string, folderKey: string
     return { error: 'メモの更新に失敗しました' }
   }
 }
+
+/**
+ * 読書進捗を更新
+ */
+export async function updateReadingProgressAction(workId: string, progress: number) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // reading_progressテーブルに保存
+    const { error } = await supabase
+      .from('reading_progress')
+      .upsert({
+        user_id: user.id,
+        work_id: workId,
+        progress: progress,
+        updated_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,work_id'
+      })
+
+    if (error) throw error
+
+    // reading_bookmarksにも保存（続きを読む機能用）
+    if (progress > 0) {
+      await supabase
+        .from('reading_bookmarks')
+        .upsert({
+          user_id: user.id,
+          work_id: workId,
+          last_position: progress,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id,work_id'
+        })
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('読書進捗更新エラー:', error)
+    return { error: '読書進捗の保存に失敗しました' }
+  }
+}
+
+/**
+ * 作品を作成
+ */
+export async function createWorkAction(formData: FormData) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // FormDataから値を取得
+    const title = formData.get('title') as string
+    const description = formData.get('description') as string
+    const content = formData.get('content') as string
+    const category = formData.get('category') as string
+    const tags = formData.get('tags') ? JSON.parse(formData.get('tags') as string) : []
+    const image_url = formData.get('image_url') as string
+    const series_id = formData.get('series_id') as string
+    const episode_number = formData.get('episode_number') ? parseInt(formData.get('episode_number') as string) : null
+    const is_adult_content = formData.get('is_adult_content') === 'true'
+    const allow_comments = formData.get('allow_comments') !== 'false'
+    const publish_timing = formData.get('publish_timing') as string
+    const scheduled_at = formData.get('scheduled_at') as string
+
+    // バリデーション
+    if (!title || !content || !category) {
+      return { error: 'タイトル、本文、カテゴリは必須です' }
+    }
+
+    // 作品IDを生成
+    const work_id = crypto.randomUUID()
+
+    // 作品データを作成
+    const workData = {
+      work_id,
+      user_id: user.id,
+      title,
+      description: description || null,
+      content,
+      category,
+      tags: tags.length > 0 ? tags : null,
+      image_url: image_url || null,
+      series_id: series_id || null,
+      episode_number: episode_number,
+      is_adult_content,
+      allow_comments,
+      is_published: publish_timing === 'now',
+      scheduled_at: publish_timing === 'scheduled' ? scheduled_at : null,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      views: 0,
+      likes: 0,
+      comments: 0
+    }
+
+    // 作品を挿入
+    const { error } = await supabase
+      .from('works')
+      .insert(workData)
+
+    if (error) throw error
+
+    // キャッシュを無効化
+    revalidateTag('works')
+    revalidateTag(`user:${user.id}:works`)
+
+    return { success: true, workId: work_id }
+  } catch (error) {
+    console.error('作品作成エラー:', error)
+    return { error: '作品の作成に失敗しました' }
+  }
+}
+
+/**
+ * シリーズを作成
+ */
+export async function createSeriesAction(title: string, description?: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const series_id = crypto.randomUUID()
+
+    const { error } = await supabase
+      .from('series')
+      .insert({
+        series_id,
+        user_id: user.id,
+        title,
+        description: description || null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+
+    if (error) throw error
+
+    // キャッシュを無効化
+    revalidateTag(`user:${user.id}:series`)
+
+    return { success: true, seriesId: series_id }
+  } catch (error) {
+    console.error('シリーズ作成エラー:', error)
+    return { error: 'シリーズの作成に失敗しました' }
+  }
+}
+
+/**
+ * テスト用作品を作成（開発用）
+ */
+export async function createTestWorkAction() {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const work_id = crypto.randomUUID()
+
+    const testWork = {
+      work_id,
+      user_id: user.id,
+      title: '【テスト】星降る夜の物語',
+      description: '静寂な夜空に降る星たちが奏でる、美しくも切ない物語。',
+      content: `第一章 星降る夜
+
+夜空には無数の星が瞬いていた。まるで天の神々が地上の人々に向けて投げかけた祝福のようだった。
+
+「また星を見てるの？」
+
+背後から聞こえた声に振り返ると、幼なじみの美月が立っていた。彼女の瞳には、僕が見上げている星空と同じ光が宿っているように見えた。
+
+「星って、本当はすごく遠くにあるのに、こんなに近くに感じるよね」
+
+僕はそう呟きながら、再び夜空を見上げた。美月も隣に座り、同じように星を見上げる。
+
+二人の間に流れる時間は、まるで永遠のようだった。`,
+      category: '小説',
+      tags: ['ファンタジー', '青春', '恋愛'],
+      is_published: true,
+      allow_comments: true,
+      is_adult_content: false,
+      views: 0,
+      likes: 0,
+      comments: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+
+    const { error } = await supabase
+      .from('works')
+      .insert(testWork)
+
+    if (error) throw error
+
+    console.log('テスト作品作成完了:', { work_id, title: testWork.title })
+
+    return { success: true, workId: work_id, title: testWork.title }
+  } catch (error) {
+    console.error('テスト作品作成エラー:', error)
+    return { error: 'テスト作品の作成に失敗しました' }
+  }
+}

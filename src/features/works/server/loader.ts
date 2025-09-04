@@ -4,6 +4,8 @@ import type { Work } from '../types'
 export async function getWorks(limit = 10, offset = 0) {
   const supabase = await createClient()
   
+  console.log('Getting works list...')
+  
   const { data, error } = await supabase
     .from('works')
     .select(`
@@ -17,9 +19,11 @@ export async function getWorks(limit = 10, offset = 0) {
     .range(offset, offset + limit - 1)
 
   if (error) {
-    console.error('作品取得エラー:', error)
+    console.error('作品取得エラー:', error, JSON.stringify(error, null, 2))
     return []
   }
+
+  console.log('Works retrieved:', data?.length || 0, 'works')
 
   return data.map((work: any) => ({
     ...work,
@@ -110,4 +114,49 @@ export async function getContinueReadingWorks(userId: string) {
     author: item.works.users?.username || item.works.author,
     readingProgress: item.last_position,
   })) as Work[]
+}
+
+export async function getWorkById(workId: string): Promise<Work | null> {
+  const supabase = await createClient()
+  
+  console.log('Getting work by ID:', workId)
+  
+  // まず、テーブル全体の状況を確認
+  try {
+    const { data: allWorks, error: countError } = await supabase
+      .from('works')
+      .select('work_id, title')
+      .limit(5)
+    
+    console.log('Available works in database:', allWorks?.map(w => ({ id: w.work_id, title: w.title })))
+    console.log('Count error if any:', countError)
+  } catch (e) {
+    console.log('Error checking works table:', e)
+  }
+
+  const { data, error } = await supabase
+    .from('works')
+    .select(`
+      *,
+      users (
+        username
+      )
+    `)
+    .eq('work_id', workId)
+    .single()
+
+  console.log('Query result:', { data: !!data, error, errorCode: error?.code, errorMessage: error?.message })
+
+  if (error || !data) {
+    console.error('作品詳細取得エラー:', { workId, error, errorDetails: JSON.stringify(error, null, 2) })
+    return null
+  }
+
+  console.log('Work data retrieved:', { title: data.title, author: data.users?.username })
+
+  return {
+    ...data,
+    author: data.users?.username || 'Unknown',
+    author_username: data.users?.username || 'Unknown'
+  } as Work
 }

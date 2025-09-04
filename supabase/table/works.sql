@@ -29,7 +29,7 @@ create table public.works (
   analysis_version integer null default 1,
   constraint works_pkey primary key (work_id),
   constraint works_image_url_key unique (image_url),
-  constraint works_series_id_fkey foreign KEY (series_id) references series (id),
+  -- constraint works_series_id_fkey foreign KEY (series_id) references series (id),
   constraint works_user_id_fkey foreign KEY (user_id) references users (id) on delete set null,
   constraint works_content_quality_score_check check (
     (
