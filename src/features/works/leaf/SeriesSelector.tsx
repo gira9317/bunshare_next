@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createSeriesAction } from '../server/actions'
 
 interface Series {
   series_id: string
@@ -16,6 +17,7 @@ interface SeriesSelectorProps {
   episodeNumber: number | null
   onSeriesChange: (seriesId: string) => void
   onEpisodeNumberChange: (episodeNumber: number | null) => void
+  onSeriesCreated?: (series: Series) => void
 }
 
 export function SeriesSelector({
@@ -23,18 +25,49 @@ export function SeriesSelector({
   selectedSeries,
   episodeNumber,
   onSeriesChange,
-  onEpisodeNumberChange
+  onEpisodeNumberChange,
+  onSeriesCreated
 }: SeriesSelectorProps) {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newSeriesTitle, setNewSeriesTitle] = useState('')
   const [newSeriesDescription, setNewSeriesDescription] = useState('')
+  const [isCreating, setIsCreating] = useState(false)
 
   const handleCreateSeries = async () => {
-    // TODO: Server Action実装後に接続
-    console.log('Creating series:', { newSeriesTitle, newSeriesDescription })
-    setShowCreateModal(false)
-    setNewSeriesTitle('')
-    setNewSeriesDescription('')
+    if (!newSeriesTitle.trim()) {
+      alert('シリーズタイトルを入力してください')
+      return
+    }
+
+    setIsCreating(true)
+    
+    try {
+      const result = await createSeriesAction(newSeriesTitle, newSeriesDescription)
+      
+      if (result.success && result.series) {
+        // 新しく作成されたシリーズを選択
+        onSeriesChange(result.series.series_id)
+        onEpisodeNumberChange(1)
+        
+        // 親コンポーネントに通知（リストを更新するため）
+        onSeriesCreated?.(result.series)
+        
+        // モーダルを閉じてフォームをリセット
+        setShowCreateModal(false)
+        setNewSeriesTitle('')
+        setNewSeriesDescription('')
+        
+        console.log('✅ Series created successfully:', result.series)
+      } else {
+        console.error('❌ Series creation failed:', result.error)
+        alert(result.error || 'シリーズの作成に失敗しました')
+      }
+    } catch (error) {
+      console.error('💥 Unexpected error:', error)
+      alert('エラーが発生しました')
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   return (
@@ -46,6 +79,7 @@ export function SeriesSelector({
         
         <div className="flex gap-2">
           <select
+            name="series_id"
             value={selectedSeries}
             onChange={(e) => {
               onSeriesChange(e.target.value)
@@ -97,6 +131,7 @@ export function SeriesSelector({
             <input
               type="number"
               id="episodeNumber"
+              name="episode_number"
               value={episodeNumber || ''}
               onChange={(e) => onEpisodeNumberChange(parseInt(e.target.value) || null)}
               min="1"
@@ -187,7 +222,7 @@ export function SeriesSelector({
               <button
                 type="button"
                 onClick={handleCreateSeries}
-                disabled={!newSeriesTitle}
+                disabled={!newSeriesTitle || isCreating}
                 className={cn(
                   "px-4 py-2 rounded-lg",
                   "bg-purple-600 hover:bg-purple-700",
@@ -196,7 +231,14 @@ export function SeriesSelector({
                   "disabled:opacity-50 disabled:cursor-not-allowed"
                 )}
               >
-                作成
+                {isCreating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    作成中...
+                  </>
+                ) : (
+                  '作成'
+                )}
               </button>
             </div>
           </div>

@@ -50,7 +50,7 @@ export function UserCard({
     const fetchUserData = async () => {
       try {
         // Get user stats
-        const statsResponse = await fetch(`/api/users/${user.id}/stats`)
+        const statsResponse = await fetch(`/api/profile/${user.id}/stats`)
         if (statsResponse.ok) {
           const statsData = await statsResponse.json()
           setStats(statsData)
@@ -58,7 +58,7 @@ export function UserCard({
 
         // Get follow status if current user exists
         if (currentUserId && !isSelf) {
-          const followResponse = await fetch(`/api/users/${user.id}/follow-status?currentUserId=${currentUserId}`)
+          const followResponse = await fetch(`/api/profile/${user.id}/follow-status?currentUserId=${currentUserId}`)
           if (followResponse.ok) {
             const followData = await followResponse.json()
             setIsFollowing(followData.isFollowing)
@@ -78,7 +78,7 @@ export function UserCard({
       onUserClick(user.id)
     } else {
       // Default navigation to user profile
-      window.location.href = `/users/${user.id}`
+      window.location.href = `/profile/${user.id}`
     }
   }
 

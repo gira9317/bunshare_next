@@ -63,7 +63,7 @@ export function UserIconMenu({
           <UserIconMenuItem
             label="マイ作品"
             icon="📚"
-            href={`/users/${user.id}/works`}
+            href={`/profile/${user.id}/works`}
           />
           <UserIconMenuItem
             label="ブックマーク"

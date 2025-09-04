@@ -75,7 +75,7 @@ export function WorkDetailActionsSection({
           </h3>
           
           <a
-            href={`/users/${work.user_id}`}
+            href={`/profile/${work.user_id}`}
             className="inline-block px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
           >
             作者のプロフィールを見る

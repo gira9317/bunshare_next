@@ -817,18 +817,83 @@ export async function updateReadingProgressAction(workId: string, progress: numb
 }
 
 /**
- * 作品を作成
+ * シリーズを作成
  */
-export async function createWorkAction(formData: FormData) {
+export async function createSeriesAction(title: string, description?: string) {
+  console.log('🔥 [createSeriesAction] Action started:', { title, description })
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
+    console.log('❌ [createSeriesAction] User not authenticated')
     return { error: 'ログインが必要です' }
   }
+  console.log('✅ [createSeriesAction] User authenticated:', user.id)
+
+  try {
+    // バリデーション
+    if (!title || title.trim().length === 0) {
+      console.log('❌ [createSeriesAction] Validation failed: empty title')
+      return { error: 'シリーズタイトルは必須です' }
+    }
+
+    // シリーズデータを作成
+    const seriesData = {
+      user_id: user.id,
+      title: title.trim(),
+      description: description?.trim() || null
+    }
+
+    console.log('💾 [createSeriesAction] Inserting series data:', seriesData)
+
+    // Supabaseに挿入
+    const { data, error } = await supabase
+      .from('series')
+      .insert(seriesData)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('❌ [createSeriesAction] Database error:', error)
+      return { error: 'シリーズの作成に失敗しました: ' + error.message }
+    }
+
+    console.log('✅ [createSeriesAction] Series created successfully:', data)
+
+    // キャッシュを無効化
+    revalidateTag(`user:${user.id}:series`)
+
+    return { 
+      success: true, 
+      series: {
+        series_id: data.id,
+        title: data.title,
+        description: data.description
+      }
+    }
+  } catch (error) {
+    console.error('💥 [createSeriesAction] Unexpected error:', error)
+    return { error: 'シリーズの作成中にエラーが発生しました' }
+  }
+}
+
+/**
+ * 作品を作成
+ */
+export async function createWorkAction(formData: FormData) {
+  console.log('🔥 [createWorkAction] Action started')
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    console.log('❌ [createWorkAction] User not authenticated')
+    return { error: 'ログインが必要です' }
+  }
+  console.log('✅ [createWorkAction] User authenticated:', user.id)
 
   try {
     // FormDataから値を取得
+    console.log('📝 [createWorkAction] Extracting FormData values...')
     const title = formData.get('title') as string
     const description = formData.get('description') as string
     const content = formData.get('content') as string
@@ -842,10 +907,32 @@ export async function createWorkAction(formData: FormData) {
     const publish_timing = formData.get('publish_timing') as string
     const scheduled_at = formData.get('scheduled_at') as string
 
+    console.log('🔍 [createWorkAction] Extracted values:', {
+      title: !!title ? `"${title}"` : 'EMPTY',
+      description: !!description ? `"${description.substring(0, 50)}..."` : 'EMPTY',
+      content: !!content ? `"${content.substring(0, 50)}..."` : 'EMPTY',
+      category: !!category ? `"${category}"` : 'EMPTY',
+      tags: tags,
+      image_url: !!image_url ? `"${image_url}"` : 'EMPTY',
+      series_id: !!series_id ? `"${series_id}"` : 'EMPTY',
+      episode_number,
+      is_adult_content,
+      allow_comments,
+      publish_timing,
+      scheduled_at: !!scheduled_at ? `"${scheduled_at}"` : 'EMPTY'
+    })
+
     // バリデーション
+    console.log('⚡ [createWorkAction] Validating required fields...')
     if (!title || !content || !category) {
+      console.log('❌ [createWorkAction] Validation failed:', {
+        hasTitle: !!title,
+        hasContent: !!content,
+        hasCategory: !!category
+      })
       return { error: 'タイトル、本文、カテゴリは必須です' }
     }
+    console.log('✅ [createWorkAction] Validation passed')
 
     // 作品IDを生成
     const work_id = crypto.randomUUID()
@@ -891,42 +978,6 @@ export async function createWorkAction(formData: FormData) {
   }
 }
 
-/**
- * シリーズを作成
- */
-export async function createSeriesAction(title: string, description?: string) {
-  const supabase = await createClient()
-  
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return { error: 'ログインが必要です' }
-  }
-
-  try {
-    const series_id = crypto.randomUUID()
-
-    const { error } = await supabase
-      .from('series')
-      .insert({
-        series_id,
-        user_id: user.id,
-        title,
-        description: description || null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-
-    if (error) throw error
-
-    // キャッシュを無効化
-    revalidateTag(`user:${user.id}:series`)
-
-    return { success: true, seriesId: series_id }
-  } catch (error) {
-    console.error('シリーズ作成エラー:', error)
-    return { error: 'シリーズの作成に失敗しました' }
-  }
-}
 
 /**
  * テスト用作品を作成（開発用）

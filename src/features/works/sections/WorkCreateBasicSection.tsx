@@ -21,6 +21,13 @@ export function WorkCreateBasicSection({ userSeries }: WorkCreateBasicSectionPro
   const [selectedSeries, setSelectedSeries] = useState<string>('')
   const [episodeNumber, setEpisodeNumber] = useState<number | null>(null)
   const [description, setDescription] = useState('')
+  const [currentUserSeries, setCurrentUserSeries] = useState(userSeries)
+
+  // 新しいシリーズが作成されたときの処理
+  const handleSeriesCreated = (newSeries: Series) => {
+    console.log('📝 [WorkCreateBasicSection] New series created:', newSeries)
+    setCurrentUserSeries(prev => [...prev, newSeries])
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 space-y-6">
@@ -64,11 +71,12 @@ export function WorkCreateBasicSection({ userSeries }: WorkCreateBasicSectionPro
 
       {/* シリーズ */}
       <SeriesSelector
-        userSeries={userSeries}
+        userSeries={currentUserSeries}
         selectedSeries={selectedSeries}
         episodeNumber={episodeNumber}
         onSeriesChange={setSelectedSeries}
         onEpisodeNumberChange={setEpisodeNumber}
+        onSeriesCreated={handleSeriesCreated}
       />
 
       {/* 概要 */}

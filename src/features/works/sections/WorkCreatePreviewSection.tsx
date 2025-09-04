@@ -45,14 +45,73 @@ export function WorkCreatePreviewSection() {
   }
 
   const handleSubmit = async (type: 'publish' | 'draft') => {
+    console.log('🚀 [WorkCreatePreview] Submit started:', { type })
     setIsSubmitting(true)
     
     try {
-      // TODO: フォームデータを収集
+      // フォームデータを収集
+      console.log('📊 [WorkCreatePreview] Collecting form data...')
       const formData = new FormData()
       
+      // 基本情報を追加
+      const titleInput = document.querySelector('input[name="title"]') as HTMLInputElement
+      const descriptionTextarea = document.querySelector('textarea[name="description"]') as HTMLTextAreaElement
+      const categoryHidden = document.querySelector('input[name="category"]') as HTMLInputElement
+      const contentTextarea = document.querySelector('textarea[name="content"]') as HTMLTextAreaElement
+      
+      console.log('🔍 [WorkCreatePreview] Form elements found:', {
+        titleInput: !!titleInput,
+        descriptionTextarea: !!descriptionTextarea,
+        categoryHidden: !!categoryHidden,
+        contentTextarea: !!contentTextarea,
+        titleValue: titleInput?.value,
+        descriptionValue: descriptionTextarea?.value,
+        categoryValue: categoryHidden?.value,
+        contentValue: contentTextarea?.value?.substring(0, 100) + '...'
+      })
+      
+      if (titleInput?.value) formData.append('title', titleInput.value)
+      if (descriptionTextarea?.value) formData.append('description', descriptionTextarea.value)
+      if (categoryHidden?.value) formData.append('category', categoryHidden.value)
+      if (contentTextarea?.value) formData.append('content', contentTextarea.value)
+      
+      // その他のフィールドも追加
+      const tagsInput = document.querySelector('input[name="tags"]') as HTMLInputElement
+      const imageInput = document.querySelector('input[name="image_url"]') as HTMLInputElement
+      const seriesSelect = document.querySelector('select[name="series_id"]') as HTMLSelectElement
+      const episodeInput = document.querySelector('input[name="episode_number"]') as HTMLInputElement
+      const adultCheckbox = document.querySelector('input[name="is_adult_content"]') as HTMLInputElement
+      const commentsCheckbox = document.querySelector('input[name="allow_comments"]') as HTMLInputElement
+      
+      console.log('🔍 [WorkCreatePreview] Additional elements found:', {
+        tagsInput: !!tagsInput,
+        imageInput: !!imageInput,
+        seriesSelect: !!seriesSelect,
+        episodeInput: !!episodeInput,
+        adultCheckbox: !!adultCheckbox,
+        commentsCheckbox: !!commentsCheckbox
+      })
+      
+      if (tagsInput?.value) formData.append('tags', tagsInput.value)
+      if (imageInput?.value) formData.append('image_url', imageInput.value)
+      if (seriesSelect?.value) formData.append('series_id', seriesSelect.value)
+      if (episodeInput?.value) formData.append('episode_number', episodeInput.value)
+      if (adultCheckbox?.checked) formData.append('is_adult_content', 'true')
+      if (commentsCheckbox?.checked !== false) formData.append('allow_comments', 'true')
+      
+      // 公開設定
+      formData.append('publish_timing', type === 'publish' ? 'now' : 'draft')
+      
+      // FormDataの内容をログ出力
+      console.log('📋 [WorkCreatePreview] FormData contents:')
+      for (const [key, value] of formData.entries()) {
+        console.log(`  ${key}: ${value}`)
+      }
+      
       // Server Actionを呼び出し
+      console.log('📞 [WorkCreatePreview] Calling createWorkAction...')
       const result = await createWorkAction(formData)
+      console.log('📞 [WorkCreatePreview] createWorkAction result:', result)
       
       if (result.success && result.workId) {
         if (type === 'publish') {

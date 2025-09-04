@@ -12,13 +12,13 @@ import {
 } from '@/features/users'
 
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function UserProfilePage({ params }: ProfilePageProps) {
-  const { id } = params
+  const { id } = await params
   const currentUser = await getAuthenticatedUser()
 
   // ユーザー情報を取得
@@ -81,7 +81,7 @@ export default async function UserProfilePage({ params }: ProfilePageProps) {
 }
 
 export async function generateMetadata({ params }: ProfilePageProps) {
-  const { id } = params
+  const { id } = await params
   const userWithStats = await getUserWithStats(id)
   
   if (!userWithStats) {

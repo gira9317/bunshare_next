@@ -46,6 +46,9 @@ export function CategorySelect({ value, onChange, required = false }: CategorySe
         ))}
       </div>
       
+      {/* 隠し入力フィールド（フォームデータ収集用） */}
+      <input type="hidden" name="category" value={value} />
+      
       {required && !value && (
         <p className="text-xs text-red-500">カテゴリを選択してください</p>
       )}

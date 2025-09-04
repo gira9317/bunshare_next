@@ -42,7 +42,7 @@ export function LikedWorksModal({
   const fetchLikedWorks = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/users/${userId}/liked-works`)
+      const response = await fetch(`/api/profile/${userId}/liked-works`)
       const data = await response.json()
       
       if (response.ok) {

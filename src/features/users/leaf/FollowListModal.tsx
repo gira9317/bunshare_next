@@ -43,8 +43,8 @@ export function FollowListModal({
     setLoading(true)
     try {
       const endpoint = type === 'followers' 
-        ? `/api/users/${userId}/followers`
-        : `/api/users/${userId}/following`
+        ? `/api/profile/${userId}/followers`
+        : `/api/profile/${userId}/following`
       
       const response = await fetch(endpoint)
       const data = await response.json()
@@ -123,7 +123,7 @@ export function FollowListModal({
                   compact={true}
                   onUserClick={(userId) => {
                     // Navigate to user profile and close modal
-                    window.location.href = `/users/${userId}`
+                    window.location.href = `/profile/${userId}`
                     onClose()
                   }}
                 />
