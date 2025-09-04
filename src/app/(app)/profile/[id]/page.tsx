@@ -1,15 +1,15 @@
 import { getAuthenticatedUser } from '@/lib/auth'
 import { notFound } from 'next/navigation'
+import { Suspense } from 'react'
 import { 
-  getUserWithStats, 
-  getUserWorks,
+  getUserProfile,
   canViewProfile,
-  isFollowing,
-  isFollowPending,
-  UserProfileSection,
-  UserWorksSection,
-  UserStatsSection
 } from '@/features/users'
+import { FastProfileSuspense } from '@/features/users/components/FastProfileSuspense'
+import { UserStatsSuspense } from '@/features/users/components/UserStatsSuspense'
+import { UserWorksSuspense } from '@/features/users/components/UserWorksSuspense'
+import { FollowStatusSuspense } from '@/features/users/components/FollowStatusSuspense'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
 interface ProfilePageProps {
   params: Promise<{
@@ -21,9 +21,9 @@ export default async function UserProfilePage({ params }: ProfilePageProps) {
   const { id } = await params
   const currentUser = await getAuthenticatedUser()
 
-  // ユーザー情報を取得
-  const userWithStats = await getUserWithStats(id)
-  if (!userWithStats) {
+  // 基本的なユーザー情報のみ先に取得してチェック
+  const user = await getUserProfile(id)
+  if (!user) {
     notFound()
   }
 
@@ -45,36 +45,43 @@ export default async function UserProfilePage({ params }: ProfilePageProps) {
     )
   }
 
-  // フォロー状態を取得（ログインユーザーがいる場合）
-  let followingStatus = false
-  let pendingStatus = false
-  
-  if (currentUser && currentUser.id !== id) {
-    followingStatus = await isFollowing(currentUser.id, id)
-    pendingStatus = await isFollowPending(currentUser.id, id)
-  }
-
-  // ユーザーの作品を取得
-  const works = await getUserWorks(id, 10, 0)
+  const isOwnProfile = currentUser?.id === id
+  const isPublicProfile = user.public_profile
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* プロフィールセクション */}
-        <UserProfileSection
-          user={userWithStats}
+        {/* プロフィールセクション - 即座に表示 */}
+        <FastProfileSuspense
+          user={user}
           currentUserId={currentUser?.id}
-          isFollowing={followingStatus}
-          isPending={pendingStatus}
         />
 
-        {/* 統計セクション（公開プロフィールまたは自分の場合） */}
-        {(userWithStats.is_public || currentUser?.id === id) && (
-          <UserStatsSection stats={userWithStats.stats} />
+        {/* フォロー状態は別途非同期で更新 */}
+        {currentUser && !isOwnProfile && (
+          <div className="hidden">
+            <Suspense fallback={null}>
+              <FollowStatusSuspense 
+                currentUserId={currentUser.id} 
+                targetUserId={id}
+              >
+                {() => null}
+              </FollowStatusSuspense>
+            </Suspense>
+          </div>
         )}
 
-        {/* 作品セクション */}
-        <UserWorksSection works={works} />
+        {/* 統計セクション - 段階的読み込み */}
+        {(isPublicProfile || isOwnProfile) && (
+          <Suspense fallback={<LoadingSpinner size="sm" text="統計情報を読み込み中..." />}>
+            <UserStatsSuspense userId={id} />
+          </Suspense>
+        )}
+
+        {/* 作品セクション - 段階的読み込み */}
+        <Suspense fallback={<LoadingSpinner size="sm" text="作品一覧を読み込み中..." />}>
+          <UserWorksSuspense userId={id} />
+        </Suspense>
       </div>
     </div>
   )
@@ -82,23 +89,23 @@ export default async function UserProfilePage({ params }: ProfilePageProps) {
 
 export async function generateMetadata({ params }: ProfilePageProps) {
   const { id } = await params
-  const userWithStats = await getUserWithStats(id)
+  const user = await getUserProfile(id)
   
-  if (!userWithStats) {
+  if (!user) {
     return {
       title: 'ユーザーが見つかりません - Bunshare',
     }
   }
 
-  const displayName = userWithStats.display_name || userWithStats.username
+  const displayName = user.username
 
   return {
-    title: `${displayName} (@${userWithStats.username}) - Bunshare`,
-    description: userWithStats.bio || `${displayName}のプロフィールページです。`,
+    title: `${displayName} (@${user.username}) - Bunshare`,
+    description: user.bio || `${displayName}のプロフィールページです。`,
     openGraph: {
-      title: `${displayName} (@${userWithStats.username})`,
-      description: userWithStats.bio || `${displayName}のプロフィール`,
-      images: userWithStats.avatar_url ? [userWithStats.avatar_url] : [],
+      title: `${displayName} (@${user.username})`,
+      description: user.bio || `${displayName}のプロフィール`,
+      images: user.avatar_img_url ? [user.avatar_img_url] : [],
     },
   }
 }

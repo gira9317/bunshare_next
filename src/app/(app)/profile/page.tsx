@@ -27,19 +27,22 @@ export default async function ProfilePage() {
     redirect('/auth/login')
   }
 
-  // ユーザー情報と統計を取得
-  const userWithStats = await getUserWithStats(user.id)
+  // ユーザー情報と統計、作品データを並列取得して最適化
+  const [userWithStats, worksData] = await Promise.all([
+    getUserWithStats(user.id),
+    Promise.all([
+      getUserPublishedWorks(user.id, 12),
+      getUserDraftWorks(user.id),
+      getUserLikedWorks(user.id),
+      getUserBookmarkedWorks(user.id)
+    ])
+  ])
+  
   if (!userWithStats) {
     redirect('/auth/login')
   }
 
-  // ユーザーの作品を取得
-  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks] = await Promise.all([
-    getUserPublishedWorks(user.id, 12),
-    getUserDraftWorks(user.id),
-    getUserLikedWorks(user.id),
-    getUserBookmarkedWorks(user.id)
-  ])
+  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks] = worksData
 
   // タブの定義
   const tabs = [

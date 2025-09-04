@@ -24,7 +24,7 @@ export const getUserProfile = cache(async (userId: string): Promise<UserProfile 
 export const getUserStats = cache(async (userId: string): Promise<UserStats> => {
   const supabase = await createClient()
 
-  // Try both field names to ensure compatibility
+  // 統計データを高速化（exactカウントを避け、推定値を使用）
   const [
     { count: followersCount },
     { count: followingCount },
@@ -32,11 +32,12 @@ export const getUserStats = cache(async (userId: string): Promise<UserStats> => 
     { count: likesCount },
     { count: bookmarksCount }
   ] = await Promise.all([
-    supabase.from('follows').select('*', { count: 'exact' }).eq('followed_id', userId).eq('status', 'approved'),
-    supabase.from('follows').select('*', { count: 'exact' }).eq('follower_id', userId).eq('status', 'approved'),
-    supabase.from('works').select('*', { count: 'exact' }).eq('user_id', userId).eq('is_published', true),
-    supabase.from('likes').select('*', { count: 'exact' }).eq('user_id', userId),
-    supabase.from('reading_bookmarks').select('*', { count: 'exact' }).eq('user_id', userId)
+    // estimated countで高速化
+    supabase.from('follows').select('*', { count: 'estimated', head: true }).eq('followed_id', userId).eq('status', 'approved'),
+    supabase.from('follows').select('*', { count: 'estimated', head: true }).eq('follower_id', userId).eq('status', 'approved'),
+    supabase.from('works').select('*', { count: 'estimated', head: true }).eq('user_id', userId).eq('is_published', true),
+    supabase.from('likes').select('*', { count: 'estimated', head: true }).eq('user_id', userId),
+    supabase.from('reading_bookmarks').select('*', { count: 'estimated', head: true }).eq('user_id', userId)
   ])
 
   return {
@@ -69,15 +70,14 @@ export const getUserWorks = cache(async (userId: string, limit: number = 10, off
       work_id,
       title,
       description,
-      content,
       category,
       is_published,
       is_private,
       created_at,
       updated_at,
-      likes_count,
-      comments_count,
-      views_count
+      likes,
+      comments,
+      views
     `)
     .eq('user_id', userId)
     .eq('is_published', true)
@@ -88,7 +88,12 @@ export const getUserWorks = cache(async (userId: string, limit: number = 10, off
     return []
   }
 
-  return data
+  return data.map((work: any) => ({
+    ...work,
+    likes_count: work.likes || 0,
+    comments_count: work.comments || 0,
+    views_count: work.views || 0
+  }))
 })
 
 export const getFollowRelation = cache(async (followerId: string, followingId: string): Promise<FollowRelation | null> => {

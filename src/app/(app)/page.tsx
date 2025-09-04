@@ -1,71 +1,32 @@
-import { getWorks, getContinueReadingWorks, getUserLikesAndBookmarks } from '@/features/works/server/loader'
-import { WorksFeedSection } from '@/features/home/sections/WorksFeedSection'
-import { ContinueReadingSection } from '@/features/home/sections/ContinueReadingSection'
 import { getAuthenticatedUser } from '@/lib/auth'
 import { CategoryChipsClient } from '@/features/home/leaf/CategoryChipsClient'
+import { ContinueReadingSuspense } from '@/features/home/components/ContinueReadingSuspense'
+import { WorksFeedSuspense } from '@/features/home/components/WorksFeedSuspense'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { Suspense } from 'react'
 
 async function HomePage() {
-  try {
-    const user = await getAuthenticatedUser()
-    
-    // 作品データ取得
-    const works = await getWorks(10, 0)
-    
-    // ユーザーがログインしている場合の追加データ取得
-    let continueReadingWorks: any[] = []
-    let userLikes: string[] = []
-    let userBookmarks: string[] = []
-    
-    if (user) {
-      try {
-        // 続きを読む作品を取得
-        continueReadingWorks = await getContinueReadingWorks(user.id)
-        
-        // いいね・ブックマーク状態を取得
-        const workIds = works.map(w => w.work_id)
-        const { likedWorkIds, bookmarkedWorkIds } = await getUserLikesAndBookmarks(user.id, workIds)
-        userLikes = likedWorkIds
-        userBookmarks = bookmarkedWorkIds
-      } catch (error) {
-        console.error('Error loading user-specific data:', error)
-      }
-    }
+  // 認証確認のみをサーバーサイドで実行
+  const user = await getAuthenticatedUser()
 
-    return (
-      <div className="space-y-8">
-        {/* カテゴリチップス */}
-        <CategoryChipsClient />
-        
-        {/* 続きを読むセクション */}
-        {continueReadingWorks.length > 0 && (
-          <ContinueReadingSection works={continueReadingWorks} />
-        )}
-        
-        {/* 作品フィード */}
-        <WorksFeedSection 
-          works={works}
-          userLikes={userLikes}
-          userBookmarks={userBookmarks}
-        />
-      </div>
-    )
-  } catch (error) {
-    console.error('HomePage error:', error)
-    
-    // エラー時はフォールバック表示
-    const works = await getWorks(10, 0)
-    
-    return (
-      <div className="space-y-8">
-        <CategoryChipsClient />
-        <WorksFeedSection 
-          works={works}
-          userLikes={[]}
-          userBookmarks={[]}
-        />
-      </div>
-    )
-  }
+  return (
+    <div className="space-y-8">
+      {/* カテゴリチップス - 即座に表示 */}
+      <CategoryChipsClient />
+      
+      {/* 続きを読むセクション - ユーザーがいる場合のみ */}
+      {user && (
+        <Suspense fallback={<LoadingSpinner size="sm" text="続きから読む作品を読み込み中..." />}>
+          <ContinueReadingSuspense userId={user.id} />
+        </Suspense>
+      )}
+      
+      {/* 作品フィード - 段階的に読み込み */}
+      <Suspense fallback={<LoadingSpinner text="作品を読み込み中..." />}>
+        <WorksFeedSuspense userId={user?.id} />
+      </Suspense>
+    </div>
+  )
 }
 
 export default HomePage

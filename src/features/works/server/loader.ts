@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
+import { cache } from 'react'
 import type { Work } from '../types'
 
-export async function getWorks(limit = 10, offset = 0) {
+export const getWorks = cache(async (limit = 10, offset = 0) => {
   const supabase = await createClient()
   
   console.log('Getting works list...')
@@ -9,7 +10,18 @@ export async function getWorks(limit = 10, offset = 0) {
   const { data, error } = await supabase
     .from('works')
     .select(`
-      *,
+      work_id,
+      title,
+      category,
+      views,
+      created_at,
+      tags,
+      likes,
+      comments,
+      description,
+      image_url,
+      series_id,
+      episode_number,
       users (
         username
       ),
@@ -35,9 +47,9 @@ export async function getWorks(limit = 10, offset = 0) {
     author_username: work.users?.username || 'Unknown',
     series_title: work.series?.title || null
   })) as Work[]
-}
+})
 
-export async function getWorksByCategory(category: string, limit = 10, offset = 0) {
+export const getWorksByCategory = cache(async (category: string, limit = 10, offset = 0) => {
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -68,9 +80,9 @@ export async function getWorksByCategory(category: string, limit = 10, offset = 
     author_username: work.users?.username || 'Unknown',
     series_title: work.series?.title || null
   })) as Work[]
-}
+})
 
-export async function getUserLikesAndBookmarks(userId: string, workIds: string[]) {
+export const getUserLikesAndBookmarks = cache(async (userId: string, workIds: string[]) => {
   const supabase = await createClient()
   
   const [likesResult, bookmarksResult] = await Promise.all([
@@ -93,9 +105,9 @@ export async function getUserLikesAndBookmarks(userId: string, workIds: string[]
     likedWorkIds,
     bookmarkedWorkIds
   }
-}
+})
 
-export async function getContinueReadingWorks(userId: string) {
+export const getContinueReadingWorks = cache(async (userId: string) => {
   const supabase = await createClient()
   
   const { data, error } = await supabase
@@ -129,9 +141,9 @@ export async function getContinueReadingWorks(userId: string) {
     readingProgress: item.last_position,
     series_title: item.works.series?.title || null
   })) as Work[]
-}
+})
 
-export async function getWorkById(workId: string): Promise<Work | null> {
+export const getWorkById = cache(async (workId: string): Promise<Work | null> => {
   const supabase = await createClient()
   
   console.log('Getting work by ID:', workId)
@@ -179,4 +191,4 @@ export async function getWorkById(workId: string): Promise<Work | null> {
     author_username: data.users?.username || 'Unknown',
     series_title: data.series?.title || null
   } as Work
-}
+})
