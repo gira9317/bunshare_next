@@ -6,6 +6,8 @@ import { WorkCreateContentSection } from '@/features/works/sections/WorkCreateCo
 import { WorkCreateMediaSection } from '@/features/works/sections/WorkCreateMediaSection'
 import { WorkCreateSettingsSection } from '@/features/works/sections/WorkCreateSettingsSection'
 import { WorkCreatePreviewSection } from '@/features/works/sections/WorkCreatePreviewSection'
+import { WorkCreateDraftSection } from '@/features/works/sections/WorkCreateDraftSection'
+import { getUserDraftWorks } from '@/features/users/server/loader'
 
 export const metadata: Metadata = {
   title: '作品を投稿 - Bunshare',
@@ -29,6 +31,9 @@ export default async function WorkCreatePage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
+  // ユーザーの下書き一覧を取得
+  const userDrafts = await getUserDraftWorks(user.id)
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* ページヘッダー */}
@@ -40,6 +45,11 @@ export default async function WorkCreatePage() {
           あなたの創造性を世界とシェアしましょう
         </p>
       </div>
+
+      {/* 下書き選択セクション */}
+      {userDrafts.length > 0 && (
+        <WorkCreateDraftSection drafts={userDrafts} />
+      )}
 
       {/* 投稿フォーム */}
       <form className="space-y-8">

@@ -140,7 +140,6 @@ export async function createSeriesAction(formData: FormData) {
  * 作品を作成
  */
 export async function createWorkAction(formData: FormData) {
-  console.log('🚨🚨🚨 [createWorkAction] FUNCTION CALLED!')
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -177,15 +176,6 @@ export async function createWorkAction(formData: FormData) {
     const allow_comments = formData.get('allow_comments') !== 'false'
     const publish_timing = formData.get('publish_timing') as string
     const scheduled_at = formData.get('scheduled_at') as string
-    console.log('🔍 [createWorkAction] Raw scheduled_at from form:', scheduled_at)
-    console.log('🔍 [createWorkAction] publish_timing:', publish_timing)
-    
-    // デバッグ: 変換前後を確認
-    if (publish_timing === 'scheduled' && scheduled_at) {
-      console.log('🔍 [createWorkAction] Before conversion - scheduled_at:', scheduled_at)
-      const convertedTime = convertLocalDateTimeToUTC(scheduled_at)
-      console.log('🔍 [createWorkAction] After conversion - UTC:', convertedTime)
-    }
 
     // 画像ファイルのアップロード処理
     if (image_file && image_file.size > 0) {
@@ -247,10 +237,6 @@ export async function createWorkAction(formData: FormData) {
       }
     }
 
-    // デバッグ: scheduled_atの変換を確認
-    console.log('🚨 [createWorkAction] About to create work data')
-    console.log('🚨 [createWorkAction] publish_timing:', publish_timing)
-    console.log('🚨 [createWorkAction] scheduled_at raw:', scheduled_at)
     
     // 作品データを作成
     const workData = {
@@ -269,21 +255,14 @@ export async function createWorkAction(formData: FormData) {
       allow_comments,
       is_published: publish_timing === 'now',
       scheduled_at: (() => {
-        console.log('🚨 [createWorkAction] Processing scheduled_at...')
-        console.log('🚨 [createWorkAction] Condition check - publish_timing:', publish_timing, 'scheduled_at:', scheduled_at)
         
         if (publish_timing === 'scheduled' && scheduled_at) {
-          // datetime-localの値を日本時間として明示的に扱う
-          // サーバーのタイムゾーンに関係なく、入力値は日本時間として解釈する
-          // "2025-09-05T06:10" → "2025-09-05T06:10+09:00" として扱う
+          // もうUTC変換はやめて、日本時間のまま保存
+          // "2025-09-05T06:30" → "2025-09-05T06:30:00+09:00"として保存
           const jstDateString = scheduled_at + ':00+09:00'
-          const date = new Date(jstDateString)
-          const result = date.toISOString()
-          console.log('🚨 [createWorkAction] Converting:', scheduled_at, '→', jstDateString, '→', result)
-          return result
+          return jstDateString
         }
         
-        console.log('🚨 [createWorkAction] Not scheduled, returning null')
         return null
       })(),
       created_at: getJSTAsUTC(),

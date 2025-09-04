@@ -191,16 +191,16 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
 
   console.log('Work data retrieved:', { title: data.title, author: data.users?.username })
 
-  // 予約投稿の自動公開判定
-  const now = new Date()
+  // 予約投稿の自動公開判定（すべて日本時間で統一）
+  const now = new Date() // 日本時間（サーバーが日本時間設定）
   const scheduledAt = data.scheduled_at ? new Date(data.scheduled_at) : null
   
-  console.log('🔍 Auto-publish check:', {
+  console.log('🔍 Auto-publish check (JST):', {
     workId,
     is_published: data.is_published,
     scheduled_at: data.scheduled_at,
-    scheduledAt_parsed: scheduledAt?.toISOString(),
-    now: now.toISOString(),
+    scheduledAt_parsed: scheduledAt?.toString(), // toISOStringではなくtoStringで日本時間表示
+    now: now.toString(),
     comparison: scheduledAt ? scheduledAt <= now : 'no scheduled date',
     shouldPublish: scheduledAt ? scheduledAt <= now : false
   })
