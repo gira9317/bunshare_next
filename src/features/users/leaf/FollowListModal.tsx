@@ -19,6 +19,8 @@ interface FollowListModalProps {
   userId: string
   currentUserId?: string | null
   type: 'followers' | 'following'
+  userDisplayName?: string // ユーザーの表示名
+  userCount?: number // フォロー/フォロワーの数
   className?: string
 }
 
@@ -28,6 +30,8 @@ export function FollowListModal({
   userId,
   currentUserId,
   type,
+  userDisplayName,
+  userCount,
   className
 }: FollowListModalProps) {
   const [users, setUsers] = useState<FollowUser[]>([])
@@ -62,71 +66,67 @@ export function FollowListModal({
   if (!isOpen) return null
 
   const title = type === 'followers' ? 'フォロワー' : 'フォロー中'
+  const countText = type === 'followers' 
+    ? `${userCount || users.length} フォロワー` 
+    : `${userCount || users.length} フォロー中`
 
   return (
-    <>
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-50"
-        onClick={onClose}
-      />
-      
-      {/* Modal */}
-      <div className={cn(
-        'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2',
-        // Mobile: full width with margin, max height
-        'w-[calc(100vw-2rem)] max-w-lg max-h-[85vh] overflow-hidden',
-        // Tablet and desktop: larger modal for better card display
-        'md:max-w-3xl md:max-h-[80vh]',
-        'bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50',
-        'border border-gray-200 dark:border-gray-700',
-        className
-      )}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {title}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="overflow-y-auto max-h-[calc(80vh-80px)]">
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            </div>
-          ) : users.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-              {type === 'followers' ? 'フォロワーはいません' : 'フォローしているユーザーはいません'}
-            </div>
-          ) : (
-            <div className="p-4 space-y-3">
-              {/* 各ユーザーごとにカードを縦に並べる */}
-              {users.map((user) => (
-                <UserCard
-                  key={user.id}
-                  user={user}
-                  currentUserId={currentUserId}
-                  compact={false} // compactモードを無効にして、フルサイズのカードを表示
-                  onUserClick={(userId) => {
-                    // Navigate to user profile and close modal
-                    window.location.href = `/users/${userId}`
-                    onClose()
-                  }}
-                />
-              ))}
-            </div>
-          )}
+    <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-y-auto">
+      {/* Full Page Header */}
+      <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center gap-3 mb-3">
+            <button
+              onClick={onClose}
+              className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="text-sm">戻る</span>
+            </button>
+          </div>
+          {/* Username and count display */}
+          <div className="pl-8">
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+              {userDisplayName?.replace('@', '') || 'username'}
+            </h1>
+            <h2 className="text-sm text-gray-600 dark:text-gray-400">
+              {countText}
+            </h2>
+          </div>
         </div>
       </div>
-    </>
+
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          </div>
+        ) : users.length === 0 ? (
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            {type === 'followers' ? 'フォロワーはいません' : 'フォローしているユーザーはいません'}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* 各ユーザーごとにカードを縦に並べる */}
+            {users.map((user) => (
+              <UserCard
+                key={user.id}
+                user={user}
+                currentUserId={currentUserId}
+                compact={false}
+                onUserClick={(userId) => {
+                  // Navigate to user profile and close modal
+                  window.location.href = `/users/${userId}`
+                  onClose()
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

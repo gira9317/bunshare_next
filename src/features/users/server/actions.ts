@@ -318,3 +318,137 @@ export async function uploadCover(formData: FormData) {
     throw error
   }
 }
+
+export async function updatePrivacySettings(data: { public_profile?: boolean; follow_approval?: boolean }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  const { error } = await supabase
+    .from('users')
+    .update(data)
+    .eq('id', user.id)
+
+  if (error) {
+    throw new Error(`Failed to update privacy settings: ${error.message}`)
+  }
+
+  revalidateTag(`user-${user.id}`)
+  revalidatePath('/profile')
+  
+  return { success: true }
+}
+
+export async function updateNotificationSettings(data: { 
+  like_notification?: boolean; 
+  comment_notification?: boolean; 
+  follow_notification?: boolean; 
+  email_notification?: boolean;
+}) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  const { error } = await supabase
+    .from('users')
+    .update(data)
+    .eq('id', user.id)
+
+  if (error) {
+    throw new Error(`Failed to update notification settings: ${error.message}`)
+  }
+
+  revalidateTag(`user-${user.id}`)
+  revalidatePath('/profile')
+  
+  return { success: true }
+}
+
+export async function updateUserEmail(data: { newEmail: string; password: string }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('認証が必要です')
+  }
+
+  // Verify current password by attempting to sign in
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email!,
+    password: data.password
+  })
+
+  if (verifyError) {
+    throw new Error('現在のパスワードが正しくありません')
+  }
+
+  // Update email
+  const { error } = await supabase.auth.updateUser({
+    email: data.newEmail
+  })
+
+  if (error) {
+    throw new Error(`メールアドレスの更新に失敗しました: ${error.message}`)
+  }
+
+  return { success: true }
+}
+
+export async function updateUserPassword(data: { currentPassword: string; newPassword: string }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('認証が必要です')
+  }
+
+  // Verify current password by attempting to sign in
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email!,
+    password: data.currentPassword
+  })
+
+  if (verifyError) {
+    throw new Error('現在のパスワードが正しくありません')
+  }
+
+  // Update password
+  const { error } = await supabase.auth.updateUser({
+    password: data.newPassword
+  })
+
+  if (error) {
+    throw new Error(`パスワードの更新に失敗しました: ${error.message}`)
+  }
+
+  return { success: true }
+}
+
+export async function updateBookmarkModalSetting(data: { hide_bookmark_modal: boolean }) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    throw new Error('Unauthorized')
+  }
+
+  const { error } = await supabase
+    .from('users')
+    .update(data)
+    .eq('id', user.id)
+
+  if (error) {
+    throw new Error(`Failed to update bookmark modal setting: ${error.message}`)
+  }
+
+  revalidateTag(`user-${user.id}`)
+  revalidatePath('/profile')
+  
+  return { success: true }
+}

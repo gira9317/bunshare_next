@@ -17,6 +17,7 @@ export const userProfileSchema = z.object({
   comment_notification: z.boolean().default(true),
   follow_notification: z.boolean().default(true),
   email_notification: z.boolean().default(false),
+  hide_bookmark_modal: z.boolean().default(false),
   sign_in_time: z.string(),
   role: z.string().default('user'),
   provider: z.string().nullable(),
@@ -57,6 +58,7 @@ export const userProfileUpdateSchema = z.object({
   comment_notification: z.boolean().optional(),
   follow_notification: z.boolean().optional(),
   email_notification: z.boolean().optional(),
+  hide_bookmark_modal: z.boolean().optional(),
 })
 
 export const userWorkSchema = z.object({

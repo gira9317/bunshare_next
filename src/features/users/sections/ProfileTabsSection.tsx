@@ -26,7 +26,10 @@ import { WorkCard } from '@/components/domain/WorkCard'
 import type { Work } from '@/features/works/types'
 import { BookmarkFolderManager } from '../leaf/BookmarkFolderManager'
 import { getBookmarkFoldersAction, getBookmarksByFolderAction, updateBookmarkOrderAction, removeBookmarkFromFolderAction, moveBookmarkToFolderAction } from '@/features/works/server/actions'
-import { Folder, ArrowLeft, Settings, Lock, MoreVertical, ChevronLeft, Bookmark, Edit3, Trash2, Move, GripVertical } from 'lucide-react'
+import { Folder, ArrowLeft, Settings, Lock, MoreVertical, ChevronLeft, Bookmark, Edit3, Trash2, Move, GripVertical, FileText, PenTool, Heart, Clock, Sparkles, Library, Cog, BookOpen, Calendar, Shield, Wrench, Mail, Key, ChevronRight } from 'lucide-react'
+import { PrivacySettingsCard } from '../leaf/PrivacySettingsCard'
+import { NotificationSettingsCard } from '../leaf/NotificationSettingsCard'
+import { AccountSettingsCard } from '../leaf/AccountSettingsCard'
 
 interface Tab {
   id: string
@@ -189,9 +192,9 @@ export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: Us
   const [activeWorksTab, setActiveWorksTab] = useState('published')
 
   const worksTabOptions = [
-    { id: 'published', label: '📚 投稿済みシリーズ' },
-    { id: 'works', label: '📝 投稿済み作品' },
-    { id: 'scheduled', label: '⏰ 予約投稿' }
+    { id: 'published', label: '投稿済みシリーズ', icon: <Library className="w-4 h-4" /> },
+    { id: 'works', label: '投稿済み作品', icon: <FileText className="w-4 h-4" /> },
+    { id: 'scheduled', label: '予約投稿', icon: <Clock className="w-4 h-4" /> }
   ]
 
   const renderWorksGrid = () => {
@@ -240,16 +243,17 @@ export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: Us
               onClick={() => setActiveWorksTab(option.id)}
               className={cn(
                 'py-2 px-1 border-b-2 text-sm font-medium transition-colors',
-                'whitespace-nowrap flex-shrink-0',
+                'whitespace-nowrap flex-shrink-0 flex items-center gap-2',
                 activeWorksTab === option.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               )}
             >
+              {option.icon}
               <span className="hidden sm:inline">{option.label}</span>
               <span className="sm:hidden">
-                {option.label.includes('シリーズ') ? '📚 シリーズ' :
-                 option.label.includes('作品') ? '📝 作品' : '⏰ 予約'}
+                {option.label.includes('シリーズ') ? 'シリーズ' :
+                 option.label.includes('作品') ? '作品' : '予約'}
               </span>
             </button>
           ))}
@@ -408,9 +412,9 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
   }
 
   const libraryTabOptions = [
-    { id: 'liked', label: '❤️ いいねした作品', count: likedWorks.length },
-    { id: 'bookmarked', label: '🔖 ブックマーク', count: bookmarkedWorks.length },
-    { id: 'history', label: '📖 閲覧履歴', count: 0 }
+    { id: 'liked', label: 'いいねした作品', icon: <Heart className="w-4 h-4" />, count: likedWorks.length },
+    { id: 'bookmarked', label: 'ブックマーク', icon: <Bookmark className="w-4 h-4" />, count: bookmarkedWorks.length },
+    { id: 'history', label: '閲覧履歴', icon: <BookOpen className="w-4 h-4" />, count: 0 }
   ]
 
   const renderBookmarkFolders = () => {
@@ -776,10 +780,11 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               )}
             >
+              {option.icon}
               <span className="hidden sm:inline">{option.label}</span>
               <span className="sm:hidden">
-                {option.label.includes('いいね') ? '❤️' :
-                 option.label.includes('ブックマーク') ? '🔖' : '📖'}
+                {option.label.includes('いいね') ? 'いいね' :
+                 option.label.includes('ブックマーク') ? 'ブックマーク' : '履歴'}
               </span>
               {option.count > 0 && (
                 <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full text-xs">
@@ -823,100 +828,9 @@ export function SettingsTabContent({ user, currentUserId }: { user: UserWithStat
 
   return (
     <div className="space-y-8">
-      {/* Privacy Settings */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-          🔒 プライバシー設定
-        </h3>
-        <div className="space-y-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                プロフィール公開
-              </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                他のユーザーがあなたのプロフィールを閲覧できます
-              </p>
-            </div>
-            <div className="relative">
-              <input
-                type="checkbox"
-                checked={user.is_public}
-                className="sr-only"
-                readOnly
-              />
-              <div className={cn(
-                'w-11 h-6 rounded-full transition-colors',
-                user.is_public ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-              )}>
-                <div className={cn(
-                  'w-5 h-5 bg-white rounded-full shadow transform transition-transform',
-                  user.is_public ? 'translate-x-5' : 'translate-x-0',
-                  'mt-0.5 ml-0.5'
-                )} />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <label className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                フォロー許可制
-              </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                フォローリクエストを承認制にします
-              </p>
-            </div>
-            <div className="relative">
-              <input
-                type="checkbox"
-                checked={user.follow_approval_required}
-                className="sr-only"
-                readOnly
-              />
-              <div className={cn(
-                'w-11 h-6 rounded-full transition-colors',
-                user.follow_approval_required ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-              )}>
-                <div className={cn(
-                  'w-5 h-5 bg-white rounded-full shadow transform transition-transform',
-                  user.follow_approval_required ? 'translate-x-5' : 'translate-x-0',
-                  'mt-0.5 ml-0.5'
-                )} />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Account Actions */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
-          🔧 アカウント設定
-        </h3>
-        <div className="space-y-2">
-          <button className="w-full text-left px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                📧 メールアドレス変更
-              </span>
-              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </button>
-          <button className="w-full text-left px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                🔑 パスワード変更
-              </span>
-              <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </button>
-        </div>
-      </div>
+      <PrivacySettingsCard user={user} />
+      <NotificationSettingsCard user={user} />
+      <AccountSettingsCard user={user} />
     </div>
   )
 }

@@ -11,7 +11,7 @@ import { LikedWorksModal } from '../leaf/LikedWorksModal'
 import { ServiceIcon } from '../leaf/ServiceIcon'
 import { UserWithStats } from '../schemas'
 import { Button } from '@/components/ui/button'
-// import { Settings, Link2, Calendar } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 
@@ -123,13 +123,8 @@ export function UserProfileSection({
           {/* Meta Info - Improved layout */}
           <div className="space-y-2">
             {/* Join date */}
-            <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" strokeWidth="2"/>
-                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" strokeWidth="2"/>
-                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" strokeWidth="2"/>
-                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" strokeWidth="2"/>
-              </svg>
+            <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+              <Calendar className="w-4 h-4" />
               <span>{joinedDate}に登録</span>
             </div>
             
@@ -203,6 +198,8 @@ export function UserProfileSection({
           userId={user.id}
           currentUserId={currentUserId}
           type={followModalType}
+          userDisplayName={user.username || 'username'}
+          userCount={followModalType === 'followers' ? user.stats.followers_count : user.stats.following_count}
         />
       )}
       
