@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { UserAvatar } from './UserAvatar'
 import { FollowButton } from './FollowButton'
 
 interface UserCardProps {
@@ -42,23 +41,19 @@ export function UserCard({
   })
   const [isFollowing, setIsFollowing] = useState(false)
   const [isPending, setIsPending] = useState(false)
-
   const isSelf = currentUserId === user.id
 
   useEffect(() => {
-    // Fetch user stats and follow status
     const fetchUserData = async () => {
       try {
-        // Get user stats
-        const statsResponse = await fetch(`/api/profile/${user.id}/stats`)
+        const statsResponse = await fetch(`/api/users/${user.id}/stats`)
         if (statsResponse.ok) {
           const statsData = await statsResponse.json()
           setStats(statsData)
         }
 
-        // Get follow status if current user exists
         if (currentUserId && !isSelf) {
-          const followResponse = await fetch(`/api/profile/${user.id}/follow-status?currentUserId=${currentUserId}`)
+          const followResponse = await fetch(`/api/users/${user.id}/follow-status?currentUserId=${currentUserId}`)
           if (followResponse.ok) {
             const followData = await followResponse.json()
             setIsFollowing(followData.isFollowing)
@@ -69,7 +64,6 @@ export function UserCard({
         console.error('Failed to fetch user data:', error)
       }
     }
-
     fetchUserData()
   }, [user.id, currentUserId, isSelf])
 
@@ -77,21 +71,14 @@ export function UserCard({
     if (onUserClick) {
       onUserClick(user.id)
     } else {
-      // Default navigation to user profile
-      window.location.href = `/profile/${user.id}`
+      window.location.href = `/users/${user.id}`
     }
   }
 
   const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return Math.floor(num / 100000) / 10 + 'M'
-    }
-    if (num >= 10000) {
-      return Math.floor(num / 1000) / 10 + '万'
-    }
-    if (num >= 1000) {
-      return Math.floor(num / 100) / 10 + 'K'
-    }
+    if (num >= 1000000) return Math.floor(num / 100000) / 10 + 'M'
+    if (num >= 10000) return Math.floor(num / 1000) / 10 + '万'
+    if (num >= 1000) return Math.floor(num / 100) / 10 + 'K'
     return num.toString()
   }
 
@@ -103,38 +90,27 @@ export function UserCard({
   return (
     <div
       className={cn(
-        // Base mobile-first styles
-        'bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700',
+        'bg-white dark:bg-gray-800',
+        'rounded-2xl border border-gray-200 dark:border-gray-700',
         'transition-all duration-300 cursor-pointer',
-        'hover:border-purple-400 hover:shadow-lg hover:-translate-y-1',
-        'backdrop-blur-sm',
-        
-        // Mobile: compact vertical layout
-        compact ? 'p-3 min-h-[80px]' : 'p-4 min-h-[100px]',
-        
-        // Tablet and desktop: more spacious
-        'md:p-4 md:min-h-[120px]',
-        
+        'hover:border-purple-400/40 hover:shadow-lg hover:-translate-y-0.5',
+        'shadow-sm backdrop-blur-xl w-full',
+        'p-4 min-h-[6rem]',
+        compact && 'p-3 min-h-[5rem]',
         className
       )}
       onClick={handleCardClick}
     >
-      <div className={cn(
-        'flex gap-3',
-        // Mobile: tight spacing
-        compact ? 'gap-2' : 'gap-3',
-        // Desktop: more spacing
-        'md:gap-4'
-      )}>
-        {/* Avatar - Mobile optimized */}
+      <div className="flex items-center gap-3">
+        {/* Avatar */}
         <div className="flex-shrink-0 relative">
           <div className={cn(
-            'rounded-full overflow-hidden bg-gradient-to-br from-purple-400 to-blue-500',
-            'border-2 border-white dark:border-gray-800 shadow-md',
-            // Mobile: 40px avatar
-            compact ? 'w-10 h-10' : 'w-12 h-12',
-            // Desktop: larger avatar
-            'md:w-16 md:h-16'
+            'rounded-full overflow-hidden',
+            'bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-700',
+            'flex items-center justify-center',
+            'border-2 border-white dark:border-gray-800',
+            'shadow-md w-12 h-12',
+            compact && 'w-10 h-10'
           )}>
             {user.avatar_img_url ? (
               <img
@@ -143,105 +119,95 @@ export function UserCard({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-white font-bold text-lg">
+              <span className={cn(
+                'text-white font-bold uppercase text-lg',
+                compact && 'text-base'
+              )}>
                 {getInitials(user.username)}
-              </div>
+              </span>
             )}
           </div>
         </div>
 
-        {/* Content - Mobile first */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between">
-          <div className="space-y-1">
-            {/* Name and username */}
-            <div>
-              <h3 className={cn(
-                'font-bold text-gray-900 dark:text-gray-100 truncate',
-                // Mobile: 14px
-                compact ? 'text-sm' : 'text-base',
-                // Desktop: 16px
-                'md:text-lg'
-              )}>
-                {user.username || 'ユーザー'}
-              </h3>
-              {user.custom_user_id && (
-                <p className={cn(
-                  'text-gray-500 dark:text-gray-400 truncate',
-                  // Mobile: 12px
-                  'text-xs',
-                  // Desktop: 14px  
-                  'md:text-sm'
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col gap-1.5">
+            {/* Name, username and Follow Button */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <h3 className={cn(
+                  'font-bold text-gray-900 dark:text-gray-100 text-lg leading-tight',
+                  compact && 'text-base'
                 )}>
-                  @{user.custom_user_id}
-                </p>
+                  {user.username || 'ユーザー'}
+                </h3>
+                {user.custom_user_id && (
+                  <p className={cn(
+                    'text-gray-500 dark:text-gray-400 text-xs mt-0.5',
+                    compact && 'text-xs'
+                  )}>
+                    @{user.custom_user_id}
+                  </p>
+                )}
+              </div>
+              
+              {/* Follow Button - 右側に配置 */}
+              {!isSelf && currentUserId && (
+                <div className="flex-shrink-0">
+                  <FollowButton
+                    targetUserId={user.id}
+                    isFollowing={isFollowing}
+                    isPending={isPending}
+                    onClick={(e) => e.stopPropagation()}
+                    className={cn(
+                      'rounded-full font-medium transition-all duration-300',
+                      'h-7 text-xs px-3',
+                      compact && 'h-6 text-xs px-2.5'
+                    )}
+                  />
+                </div>
               )}
             </div>
 
-            {/* Bio - Improved mobile readability */}
+            {/* Bio - 最大2行表示 */}
             {user.bio && !compact && (
-              <p className={cn(
-                'text-gray-600 dark:text-gray-300 line-clamp-2',
-                // Mobile: 12px, always show but truncated
-                'text-xs',
-                // Desktop: 14px
-                'md:text-sm'
-              )}>
+              <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2">
                 {user.bio}
               </p>
             )}
 
-            {/* Stats - Mobile optimized layout */}
-            <div className={cn(
-              'flex pt-1',
-              // Mobile: tight spacing, minimal text
-              'gap-2 text-xs',
-              // Desktop: more spacing
-              'md:gap-4 md:text-sm'
-            )}>
-              <div className="flex items-center gap-1">
-                <span className="font-bold text-gray-900 dark:text-gray-100">
+            {/* Stats - 横並びで数値とラベルを同じ行に */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-baseline gap-1">
+                <span className={cn(
+                  'font-bold text-gray-900 dark:text-gray-100 text-base',
+                  compact && 'text-sm'
+                )}>
                   {formatNumber(stats.works_count)}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400">
-                  作品
-                </span>
+                <span className="text-gray-500 dark:text-gray-400 text-xs">作品</span>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="font-bold text-gray-900 dark:text-gray-100">
+              <div className="flex items-baseline gap-1">
+                <span className={cn(
+                  'font-bold text-gray-900 dark:text-gray-100 text-base',
+                  compact && 'text-sm'
+                )}>
                   {formatNumber(stats.following_count)}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400">
-                  フォロー
-                </span>
+                <span className="text-gray-500 dark:text-gray-400 text-xs">フォロー</span>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="font-bold text-gray-900 dark:text-gray-100">
+              <div className="flex items-baseline gap-1">
+                <span className={cn(
+                  'font-bold text-gray-900 dark:text-gray-100 text-base',
+                  compact && 'text-sm'
+                )}>
                   {formatNumber(stats.followers_count)}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400">
-                  フォロワー
-                </span>
+                <span className="text-gray-500 dark:text-gray-400 text-xs">フォロワー</span>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Action button - Mobile optimized */}
-        {!isSelf && currentUserId && (
-          <div className="flex-shrink-0 flex items-start pt-1">
-            <FollowButton
-              targetUserId={user.id}
-              isFollowing={isFollowing}
-              isPending={isPending}
-              className={cn(
-                // Mobile: compact button with whitespace control
-                'h-8 text-xs px-2',
-                // Desktop: larger button
-                'md:h-10 md:text-sm md:px-4'
-              )}
-            />
-          </div>
-        )}
       </div>
     </div>
   )

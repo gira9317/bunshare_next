@@ -167,9 +167,6 @@ function DraggableWorkCard({ work, isManagementMode, onRemove, onMove, available
 export function DashboardTabContent({ user, publishedWorks }: { user: UserWithStats; publishedWorks: Work[] }) {
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-        📚 投稿作品一覧
-      </h2>
       {publishedWorks.length > 0 ? (
         <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
           {publishedWorks.map((work) => (
@@ -233,17 +230,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: Us
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          ✍️ 作品管理
-        </h2>
-        <button className="bg-blue-600 text-white px-3 md:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm whitespace-nowrap">
-          <span className="hidden sm:inline">✨ 新規作品</span>
-          <span className="sm:hidden">✨ 新規</span>
-        </button>
-      </div>
-
+    <>
       {/* Sub-tabs - Mobile first */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-4 md:space-x-6 overflow-x-auto scrollbar-hide">
@@ -269,8 +256,10 @@ export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: Us
         </nav>
       </div>
 
-      {renderWorksGrid()}
-    </div>
+      <div className="mt-4">
+        {renderWorksGrid()}
+      </div>
+    </>
   )
 }
 
@@ -748,16 +737,12 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
               フォルダ一覧に戻る
             </button>
           )}
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            {activeLibraryTab === 'bookmarked' && !showFolderList ? (
-              <>
-                📁 {selectedFolder === 'all' ? 'すべてのブックマーク' : 
-                     bookmarkFolders.find(f => f.folder_key === selectedFolder)?.folder_name || 'フォルダ'}
-              </>
-            ) : (
-              '📚 ライブラリ'
-            )}
-          </h2>
+          {activeLibraryTab === 'bookmarked' && !showFolderList && (
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              📁 {selectedFolder === 'all' ? 'すべてのブックマーク' : 
+                   bookmarkFolders.find(f => f.folder_key === selectedFolder)?.folder_name || 'フォルダ'}
+            </h2>
+          )}
         </div>
         {activeLibraryTab === 'bookmarked' && showFolderList && (
           <button
@@ -838,10 +823,6 @@ export function SettingsTabContent({ user, currentUserId }: { user: UserWithStat
 
   return (
     <div className="space-y-8">
-      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-        ⚙️ 設定
-      </h2>
-
       {/* Privacy Settings */}
       <div className="space-y-4">
         <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">

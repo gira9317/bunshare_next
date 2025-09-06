@@ -43,8 +43,8 @@ export function FollowListModal({
     setLoading(true)
     try {
       const endpoint = type === 'followers' 
-        ? `/api/profile/${userId}/followers`
-        : `/api/profile/${userId}/following`
+        ? `/api/users/${userId}/followers`
+        : `/api/users/${userId}/following`
       
       const response = await fetch(endpoint)
       const data = await response.json()
@@ -75,9 +75,9 @@ export function FollowListModal({
       <div className={cn(
         'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2',
         // Mobile: full width with margin, max height
-        'w-[calc(100vw-2rem)] max-w-md max-h-[85vh] overflow-hidden',
-        // Tablet and desktop: larger modal
-        'md:max-w-2xl md:max-h-[80vh]',
+        'w-[calc(100vw-2rem)] max-w-lg max-h-[85vh] overflow-hidden',
+        // Tablet and desktop: larger modal for better card display
+        'md:max-w-3xl md:max-h-[80vh]',
         'bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50',
         'border border-gray-200 dark:border-gray-700',
         className
@@ -108,22 +108,17 @@ export function FollowListModal({
               {type === 'followers' ? 'フォロワーはいません' : 'フォローしているユーザーはいません'}
             </div>
           ) : (
-            <div className={cn(
-              'p-4',
-              // Mobile: single column with spacing
-              'space-y-3',
-              // Tablet and desktop: 2 column grid
-              'md:grid md:grid-cols-2 md:gap-4 md:space-y-0'
-            )}>
+            <div className="p-4 space-y-3">
+              {/* 各ユーザーごとにカードを縦に並べる */}
               {users.map((user) => (
                 <UserCard
                   key={user.id}
                   user={user}
                   currentUserId={currentUserId}
-                  compact={true}
+                  compact={false} // compactモードを無効にして、フルサイズのカードを表示
                   onUserClick={(userId) => {
                     // Navigate to user profile and close modal
-                    window.location.href = `/profile/${userId}`
+                    window.location.href = `/users/${userId}`
                     onClose()
                   }}
                 />
