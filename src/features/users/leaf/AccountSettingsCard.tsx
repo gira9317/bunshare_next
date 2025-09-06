@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { UserWithStats } from '../schemas'
 import { Mail, Key, ChevronRight } from 'lucide-react'
 import { EmailChangeModal } from './EmailChangeModal'
-import { PasswordChangeModal } from './PasswordChangeModal'
 import { SettingToggle } from './SettingToggle'
 import { updateBookmarkModalSetting } from '../server/actions'
 
@@ -15,7 +14,6 @@ interface AccountSettingsCardProps {
 
 export function AccountSettingsCard({ user }: AccountSettingsCardProps) {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false)
-  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false)
   const [bookmarkModalEnabled, setBookmarkModalEnabled] = useState(!user.hide_bookmark_modal)
 
   const handleBookmarkModalToggle = async (enabled: boolean) => {
@@ -61,12 +59,12 @@ export function AccountSettingsCard({ user }: AccountSettingsCardProps) {
           
           <Button
             variant="ghost"
-            onClick={() => setIsPasswordModalOpen(true)}
+            onClick={() => window.location.href = '/auth/forgot-password'}
             className="w-full justify-between px-4 py-3 h-auto bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
               <Key className="w-4 h-4" />
-              パスワード変更
+              パスワードリセット
             </span>
             <ChevronRight className="w-4 h-4 text-gray-400" />
           </Button>
@@ -78,12 +76,6 @@ export function AccountSettingsCard({ user }: AccountSettingsCardProps) {
         isOpen={isEmailModalOpen}
         onClose={() => setIsEmailModalOpen(false)}
         currentEmail={user.email}
-      />
-
-      {/* Password Change Modal */}
-      <PasswordChangeModal
-        isOpen={isPasswordModalOpen}
-        onClose={() => setIsPasswordModalOpen(false)}
       />
     </>
   )

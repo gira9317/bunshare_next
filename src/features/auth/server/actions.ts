@@ -81,14 +81,36 @@ export async function forgotPasswordAction(formData: FormData) {
   }
 
   try {
-    // TODO: Supabaseパスワードリセット実装
-    console.log('パスワードリセット処理:', validatedFields.data)
+    const { createClient } = await import('@/lib/supabase/server')
+    const supabase = await createClient()
+
+    // Get origin for redirect URL
+    const origin = process.env.NODE_ENV === 'production' 
+      ? 'https://your-production-domain.com' // TODO: Replace with actual domain
+      : 'http://localhost:3000'
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      validatedFields.data.email,
+      {
+        redirectTo: `${origin}/api/auth/callback?next=/auth/reset-password`
+      }
+    )
+
+    if (error) {
+      console.error('Password reset error:', error)
+      return {
+        errors: {
+          _form: ['パスワードリセットメールの送信に失敗しました。メールアドレスをご確認ください。'],
+        },
+      }
+    }
     
     return {
       success: true,
       message: 'パスワードリセット用のリンクを送信しました。メールをご確認ください。',
     }
   } catch (error) {
+    console.error('Password reset exception:', error)
     return {
       errors: {
         _form: ['パスワードリセットメールの送信に失敗しました。しばらく時間をおいてから再度お試しください。'],

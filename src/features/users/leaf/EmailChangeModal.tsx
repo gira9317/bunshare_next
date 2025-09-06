@@ -25,8 +25,8 @@ export function EmailChangeModal({ isOpen, onClose, currentEmail }: EmailChangeM
     setSuccess('')
 
     try {
-      await updateUserEmail({ newEmail, password })
-      setSuccess('確認メールを送信しました。メールをご確認ください。')
+      const result = await updateUserEmail({ newEmail, password })
+      setSuccess(result.message || '確認メールを新しいメールアドレスに送信しました。メールを確認して変更を完了してください。')
       setNewEmail('')
       setPassword('')
     } catch (error) {
@@ -47,7 +47,7 @@ export function EmailChangeModal({ isOpen, onClose, currentEmail }: EmailChangeM
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[70] p-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
@@ -111,8 +111,13 @@ export function EmailChangeModal({ isOpen, onClose, currentEmail }: EmailChangeM
           )}
 
           {success && (
-            <div className="text-green-600 dark:text-green-400 text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-md">
-              {success}
+            <div className="text-green-600 dark:text-green-400 text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-md space-y-2">
+              <p className="font-medium">{success}</p>
+              <div className="text-xs space-y-1">
+                <p>• 新しいメールアドレスに確認メールを送信しました</p>
+                <p>• メール内のリンクをクリックして変更を完了してください</p>
+                <p>• メールが届かない場合は、迷惑メールフォルダも確認してください</p>
+              </div>
             </div>
           )}
 

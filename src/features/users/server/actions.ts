@@ -378,6 +378,25 @@ export async function updateUserEmail(data: { newEmail: string; password: string
     throw new Error('認証が必要です')
   }
 
+  // Check if email is the same as current
+  if (user.email === data.newEmail) {
+    throw new Error('新しいメールアドレスが現在のメールアドレスと同じです')
+  }
+
+  // Check if new email already exists in users table
+  const { data: existingUsers, error: checkError } = await supabase
+    .from('users')
+    .select('id, email')
+    .eq('email', data.newEmail)
+    .limit(1)
+  
+  if (checkError) {
+    console.error('Email check error:', checkError)
+    // Don't throw error here, let Supabase handle it during update
+  } else if (existingUsers && existingUsers.length > 0) {
+    throw new Error('このメールアドレスは既に使用されています')
+  }
+
   // Verify current password by attempting to sign in
   const { error: verifyError } = await supabase.auth.signInWithPassword({
     email: user.email!,
@@ -388,47 +407,25 @@ export async function updateUserEmail(data: { newEmail: string; password: string
     throw new Error('現在のパスワードが正しくありません')
   }
 
-  // Update email
+  // Get origin for redirect URL
+  const origin = process.env.NODE_ENV === 'production' 
+    ? 'https://your-production-domain.com' // TODO: Replace with actual domain
+    : 'http://localhost:3000'
+
+  // Update email with confirmation email
   const { error } = await supabase.auth.updateUser({
     email: data.newEmail
+  }, {
+    emailRedirectTo: `${origin}/api/auth/callback?next=/profile`
   })
 
   if (error) {
     throw new Error(`メールアドレスの更新に失敗しました: ${error.message}`)
   }
 
-  return { success: true }
+  return { success: true, message: '確認メールを新しいメールアドレスに送信しました。メールを確認して変更を完了してください。' }
 }
 
-export async function updateUserPassword(data: { currentPassword: string; newPassword: string }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error('認証が必要です')
-  }
-
-  // Verify current password by attempting to sign in
-  const { error: verifyError } = await supabase.auth.signInWithPassword({
-    email: user.email!,
-    password: data.currentPassword
-  })
-
-  if (verifyError) {
-    throw new Error('現在のパスワードが正しくありません')
-  }
-
-  // Update password
-  const { error } = await supabase.auth.updateUser({
-    password: data.newPassword
-  })
-
-  if (error) {
-    throw new Error(`パスワードの更新に失敗しました: ${error.message}`)
-  }
-
-  return { success: true }
-}
 
 export async function updateBookmarkModalSetting(data: { hide_bookmark_modal: boolean }) {
   const supabase = await createClient()

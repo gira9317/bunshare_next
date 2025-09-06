@@ -5,12 +5,77 @@ import { revalidatePath } from 'next/cache'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  const token_hash = searchParams.get('token_hash')
   const next = searchParams.get('next') ?? '/'
   const type = searchParams.get('type')
 
+  const supabase = await createClient()
+
+  // Handle token_hash-based confirmation (email change)
+  if (token_hash && type) {
+    try {
+      console.log('Processing token_hash confirmation:', type, token_hash)
+      
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash,
+        type: type as any
+      })
+      
+      if (!error) {
+        console.log('Token confirmation successful')
+        
+        // Handle specific confirmation types
+        if (type === 'email_change') {
+          try {
+            // Get the updated user info from auth
+            const { data: updatedUser } = await supabase.auth.getUser()
+            
+            if (updatedUser?.user?.email) {
+              console.log('Updating users table with new email:', updatedUser.user.email)
+              
+              // Update the email in users table
+              const { error: updateError } = await supabase
+                .from('users')
+                .update({ 
+                  email: updatedUser.user.email 
+                })
+                .eq('id', updatedUser.user.id)
+
+              if (updateError) {
+                console.error('Failed to update users table email:', updateError)
+                // Still redirect to success but log the error
+              } else {
+                console.log('Successfully updated users table email')
+                // Clear user cache
+                revalidatePath('/', 'layout')
+                revalidatePath('/profile')
+              }
+            }
+          } catch (updateError) {
+            console.error('Exception updating users table email:', updateError)
+          }
+          
+          return NextResponse.redirect(`${origin}/profile?success=email_changed`)
+        }
+        
+        if (type === 'recovery') {
+          console.log('Password recovery confirmed, redirecting to reset password')
+          return NextResponse.redirect(`${origin}/auth/reset-password`)
+        }
+        
+        return NextResponse.redirect(`${origin}/profile?success=confirmed`)
+      } else {
+        console.error('Token confirmation error:', error)
+        return NextResponse.redirect(`${origin}/profile?error=confirmation_failed`)
+      }
+    } catch (error) {
+      console.error('Token confirmation exception:', error)
+      return NextResponse.redirect(`${origin}/profile?error=confirmation_exception`)
+    }
+  }
+
   if (code) {
     try {
-      const supabase = await createClient()
       
       console.log('Processing auth callback with code:', code, 'type:', type)
       
