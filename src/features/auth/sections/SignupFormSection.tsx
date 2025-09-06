@@ -56,12 +56,38 @@ export function SignupFormSection() {
         body: JSON.stringify(formData),
       })
       
+      const data = await response.json()
+      
       if (!response.ok) {
-        throw new Error('サインアップに失敗しました')
+        // バリデーションエラーの処理
+        if (data.errors) {
+          setErrors(data.errors)
+        } else {
+          setErrors({ email: data.error || 'アカウントの作成に失敗しました' })
+        }
+        return
       }
       
-      // 成功時はログインページにリダイレクト
-      window.location.href = '/auth/login'
+      // 成功時の処理
+      if (data.requiresConfirmation) {
+        // メール確認が必要な場合はメッセージを表示して待機
+        alert(`${data.message}\n\nメール内のリンクをクリックしてアカウントを有効化してください。`)
+        // フォームをリセット
+        setFormData({
+          username: '',
+          email: '',
+          password: '',
+          passwordConfirm: '',
+          birthDate: '',
+          gender: null,
+          agreeTerms: false,
+          agreeMarketing: false,
+        })
+      } else {
+        // 即座にログイン完了の場合
+        alert(data.message)
+        window.location.href = '/'
+      }
     } catch (error) {
       console.error('サインアップエラー:', error)
       setErrors({ email: 'アカウントの作成に失敗しました' })
