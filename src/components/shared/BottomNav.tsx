@@ -47,7 +47,9 @@ export function BottomNav() {
       'border-t border-gray-200/50 dark:border-gray-700/50',
       'shadow-lg shadow-black/5',
       // セーフエリア対応
-      'pb-safe'
+      'pb-safe',
+      // モーダル表示時は非表示
+      '[body.modal-open_&]:hidden'
     )}>
       <div className={cn(
         'flex items-center justify-around',

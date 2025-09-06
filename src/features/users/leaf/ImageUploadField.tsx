@@ -2,12 +2,13 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { cn } from '@/lib/utils'
-import { ImageCropModal } from './ImageCropModal'
+import { ImageCropper } from '../../works/leaf/ImageCropper'
 
 interface ImageUploadFieldProps {
   label: string
   currentImage?: string
-  onImageSelect: (file: File) => void
+  onImageSelect?: (file: File) => void
+  onImageSelected?: (file: File) => void  // For step-in modal
   type?: 'avatar' | 'cover'
   className?: string
 }
@@ -16,13 +17,14 @@ export function ImageUploadField({
   label,
   currentImage,
   onImageSelect,
+  onImageSelected,
   type = 'avatar',
   className
 }: ImageUploadFieldProps) {
   const [dragOver, setDragOver] = useState(false)
   const [preview, setPreview] = useState<string | null>(currentImage || null)
   const [cropModalOpen, setCropModalOpen] = useState(false)
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [imageSrc, setImageSrc] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isAvatar = type === 'avatar'
@@ -40,22 +42,30 @@ export function ImageUploadField({
       return
     }
 
-    // Open crop modal instead of directly selecting
-    setSelectedFile(file)
-    setCropModalOpen(true)
-  }, [])
-
-  const handleCropComplete = useCallback((croppedFile: File) => {
-    // Create preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      setPreview(e.target?.result as string)
+    // If onImageSelected is provided (step-in modal), use it
+    if (onImageSelected) {
+      onImageSelected(file)
+      return
     }
-    reader.readAsDataURL(croppedFile)
 
-    onImageSelect(croppedFile)
-    setSelectedFile(null)
-  }, [onImageSelect])
+    // Otherwise, use the old flow with built-in cropper
+    const imageUrl = URL.createObjectURL(file)
+    setImageSrc(imageUrl)
+    setCropModalOpen(true)
+  }, [onImageSelected])
+
+  const handleCropComplete = useCallback((croppedFile: File, croppedUrl: string) => {
+    // Set preview from cropped URL
+    setPreview(croppedUrl)
+    onImageSelect?.(croppedFile)
+    
+    // Clean up
+    if (imageSrc) {
+      URL.revokeObjectURL(imageSrc)
+    }
+    setImageSrc(null)
+    setCropModalOpen(false)
+  }, [onImageSelect, imageSrc])
 
   const handleClick = () => {
     fileInputRef.current?.click()
@@ -157,17 +167,22 @@ export function ImageUploadField({
         JPG、PNG、GIF対応（最大5MB、WebP圧縮で自動最適化）
       </div>
       
-      {/* Image Crop Modal */}
-      {selectedFile && (
-        <ImageCropModal
+      {/* Image Cropper - Only render if not using step-in modal */}
+      {!onImageSelected && (
+        <ImageCropper
+          imageSrc={imageSrc || ''}
           isOpen={cropModalOpen}
           onClose={() => {
             setCropModalOpen(false)
-            setSelectedFile(null)
+            if (imageSrc) {
+              URL.revokeObjectURL(imageSrc)
+            }
+            setImageSrc(null)
           }}
-          imageFile={selectedFile}
           onCropComplete={handleCropComplete}
           aspectRatio={isAvatar ? 1 : 16/9}
+          outputFormat="webp"
+          quality={0.9}
         />
       )}
     </div>

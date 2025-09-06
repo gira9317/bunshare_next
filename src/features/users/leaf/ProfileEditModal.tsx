@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { UserProfile, UserProfileUpdateInput } from '../types'
 import { updateUserProfile, uploadAvatar, uploadCover } from '../server/actions'
 import { ImageUploadField } from './ImageUploadField'
+import { EmbeddedImageCropper } from './EmbeddedImageCropper'
 
 interface ProfileEditModalProps {
   user: UserProfile
@@ -33,9 +34,77 @@ export function ProfileEditModal({
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [showSuccess, setShowSuccess] = useState(false)
+  
+  // Step management for step-in modal
+  const [currentStep, setCurrentStep] = useState<'edit' | 'crop-avatar' | 'crop-cover'>('edit')
+  const [tempImageSrc, setTempImageSrc] = useState<string | null>(null)
+  const [tempImageFile, setTempImageFile] = useState<File | null>(null)
 
+  // Prevent background scrolling and hide bottom nav when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      // Store original overflow value
+      const originalOverflow = document.body.style.overflow
+      document.body.style.overflow = 'hidden'
+      // Add class to hide bottom nav
+      document.body.classList.add('modal-open')
+      
+      return () => {
+        // Restore original overflow when modal closes
+        document.body.style.overflow = originalOverflow
+        // Remove class to show bottom nav
+        document.body.classList.remove('modal-open')
+      }
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
+
+  // Handle image selection for cropping
+  const handleImageSelected = (file: File, type: 'avatar' | 'cover') => {
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      alert('画像ファイルを選択してください')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('ファイルサイズは5MB以下にしてください')
+      return
+    }
+    
+    // Create URL for cropping
+    const imageUrl = URL.createObjectURL(file)
+    setTempImageSrc(imageUrl)
+    setTempImageFile(file)
+    setCurrentStep(type === 'avatar' ? 'crop-avatar' : 'crop-cover')
+  }
+
+  // Handle crop complete
+  const handleCropComplete = (croppedFile: File, croppedUrl: string) => {
+    if (currentStep === 'crop-avatar') {
+      setAvatarFile(croppedFile)
+    } else if (currentStep === 'crop-cover') {
+      setCoverFile(croppedFile)
+    }
+    
+    // Clean up temp image
+    if (tempImageSrc) {
+      URL.revokeObjectURL(tempImageSrc)
+    }
+    setTempImageSrc(null)
+    setTempImageFile(null)
+    setCurrentStep('edit')
+  }
+
+  // Handle crop cancel
+  const handleCropCancel = () => {
+    if (tempImageSrc) {
+      URL.revokeObjectURL(tempImageSrc)
+    }
+    setTempImageSrc(null)
+    setTempImageFile(null)
+    setCurrentStep('edit')
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -153,27 +222,33 @@ export function ProfileEditModal({
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop - Use dynamic viewport for mobile */}
       <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-50"
+        className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[60] h-screen supports-[height:100dvh]:h-dvh"
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className={cn(
-        'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2',
-        'w-full max-w-md max-h-[90vh] overflow-y-auto',
-        'bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50',
-        'border border-gray-200 dark:border-gray-700',
-        className
-      )}>
+      <div 
+        className={cn(
+          'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2',
+          currentStep === 'edit' 
+            ? 'w-full max-w-md h-screen supports-[height:100dvh]:h-dvh overflow-y-auto md:max-w-md md:max-h-[90vh] md:supports-[height:100dvh]:max-h-[90dvh] md:h-auto'
+            : 'w-full max-w-4xl h-screen supports-[height:100dvh]:h-dvh overflow-hidden flex flex-col md:h-[90vh] md:supports-[height:100dvh]:h-[90dvh]',
+          'bg-white dark:bg-gray-800 rounded-none md:rounded-lg shadow-xl z-[60]',
+          'border-0 md:border md:border-gray-200 md:dark:border-gray-700',
+          className
+        )}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            プロフィール編集
+            {currentStep === 'edit' && 'プロフィール編集'}
+            {currentStep === 'crop-avatar' && '画像をトリミング - プロフィール画像'}
+            {currentStep === 'crop-cover' && '画像をトリミング - カバー画像'}
           </h2>
           <button
-            onClick={onClose}
+            onClick={currentStep === 'edit' ? onClose : handleCropCancel}
             className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -182,8 +257,10 @@ export function ProfileEditModal({
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* Content based on current step */}
+        {currentStep === 'edit' ? (
+          /* Edit Form */
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {errors.general && (
             <div className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded">
               {errors.general}
@@ -204,13 +281,13 @@ export function ProfileEditModal({
             <ImageUploadField
               label="プロフィール画像"
               currentImage={user.avatar_img_url}
-              onImageSelect={setAvatarFile}
+              onImageSelected={(file) => handleImageSelected(file, 'avatar')}
               type="avatar"
             />
             <ImageUploadField
               label="カバー画像"
               currentImage={user.header_img_url}
-              onImageSelect={setCoverFile}
+              onImageSelected={(file) => handleImageSelected(file, 'cover')}
               type="cover"
               className="col-span-2"
             />
@@ -359,6 +436,32 @@ export function ProfileEditModal({
             </Button>
           </div>
         </form>
+        ) : (
+          /* Cropping UI - Use embedded cropper */
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {tempImageSrc && (
+              <EmbeddedImageCropper
+                imageSrc={tempImageSrc}
+                onCropComplete={handleCropComplete}
+                aspectRatio={currentStep === 'crop-avatar' ? 1 : 16/9}
+                outputFormat="webp"
+                quality={0.9}
+                className="flex-1 min-h-0"
+              />
+            )}
+            
+            {/* Bottom cancel button */}
+            <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700">
+              <button
+                type="button"
+                onClick={handleCropCancel}
+                className="w-full px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              >
+                戻る
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </>
   )
