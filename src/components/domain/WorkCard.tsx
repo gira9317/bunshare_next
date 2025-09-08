@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, useTransition } from 'react'
+import React, { useState, useRef, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
@@ -25,14 +25,6 @@ export function WorkCard({
   disableContinueDialog = false
 }: WorkCardProps) {
   
-  console.log('💳 WorkCard Props:', {
-    workId: work.work_id,
-    title: work.title,
-    hasReadingProgress,
-    readingProgress,
-    disableContinueDialog,
-    disableNavigation
-  })
   const [liked, setLiked] = useState(isLiked)
   const [bookmarked, setBookmarked] = useState(isBookmarked)
   const [isHovered, setIsHovered] = useState(false)
@@ -40,6 +32,7 @@ export function WorkCard({
   const [showShareModal, setShowShareModal] = useState(false)
   const [showBookmarkModal, setShowBookmarkModal] = useState(false)
   const [showContinueDialog, setShowContinueDialog] = useState(false)
+  
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
   const [currentViews, setCurrentViews] = useState(work.views || 0)
   const [savedReadingProgress, setSavedReadingProgress] = useState<{ percentage: number; position: number } | null>(null)
@@ -220,49 +213,44 @@ export function WorkCard({
               }
 
               // 読書進捗チェック（ログインユーザーのみ、且つダイアログが有効な場合）
-              console.log('🔔 Continue Dialog Check:', {
-                disableContinueDialog,
-                workId: work.work_id,
-                hasReadingProgress,
-                readingProgress
-              })
               
               if (!disableContinueDialog) {
-                console.log('🔐 Checking auth and progress...')
-                const progressResult = await requireAuthAsync(async () => {
-                  console.log('📡 Calling getReadingProgressAction...')
-                  return await getReadingProgressAction(work.work_id)
-                })
-
-                console.log('📊 Progress Result:', progressResult)
-
-                if (progressResult.success && progressResult.progress && 
-                    progressResult.progress.percentage >= 5 && 
-                    progressResult.progress.percentage < 100) {
-                  // 5%以上100%未満の進捗がある場合、継続読書ダイアログを表示
-                  console.log('✅ Showing continue dialog:', {
-                    percentage: progressResult.progress.percentage,
-                    position: progressResult.progress.position
+                // 続きを読むセクションから来た場合は既存の進捗データを使用
+                if (hasReadingProgress && readingProgress >= 5 && readingProgress < 100) {
+                  // スクロール位置も含めて正確なデータを取得
+                  const progressResult = await requireAuthAsync(async () => {
+                    return await getReadingProgressAction(work.work_id)
                   })
+                  
                   setSavedReadingProgress({
-                    percentage: progressResult.progress.percentage,
-                    position: progressResult.progress.position
+                    percentage: readingProgress,
+                    position: progressResult.success && progressResult.progress 
+                      ? progressResult.progress.position 
+                      : 0
                   })
                   setShowContinueDialog(true)
                 } else {
-                  // 進捗がない、または5%未満、100%の場合は直接遷移
-                  console.log('➡️  Direct navigation:', {
-                    hasProgress: !!progressResult.progress,
-                    percentage: progressResult.progress?.percentage,
-                    reason: !progressResult.progress ? 'No progress' : 
-                           progressResult.progress.percentage < 5 ? 'Less than 5%' : 
-                           'More than 100% or other'
+                  // 既存データが条件に合わない場合はサーバーから取得
+                  const progressResult = await requireAuthAsync(async () => {
+                    return await getReadingProgressAction(work.work_id)
                   })
-                  router.push(`/works/${work.work_id}`)
+
+                  if (progressResult.success && progressResult.progress && 
+                      progressResult.progress.percentage >= 5 && 
+                      progressResult.progress.percentage < 100) {
+                    // 5%以上100%未満の進捗がある場合、継続読書ダイアログを表示
+                    setSavedReadingProgress({
+                      percentage: progressResult.progress.percentage,
+                      position: progressResult.progress.position
+                    })
+                    setShowContinueDialog(true)
+                  } else {
+                    // 進捗がない、または5%未満、100%の場合は直接遷移
+                    router.push(`/works/${work.work_id}`)
+                  }
                 }
               } else {
                 // ダイアログ無効の場合は直接遷移
-                console.log('🚫 Dialog disabled, direct navigation')
                 router.push(`/works/${work.work_id}`)
               }
             } catch (error) {
@@ -581,16 +569,14 @@ export function WorkCard({
       />
 
       {/* Continue Reading Dialog */}
-      {savedReadingProgress && (
-        <ContinueReadingDialog
-          isOpen={showContinueDialog}
-          onClose={handleCloseContinueDialog}
-          onContinue={handleContinueReading}
-          onRestart={handleRestartReading}
-          workTitle={work.title}
-          progress={savedReadingProgress.percentage}
-        />
-      )}
+      <ContinueReadingDialog
+        isOpen={showContinueDialog}
+        onClose={handleCloseContinueDialog}
+        onContinue={handleContinueReading}
+        onRestart={handleRestartReading}
+        workTitle={work.title}
+        progress={savedReadingProgress?.percentage || 0}
+      />
     </>
   )
 }

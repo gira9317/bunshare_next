@@ -10,7 +10,6 @@ interface UseReadingProgressOptions {
   enabled?: boolean
   autoSaveInterval?: number
   scrollThreshold?: number
-  contentSelector?: string // 本文コンテンツのセレクター
 }
 
 export function useReadingProgress({
@@ -18,136 +17,83 @@ export function useReadingProgress({
   userId,
   enabled = true,
   autoSaveInterval = 30000, // 30秒
-  scrollThreshold = 5, // 5%以上の変化で保存
-  contentSelector = '#main-content-text' // デフォルトの本文セレクター
+  scrollThreshold = 5 // 5%以上の変化で保存
 }: UseReadingProgressOptions) {
   const lastProgressRef = useRef<number>(0)
   const lastScrollPositionRef = useRef<number>(0)
   const saveTimeoutRef = useRef<NodeJS.Timeout>()
   const intervalRef = useRef<NodeJS.Timeout>()
   const isUnloadingRef = useRef(false)
+  const isInitializedRef = useRef(false)
   const router = useRouter()
 
-  // 進捗を計算（本文コンテンツのみ）
+  // 進捗を計算（ページ全体スクロール基準、92%で100%読了とみなす）
   const calculateProgress = useCallback((): { progress: number; position: number } => {
+    const COMPLETION_THRESHOLD = 92 // 92%で100%読了とみなす
+    
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-    
-    // 複数のセレクターを順番に試す
-    const fallbackSelectors = [
-      contentSelector,
-      '#main-content-text',
-      '.work-content',
-      '.work-content-container .work-content',
-      '.prose'
-    ]
-    
-    let contentElement: Element | null = null
-    let usedSelector = ''
-    
-    for (const selector of fallbackSelectors) {
-      contentElement = document.querySelector(selector)
-      if (contentElement) {
-        usedSelector = selector
-        break
-      }
-    }
-    
-    console.log('🔍 Reading Progress Debug:')
-    console.log(`  Primary selector: ${contentSelector}`)
-    console.log(`  Used selector: ${usedSelector || 'NONE'}`)
-    console.log(`  Element found: ${!!contentElement}`)
-    console.log(`  Current scroll: ${scrollTop}px`)
-    
-    if (!contentElement) {
-      // フォールバック: コンテンツ要素が見つからない場合は従来の計算
-      const docHeight = document.documentElement.scrollHeight
-      const winHeight = window.innerHeight
-      const scrollableHeight = Math.max(docHeight - winHeight, 1)
-      const progress = Math.min((scrollTop / scrollableHeight) * 100, 100)
-      
-      console.log('⚠️  FALLBACK MODE (No content element):')
-      console.log(`  Document height: ${docHeight}px`)
-      console.log(`  Window height: ${winHeight}px`)
-      console.log(`  Scrollable height: ${scrollableHeight}px`)
-      console.log(`  Progress: ${progress.toFixed(2)}%`)
-      
-      return {
-        progress: Math.round(progress * 100) / 100,
-        position: Math.round(scrollTop)
-      }
-    }
-    
-    // 本文コンテンツの位置情報を取得
-    const contentRect = contentElement.getBoundingClientRect()
-    const contentTop = scrollTop + contentRect.top
-    const contentHeight = contentElement.scrollHeight || contentRect.height
+    const docHeight = document.documentElement.scrollHeight
     const winHeight = window.innerHeight
+    const scrollableHeight = Math.max(docHeight - winHeight, 1)
     
-    console.log('📖 CONTENT MODE:')
-    console.log(`  Content rect:`, contentRect)
-    console.log(`  Content top: ${contentTop}px`)
-    console.log(`  Content height: ${contentHeight}px`)
-    console.log(`  Window height: ${winHeight}px`)
+    // 基本的な進捗計算
+    const rawProgress = (scrollTop / scrollableHeight) * 100
     
-    // 本文エリア内でのスクロール進捗を計算
-    let progress = 0
-    let debugInfo = ''
+    // 92%で100%とみなす調整
+    const adjustedProgress = Math.min(rawProgress, COMPLETION_THRESHOLD)
+    const finalProgress = (adjustedProgress / COMPLETION_THRESHOLD) * 100
     
-    if (scrollTop < contentTop) {
-      // まだ本文に到達していない
-      progress = 0
-      debugInfo = 'Before content area'
-    } else if (scrollTop >= contentTop + contentHeight - winHeight) {
-      // 本文を読み終わった
-      progress = 100
-      debugInfo = 'Content completed'
-    } else {
-      // 本文内でのスクロール進捗
-      const contentScrollTop = scrollTop - contentTop
-      const contentScrollableHeight = Math.max(contentHeight - winHeight, 1)
-      progress = Math.min((contentScrollTop / contentScrollableHeight) * 100, 100)
-      debugInfo = 'Reading content'
-      
-      console.log(`  Content scroll top: ${contentScrollTop}px`)
-      console.log(`  Content scrollable height: ${contentScrollableHeight}px`)
-    }
-    
-    console.log(`  Status: ${debugInfo}`)
-    console.log(`  Progress: ${progress.toFixed(2)}%`)
-    console.log('---')
-    
-    return {
-      progress: Math.max(0, Math.round(progress * 100) / 100), // 0%未満にならないよう制限
+    const result = {
+      progress: Math.round(finalProgress * 100) / 100,
       position: Math.round(scrollTop)
     }
-  }, [contentSelector])
+    
+    // デバッグ: 計算時の値を表示
+    if (scrollTop > 0) {
+      console.log(`📐 Calculate progress: ${result.progress.toFixed(1)}% at ${result.position}px (raw scroll: ${scrollTop}) [workId: ${workId}]`, {
+        docHeight,
+        winHeight,
+        scrollableHeight,
+        rawProgress: rawProgress.toFixed(2),
+        adjustedProgress: adjustedProgress.toFixed(2),
+        currentUrl: window.location.pathname
+      })
+    }
+    
+    return result
+  }, [])
 
   // サーバーに進捗を保存
   const saveProgress = useCallback(async (progress: number, position: number, force = false) => {
     if (!enabled || !userId) {
-      console.log('💾 Save skipped: not enabled or no userId')
+      return
+    }
+
+    // 現在のURLが作品ページでない場合はスキップ
+    const currentPath = window.location.pathname
+    if (!currentPath.includes('/works/')) {
+      console.log('📍 Save skipped: not on work page', { currentPath, workId })
+      return
+    }
+
+    // 初期化完了前は強制保存以外をスキップ
+    if (!force && !isInitializedRef.current) {
       return
     }
 
     // 変化が小さい場合はスキップ（強制保存以外）
     const progressDiff = Math.abs(progress - lastProgressRef.current)
     if (!force && progressDiff < scrollThreshold) {
-      console.log(`💾 Save skipped: progress change too small (${progressDiff.toFixed(2)}% < ${scrollThreshold}%)`)
       return
     }
 
-    console.log('💾 Saving progress:')
-    console.log(`  Work ID: ${workId}`)
-    console.log(`  Progress: ${progress.toFixed(2)}% (was ${lastProgressRef.current.toFixed(2)}%)`)
-    console.log(`  Position: ${position}px`)
-    console.log(`  Force save: ${force}`)
 
     try {
       const result = await updateReadingProgressAction(workId, progress, position)
       if (result.success) {
         lastProgressRef.current = progress
         lastScrollPositionRef.current = position
-        console.log('✅ Progress saved successfully')
+        console.log(`✅ Progress saved: ${progress.toFixed(1)}% at position ${position}px`)
       } else {
         console.error('❌ Progress save error:', result.error)
       }
@@ -234,6 +180,11 @@ export function useReadingProgress({
   useEffect(() => {
     if (!enabled) return
 
+    // 2秒後に初期化完了とみなす（スクロール位置復帰完了後）
+    const initTimer = setTimeout(() => {
+      isInitializedRef.current = true
+    }, 2000)
+
     // イベントリスナー設定
     window.addEventListener('scroll', handleScroll, { passive: true })
     window.addEventListener('beforeunload', handleBeforeUnload)
@@ -249,6 +200,7 @@ export function useReadingProgress({
     router.events?.on('routeChangeStart', handleRouteChange)
 
     return () => {
+      clearTimeout(initTimer)
       window.removeEventListener('scroll', handleScroll)
       window.removeEventListener('beforeunload', handleBeforeUnload)
       

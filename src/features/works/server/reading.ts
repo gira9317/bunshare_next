@@ -26,7 +26,7 @@ export async function updateReadingProgressAction(workId: string, progressPercen
         user_id: user.id,
         work_id: workId,
         progress_percentage: Math.min(progressPercent, 100), // 100%を超えないよう制限
-        last_read_position: scrollPosition || 0,
+        last_read_position: isCompleted ? 0 : (scrollPosition || 0), // 読了時は位置をリセット
         last_read_at: now.toISOString(),
         completed_at: isCompleted ? now.toISOString() : null,
         updated_at: now.toISOString()

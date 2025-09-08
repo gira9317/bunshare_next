@@ -38,47 +38,13 @@ export function WorkDetailContentSection({
     setTimeout(() => setNotification(null), 3000)
   }
 
-  // useReadingProgressフックを使用（本文コンテンツのみで進捗計算）
+  // useReadingProgressフックを使用
   const { getCurrentProgress, scrollToPosition } = useReadingProgress({
     workId: work.work_id,
     userId,
-    enabled: !!userId,
-    contentSelector: '#main-content-text'
+    enabled: !!userId
   })
 
-  // デバッグ用：複数のセレクターで本文要素を確認
-  useEffect(() => {
-    const checkContentElements = () => {
-      const selectors = [
-        '#main-content-text',
-        '.work-content',
-        '.work-content-container',
-        '.prose'
-      ]
-      
-      console.log('🎯 Content Elements Debug:')
-      selectors.forEach(selector => {
-        const element = document.querySelector(selector)
-        console.log(`  ${selector}:`)
-        console.log(`    Found: ${!!element}`)
-        if (element) {
-          const rect = element.getBoundingClientRect()
-          console.log(`    Position: top=${rect.top.toFixed(1)}px, height=${rect.height.toFixed(1)}px`)
-          console.log(`    Scroll height: ${element.scrollHeight}px`)
-          console.log(`    Content preview: "${element.textContent?.substring(0, 50)}..."`)
-        }
-      })
-      
-      // ページ全体の情報
-      console.log('📄 Page Info:')
-      console.log(`  Document height: ${document.documentElement.scrollHeight}px`)
-      console.log(`  Window height: ${window.innerHeight}px`)
-      console.log(`  Current scroll: ${window.scrollY}px`)
-    }
-    
-    // DOMが構築された後にチェック
-    setTimeout(checkContentElements, 1000)
-  }, [work.work_id])
 
   // URLパラメータから継続読書の処理を行う
   useEffect(() => {
@@ -87,14 +53,33 @@ export function WorkDetailContentSection({
     const position = urlParams.get('position')
     const shouldRestart = urlParams.get('restart') === 'true'
 
+    console.log('🔄 Continue reading URL params:', {
+      shouldContinue,
+      position,
+      shouldRestart,
+      parsedPosition: position ? parseInt(position) : null
+    })
+
     if (shouldContinue && position) {
+      const targetPosition = parseInt(position)
+      console.log(`📍 Attempting to scroll to position: ${targetPosition}px`)
+      
       // 少し遅らせてからスクロール（レンダリング完了後）
       setTimeout(() => {
-        scrollToPosition(parseInt(position))
+        console.log(`🎯 Executing scroll to ${targetPosition}px`)
+        scrollToPosition(targetPosition)
+        
+        // スクロール後に実際の位置を確認
+        setTimeout(() => {
+          const actualPosition = window.scrollY
+          console.log(`✅ Current scroll position after scroll: ${actualPosition}px (target: ${targetPosition}px)`)
+        }, 100)
+        
         showNotification('前回の続きから読み始めます', 'info')
       }, 1000)
     } else if (shouldRestart) {
       // 最初からの場合は特に何もしない（デフォルトでトップ）
+      console.log('🔄 Starting from beginning')
       showNotification('最初から読み始めます', 'info')
     }
 
@@ -227,8 +212,6 @@ export function WorkDetailContentSection({
             "whitespace-pre-wrap leading-relaxed work-content",
             fontSize,
             "text-gray-800 dark:text-gray-200",
-            // デバッグ用の視覚的ボーダー（開発環境のみ）
-            process.env.NODE_ENV === 'development' && "border-2 border-dashed border-red-300 p-4"
           )}
           dangerouslySetInnerHTML={{ 
             __html: work.content?.replace(/\n/g, '<br />') || '' 

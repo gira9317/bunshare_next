@@ -6,7 +6,6 @@ interface ContinueReadingSectionProps {
 }
 
 export function ContinueReadingSection({ works }: ContinueReadingSectionProps) {
-  console.log('ContinueReadingSection - works:', works) // デバッグ用
   
   if (works.length === 0) {
     return null
@@ -20,13 +19,6 @@ export function ContinueReadingSection({ works }: ContinueReadingSectionProps) {
       </h2>
       <div className="max-w-sm">
         {works.map((work) => {
-          console.log('🏠 ContinueReadingSection WorkCard:', {
-            workId: work.work_id,
-            title: work.title,
-            readingProgress: work.readingProgress,
-            hasReadingProgress: true,
-            disableContinueDialog: false
-          })
           
           return (
             <WorkCard
