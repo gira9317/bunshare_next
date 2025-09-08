@@ -4,7 +4,10 @@ import { Work } from '../types'
 import { useState, useEffect, useRef } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { updateReadingProgressAction } from '../server/actions'
+import { getReadingBookmarkAction } from '../server/actions'
+import { BookmarkFloatingButton } from '../leaf/BookmarkFloatingButton'
+import { TextSelectionPopup } from '../leaf/TextSelectionPopup'
+import { useReadingProgress } from '@/hooks/useReadingProgress'
 
 interface SeriesWork {
   work_id: string
@@ -16,65 +19,133 @@ interface WorkDetailContentSectionProps {
   work: Work
   readingProgress: number
   seriesWorks?: SeriesWork[]
+  userId?: string
 }
 
 export function WorkDetailContentSection({ 
   work, 
   readingProgress: initialProgress,
-  seriesWorks = []
+  seriesWorks = [],
+  userId
 }: WorkDetailContentSectionProps) {
-  const [progress, setProgress] = useState(initialProgress)
   const [fontSize, setFontSize] = useState('text-base')
   const contentRef = useRef<HTMLDivElement>(null)
-  const [isTracking, setIsTracking] = useState(false)
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+
+  // 通知を表示するヘルパー関数
+  const showNotification = (message: string, type: 'success' | 'error' | 'info') => {
+    setNotification({ message, type })
+    setTimeout(() => setNotification(null), 3000)
+  }
+
+  // useReadingProgressフックを使用（本文コンテンツのみで進捗計算）
+  const { getCurrentProgress, scrollToPosition } = useReadingProgress({
+    workId: work.work_id,
+    userId,
+    enabled: !!userId,
+    contentSelector: '#main-content-text'
+  })
+
+  // デバッグ用：複数のセレクターで本文要素を確認
+  useEffect(() => {
+    const checkContentElements = () => {
+      const selectors = [
+        '#main-content-text',
+        '.work-content',
+        '.work-content-container',
+        '.prose'
+      ]
+      
+      console.log('🎯 Content Elements Debug:')
+      selectors.forEach(selector => {
+        const element = document.querySelector(selector)
+        console.log(`  ${selector}:`)
+        console.log(`    Found: ${!!element}`)
+        if (element) {
+          const rect = element.getBoundingClientRect()
+          console.log(`    Position: top=${rect.top.toFixed(1)}px, height=${rect.height.toFixed(1)}px`)
+          console.log(`    Scroll height: ${element.scrollHeight}px`)
+          console.log(`    Content preview: "${element.textContent?.substring(0, 50)}..."`)
+        }
+      })
+      
+      // ページ全体の情報
+      console.log('📄 Page Info:')
+      console.log(`  Document height: ${document.documentElement.scrollHeight}px`)
+      console.log(`  Window height: ${window.innerHeight}px`)
+      console.log(`  Current scroll: ${window.scrollY}px`)
+    }
+    
+    // DOMが構築された後にチェック
+    setTimeout(checkContentElements, 1000)
+  }, [work.work_id])
+
+  // URLパラメータから継続読書の処理を行う
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const shouldContinue = urlParams.get('continue') === 'true'
+    const position = urlParams.get('position')
+    const shouldRestart = urlParams.get('restart') === 'true'
+
+    if (shouldContinue && position) {
+      // 少し遅らせてからスクロール（レンダリング完了後）
+      setTimeout(() => {
+        scrollToPosition(parseInt(position))
+        showNotification('前回の続きから読み始めます', 'info')
+      }, 1000)
+    } else if (shouldRestart) {
+      // 最初からの場合は特に何もしない（デフォルトでトップ）
+      showNotification('最初から読み始めます', 'info')
+    }
+
+    // URLパラメータをクリーンアップ
+    if (shouldContinue || shouldRestart) {
+      const url = new URL(window.location.href)
+      url.searchParams.delete('continue')
+      url.searchParams.delete('position')
+      url.searchParams.delete('restart')
+      window.history.replaceState({}, '', url.toString())
+    }
+  }, [scrollToPosition, showNotification])
+
+  // しおり自動復帰機能
+  useEffect(() => {
+    if (!userId) return
+
+    const checkBookmarkAutoReturn = async () => {
+      try {
+        const result = await getReadingBookmarkAction(work.work_id)
+        if (result.success && result.bookmark && result.bookmark.scroll_position > 0) {
+          const shouldJump = confirm(
+            `前回の続きから読みますか？\n\n読書進捗: ${Math.round(result.bookmark.reading_progress)}%`
+          )
+          
+          if (shouldJump) {
+            setTimeout(() => {
+              window.scrollTo({
+                top: result.bookmark.scroll_position,
+                behavior: 'smooth'
+              })
+              showNotification('しおり位置から再開しました', 'info')
+            }, 500)
+          }
+        }
+      } catch (error) {
+        console.error('しおり自動復帰エラー:', error)
+      }
+    }
+
+    // ページ読み込み後少し待ってから実行
+    const timer = setTimeout(checkBookmarkAutoReturn, 1000)
+    return () => clearTimeout(timer)
+  }, [work.work_id, userId])
 
   // シリーズナビゲーション
   const currentEpisodeIndex = seriesWorks.findIndex(w => w.work_id === work.work_id)
   const prevEpisode = currentEpisodeIndex > 0 ? seriesWorks[currentEpisodeIndex - 1] : null
   const nextEpisode = currentEpisodeIndex < seriesWorks.length - 1 ? seriesWorks[currentEpisodeIndex + 1] : null
 
-  // 読書進捗を追跡
-  useEffect(() => {
-    if (!contentRef.current) return
-
-    let timeoutId: NodeJS.Timeout
-    
-    const handleScroll = () => {
-      if (!contentRef.current) return
-      
-      const element = contentRef.current
-      const scrollTop = element.scrollTop
-      const scrollHeight = element.scrollHeight - element.clientHeight
-      const scrollProgress = Math.min(Math.round((scrollTop / scrollHeight) * 100), 100)
-      
-      setProgress(scrollProgress)
-      
-      // デバウンス処理（スクロールが止まってから保存）
-      clearTimeout(timeoutId)
-      timeoutId = setTimeout(() => {
-        if (scrollProgress > initialProgress) {
-          updateReadingProgressAction(work.work_id, scrollProgress)
-            .catch(err => console.error('進捗保存エラー:', err))
-        }
-      }, 1000)
-    }
-
-    const element = contentRef.current
-    element.addEventListener('scroll', handleScroll, { passive: true })
-    setIsTracking(true)
-
-    // 初期位置への復元
-    if (initialProgress > 0 && element) {
-      const scrollHeight = element.scrollHeight - element.clientHeight
-      const targetScroll = (initialProgress / 100) * scrollHeight
-      element.scrollTop = targetScroll
-    }
-
-    return () => {
-      element.removeEventListener('scroll', handleScroll)
-      clearTimeout(timeoutId)
-    }
-  }, [work.work_id, initialProgress])
+  // 読書進捗はuseReadingProgressフックで自動処理されるため、ここでは不要
 
   // フォントサイズ設定
   const fontSizes = [
@@ -123,19 +194,6 @@ export function WorkDetailContentSection({
         </div>
       )}
 
-      {/* 読書進捗バー */}
-      <div className="sticky top-0 z-10 bg-white dark:bg-gray-900 py-2 -mx-4 px-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-500">読書進捗</span>
-          <span className="text-xs font-semibold text-purple-600">{progress}%</span>
-        </div>
-        <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-300 ease-out"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
 
       {/* フォントサイズ設定 */}
       <div className="flex items-center justify-end gap-2">
@@ -161,14 +219,16 @@ export function WorkDetailContentSection({
       {/* 本文 */}
       <div
         ref={contentRef}
-        className="prose prose-gray dark:prose-invert max-w-none overflow-y-auto"
-        style={{ maxHeight: '70vh' }}
+        className="prose prose-gray dark:prose-invert max-w-none work-content-container"
       >
         <div 
+          id="main-content-text"
           className={cn(
-            "whitespace-pre-wrap leading-relaxed",
+            "whitespace-pre-wrap leading-relaxed work-content",
             fontSize,
-            "text-gray-800 dark:text-gray-200"
+            "text-gray-800 dark:text-gray-200",
+            // デバッグ用の視覚的ボーダー（開発環境のみ）
+            process.env.NODE_ENV === 'development' && "border-2 border-dashed border-red-300 p-4"
           )}
           dangerouslySetInnerHTML={{ 
             __html: work.content?.replace(/\n/g, '<br />') || '' 
@@ -176,22 +236,32 @@ export function WorkDetailContentSection({
         />
       </div>
 
-      {/* 読了メッセージ */}
-      {progress === 100 && (
-        <div className="p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl text-center space-y-4">
-          <p className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            🎉 読了おめでとうございます！
-          </p>
-          
-          {nextEpisode && (
-            <a
-              href={`/works/${nextEpisode.work_id}`}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-            >
-              次の話を読む
-              <ChevronRight className="w-4 h-4" />
-            </a>
+
+      {/* しおり機能 */}
+      <BookmarkFloatingButton
+        workId={work.work_id}
+        isLoggedIn={!!userId}
+        onNotification={showNotification}
+      />
+
+      <TextSelectionPopup
+        workId={work.work_id}
+        isLoggedIn={!!userId}
+        onNotification={showNotification}
+      />
+
+      {/* 通知 */}
+      {notification && (
+        <div
+          className={cn(
+            "fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300",
+            "max-w-sm text-sm font-medium",
+            notification.type === 'success' && "bg-green-500 text-white",
+            notification.type === 'error' && "bg-red-500 text-white",
+            notification.type === 'info' && "bg-blue-500 text-white"
           )}
+        >
+          {notification.message}
         </div>
       )}
     </div>

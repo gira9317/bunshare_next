@@ -83,15 +83,6 @@ export function WorkDetailActionsSection({
         </div>
       </div>
 
-      {/* コメントセクション（将来実装） */}
-      <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-4">
-          コメント
-        </h3>
-        <p className="text-gray-600 dark:text-gray-400">
-          コメント機能は近日公開予定です
-        </p>
-      </div>
 
       {/* モーダル */}
       <ShareModal

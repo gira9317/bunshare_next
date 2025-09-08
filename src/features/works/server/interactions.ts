@@ -913,6 +913,238 @@ export async function removeWorkFromSeriesAction(workId: string) {
 }
 
 /**
+ * コメントを取得
+ */
+export async function getCommentsAction(workId: string, limit: number = 10, offset: number = 0) {
+  const supabase = await createClient()
+  
+  try {
+    // 本来のクエリ
+    const { data, error } = await supabase
+      .from('reviews')
+      .select(`
+        review_id,
+        work_id,
+        user_id,
+        comment,
+        created_at,
+        updated_at
+      `)
+      .eq('work_id', workId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (error) {
+      console.error('Supabase error details:', error)
+      throw error
+    }
+
+    // ユーザー情報を別途取得
+    const userIds = data?.map(r => r.user_id).filter(Boolean) || []
+    const uniqueUserIds = [...new Set(userIds)]
+    let userMap: { [key: string]: any } = {}
+    
+    if (uniqueUserIds.length > 0) {
+      const { data: users, error: usersError } = await supabase
+        .from('users')
+        .select('*')
+        .in('id', uniqueUserIds)
+      
+      if (users && users.length > 0) {
+        users.forEach(user => {
+          userMap[user.id] = {
+            id: user.id,
+            username: user.username,
+            avatar_url: user.avatar_img_url
+          }
+        })
+      }
+    }
+
+    const comments = data?.map(review => ({
+      review_id: review.review_id,
+      work_id: review.work_id,
+      user_id: review.user_id,
+      comment: review.comment,
+      created_at: review.created_at,
+      updated_at: review.updated_at,
+      user: review.user_id ? userMap[review.user_id] || null : null
+    })) || []
+
+    // 総コメント数を取得
+    const { count } = await supabase
+      .from('reviews')
+      .select('*', { count: 'exact', head: true })
+      .eq('work_id', workId)
+
+    return { success: true, comments, total: count || 0 }
+  } catch (error) {
+    console.error('コメント取得エラー:', error)
+    return { error: 'コメントの取得に失敗しました' }
+  }
+}
+
+/**
+ * コメントを追加
+ */
+export async function addCommentAction(workId: string, comment: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .insert({
+        work_id: workId,
+        user_id: user.id,
+        comment: comment.trim()
+      })
+      .select(`
+        review_id,
+        work_id,
+        user_id,
+        comment,
+        created_at,
+        updated_at
+      `)
+      .single()
+
+    if (error) throw error
+
+    // ユーザー情報を追加
+    const { data: userData } = await supabase
+      .from('users')
+      .select('id, username, avatar_img_url')
+      .eq('id', user.id)
+      .single()
+
+    const newComment = {
+      ...data,
+      user: userData ? {
+        id: userData.id,
+        username: userData.username,
+        avatar_url: userData.avatar_img_url
+      } : null
+    }
+
+    // キャッシュを無効化
+    revalidateTag(`work:${workId}`)
+    revalidateTag(`work:${workId}:comments`)
+
+    return { success: true, comment: newComment }
+  } catch (error) {
+    console.error('コメント追加エラー:', error)
+    return { error: 'コメントの投稿に失敗しました' }
+  }
+}
+
+/**
+ * コメントを編集
+ */
+export async function editCommentAction(reviewId: string, comment: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .update({
+        comment: comment.trim(),
+        updated_at: getJSTAsUTC()
+      })
+      .eq('review_id', reviewId)
+      .eq('user_id', user.id)
+      .select(`
+        review_id,
+        work_id,
+        user_id,
+        comment,
+        created_at,
+        updated_at
+      `)
+      .single()
+
+    if (error) throw error
+
+    // ユーザー情報を追加
+    const { data: userData } = await supabase
+      .from('users')
+      .select('id, username, avatar_img_url')
+      .eq('id', user.id)
+      .single()
+
+    const updatedComment = {
+      ...data,
+      user: userData ? {
+        id: userData.id,
+        username: userData.username,
+        avatar_url: userData.avatar_img_url
+      } : null
+    }
+
+    // キャッシュを無効化
+    revalidateTag(`work:${data.work_id}`)
+    revalidateTag(`work:${data.work_id}:comments`)
+
+    return { success: true, comment: updatedComment }
+  } catch (error) {
+    console.error('コメント編集エラー:', error)
+    return { error: 'コメントの編集に失敗しました' }
+  }
+}
+
+/**
+ * コメントを削除
+ */
+export async function deleteCommentAction(reviewId: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // 削除前に作品IDを取得
+    const { data: review } = await supabase
+      .from('reviews')
+      .select('work_id')
+      .eq('review_id', reviewId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (!review) {
+      return { error: 'コメントが見つかりません' }
+    }
+
+    const { error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('review_id', reviewId)
+      .eq('user_id', user.id)
+
+    if (error) throw error
+
+    // キャッシュを無効化
+    revalidateTag(`work:${review.work_id}`)
+    revalidateTag(`work:${review.work_id}:comments`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('コメント削除エラー:', error)
+    return { error: 'コメントの削除に失敗しました' }
+  }
+}
+
+/**
  * シリーズ内の作品の順序を更新
  */
 export async function updateSeriesWorkOrderAction(works: { work_id: string; episode_number: number }[]) {
@@ -964,5 +1196,194 @@ export async function updateSeriesWorkOrderAction(works: { work_id: string; epis
   } catch (error) {
     console.error('作品順序更新エラー:', error)
     return { error: '作品順序の更新に失敗しました' }
+  }
+}
+
+/**
+ * しおりデータを取得
+ */
+export async function getReadingBookmarkAction(workId: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('reading_bookmarks')
+      .select('*')
+      .eq('work_id', workId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('しおり取得エラー:', error)
+      return { error: 'しおりの取得に失敗しました' }
+    }
+
+    return { success: true, bookmark: data }
+  } catch (error) {
+    console.error('しおり取得例外:', error)
+    return { error: 'しおりの取得に失敗しました' }
+  }
+}
+
+/**
+ * しおりを保存
+ */
+export async function saveReadingBookmarkAction(
+  workId: string, 
+  scrollPosition: number, 
+  readingProgress: number,
+  bookmarkText?: string
+) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('reading_bookmarks')
+      .upsert({
+        user_id: user.id,
+        work_id: workId,
+        scroll_position: scrollPosition,
+        reading_progress: Math.min(readingProgress, 100),
+        bookmark_text: bookmarkText || null,
+        updated_at: getJSTAsUTC()
+      }, {
+        onConflict: 'user_id,work_id'
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('しおり保存エラー:', error)
+      return { error: 'しおりの保存に失敗しました' }
+    }
+
+    // キャッシュを無効化
+    revalidateTag(`work:${workId}`)
+    revalidateTag(`user:${user.id}:reading_bookmarks`)
+
+    return { success: true, bookmark: data }
+  } catch (error) {
+    console.error('しおり保存例外:', error)
+    return { error: 'しおりの保存に失敗しました' }
+  }
+}
+
+/**
+ * しおりを削除
+ */
+export async function deleteReadingBookmarkAction(workId: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { error } = await supabase
+      .from('reading_bookmarks')
+      .delete()
+      .eq('work_id', workId)
+      .eq('user_id', user.id)
+
+    if (error) {
+      console.error('しおり削除エラー:', error)
+      return { error: 'しおりの削除に失敗しました' }
+    }
+
+    // キャッシュを無効化
+    revalidateTag(`work:${workId}`)
+    revalidateTag(`user:${user.id}:reading_bookmarks`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('しおり削除例外:', error)
+    return { error: 'しおりの削除に失敗しました' }
+  }
+}
+
+/**
+ * 閲覧数をインクリメント（30分スロット単位での重複防止）
+ */
+export async function incrementViewAction(workId: string) {
+  const supabase = await createClient()
+  
+  try {
+    // ユーザー情報を取得（ログイン不要）
+    const { data: { user } } = await supabase.auth.getUser()
+    const userId = user?.id || null
+    
+    // 現在時刻から30分スロットを計算
+    const now = new Date()
+    const thirtyMinSlot = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      now.getHours(),
+      Math.floor(now.getMinutes() / 30) * 30,
+      0,
+      0
+    )
+    
+    // 今日の日付（YYYY-MM-DD形式）
+    const viewedDate = now.toISOString().split('T')[0]
+    
+    // 30分スロット内での重複チェック
+    const { data: existingView } = await supabase
+      .from('views_log')
+      .select('id')
+      .eq('work_id', workId)
+      .eq('user_id', userId)
+      .eq('viewed_30min_slot', thirtyMinSlot.toISOString())
+      .single()
+    
+    if (existingView) {
+      // 既に同じ30分スロット内で閲覧済み
+      return { success: true, incremented: false }
+    }
+    
+    // views_logに新しいレコードを追加
+    const { error: logError } = await supabase
+      .from('views_log')
+      .insert({
+        work_id: workId,
+        user_id: userId,
+        viewed_at: now.toISOString(),
+        viewed_date: viewedDate,
+        viewed_30min_slot: thirtyMinSlot.toISOString()
+      })
+    
+    if (logError) {
+      console.error('views_log 挿入エラー:', logError)
+      return { error: '閲覧ログの保存に失敗しました' }
+    }
+    
+    // worksテーブルのviewsカウンターをインクリメント
+    const { error: updateError } = await supabase
+      .rpc('increment_work_views', { work_id: workId })
+    
+    if (updateError) {
+      console.error('views カウンター更新エラー:', updateError)
+      // ログ挿入は成功したが、カウンター更新が失敗した場合でも成功として扱う
+    }
+    
+    // キャッシュを無効化
+    revalidateTag(`work:${workId}`)
+    revalidateTag('works')
+    
+    return { success: true, incremented: true }
+  } catch (error) {
+    console.error('閲覧数更新例外:', error)
+    return { error: '閲覧数の更新に失敗しました' }
   }
 }

@@ -18,12 +18,19 @@ export {
   updateBookmarkMemoAction,
   getSeriesWorksAction,
   removeWorkFromSeriesAction,
-  updateSeriesWorkOrderAction
+  updateSeriesWorkOrderAction,
+  // Reading bookmarks
+  getReadingBookmarkAction,
+  saveReadingBookmarkAction,
+  deleteReadingBookmarkAction,
+  // Views
+  incrementViewAction
 } from './interactions'
 
 export {
   // Reading progress
-  updateReadingProgressAction
+  updateReadingProgressAction,
+  getReadingProgressAction
 } from './reading'
 
 export {

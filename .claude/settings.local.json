@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(dir:*)",
-      "Bash(taskkill:*)"
+      "Bash(taskkill:*)",
+      "Read(C:\\Users\\syosu\\source\\devcontainer-claude\\bunshare/**)",
+      "Read(C:\\Users\\syosu\\source\\devcontainer-claude\\bunshare/**)",
+      "Read(C:\\Users\\syosu\\source\\devcontainer-claude\\bunshare/**)",
+      "Read(C:\\Users\\syosu\\source\\devcontainer-claude\\bunshare/**)",
+      "Read(C:\\Users\\syosu\\source\\devcontainer-claude\\bunshare\\supabase\\tables/**)"
     ],
     "deny": [],
     "ask": []

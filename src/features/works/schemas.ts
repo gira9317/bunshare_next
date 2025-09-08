@@ -22,3 +22,32 @@ export const workSchema = z.object({
 })
 
 export type WorkSchema = z.infer<typeof workSchema>
+
+export const commentSchema = z.object({
+  review_id: z.string().uuid(),
+  work_id: z.string().uuid(),
+  user_id: z.string().uuid(),
+  comment: z.string().min(1, 'コメントを入力してください').max(1000, 'コメントは1000文字以内で入力してください'),
+  created_at: z.string(),
+  updated_at: z.string(),
+  user: z.object({
+    id: z.string().uuid(),
+    username: z.string(),
+    avatar_url: z.string().nullable().optional()
+  }).optional()
+})
+
+export type CommentSchema = z.infer<typeof commentSchema>
+
+export const readingBookmarkSchema = z.object({
+  id: z.string().uuid(),
+  user_id: z.string().uuid(),
+  work_id: z.string().uuid(),
+  scroll_position: z.number().min(0, 'スクロール位置は0以上である必要があります'),
+  reading_progress: z.number().min(0).max(100, '読書進捗は0-100%の範囲である必要があります'),
+  bookmark_text: z.string().nullable().optional(),
+  created_at: z.string(),
+  updated_at: z.string()
+})
+
+export type ReadingBookmarkSchema = z.infer<typeof readingBookmarkSchema>

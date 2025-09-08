@@ -4,6 +4,7 @@ import { getWorkById } from '@/features/works/server/loader'
 import { WorkDetailHeaderSection } from '@/features/works/sections/WorkDetailHeaderSection'
 import { WorkDetailContentSection } from '@/features/works/sections/WorkDetailContentSection'
 import { WorkDetailActionsSection } from '@/features/works/sections/WorkDetailActionsSection'
+import { WorkDetailCommentsSection } from '@/features/works/sections/WorkDetailCommentsSection'
 import { createClient } from '@/lib/supabase/server'
 
 interface PageProps {
@@ -105,6 +106,7 @@ export default async function WorkDetailPage({ params }: PageProps) {
         work={work}
         readingProgress={readingProgress}
         seriesWorks={seriesWorks}
+        userId={user?.id}
       />
 
       {/* アクションセクション */}
@@ -112,6 +114,12 @@ export default async function WorkDetailPage({ params }: PageProps) {
         work={work}
         isLiked={isLiked}
         isBookmarked={isBookmarked}
+      />
+
+      {/* コメントセクション */}
+      <WorkDetailCommentsSection
+        workId={work.work_id}
+        userId={user?.id}
       />
     </div>
   )

@@ -161,19 +161,19 @@ export function UserProfileSection({
               onClick={() => setFollowModalType('following')}
               className="hover:underline transition-all"
             >
-              <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats.following_count}</span>
+              <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats?.following_count || 0}</span>
               <span className="text-gray-500 dark:text-gray-400 ml-1">フォロー中</span>
             </button>
             <button 
               onClick={() => setFollowModalType('followers')}
               className="hover:underline transition-all"
             >
-              <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats.followers_count}</span>
+              <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats?.followers_count || 0}</span>
               <span className="text-gray-500 dark:text-gray-400 ml-1">フォロワー</span>
             </button>
-            {user.stats.works_count > 0 && (
+            {user.stats?.works_count > 0 && (
               <span>
-                <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats.works_count}</span>
+                <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats?.works_count}</span>
                 <span className="text-gray-500 dark:text-gray-400 ml-1">作品</span>
               </span>
             )}
@@ -199,7 +199,7 @@ export function UserProfileSection({
           currentUserId={currentUserId}
           type={followModalType}
           userDisplayName={user.username || 'username'}
-          userCount={followModalType === 'followers' ? user.stats.followers_count : user.stats.following_count}
+          userCount={followModalType === 'followers' ? (user.stats?.followers_count || 0) : (user.stats?.following_count || 0)}
         />
       )}
       

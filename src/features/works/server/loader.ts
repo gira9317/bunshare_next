@@ -33,7 +33,7 @@ export const getWorks = cache(async (limit = 10, offset = 0) => {
       )
     `)
     .eq('is_published', true)
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: true })
     .range(offset, offset + limit - 1)
 
   if (error) {
@@ -112,17 +112,46 @@ export const getUserLikesAndBookmarks = cache(async (userId: string, workIds: st
   }
 })
 
+/**
+ * ユーザーの全ての読書進捗を取得（作品IDをキーとしたRecord形式）
+ */
+export const getUserReadingProgress = cache(async (userId: string): Promise<Record<string, number>> => {
+  const supabase = await createClient()
+  
+  const { data, error } = await supabase
+    .from('reading_progress')
+    .select('work_id, progress_percentage')
+    .eq('user_id', userId)
+    .gt('progress_percentage', 0) // 進捗がある作品のみ
+    .is('completed_at', null) // 完了していない作品のみ
+
+  if (error) {
+    console.error('読書進捗取得エラー:', error)
+    return {}
+  }
+
+  // Record<string, number>形式に変換
+  const progressMap: Record<string, number> = {}
+  data.forEach(item => {
+    progressMap[item.work_id] = Math.round(item.progress_percentage)
+  })
+
+  return progressMap
+})
+
 export const getContinueReadingWorks = cache(async (userId: string) => {
   const supabase = await createClient()
   
   const { data, error } = await supabase
-    .from('reading_bookmarks')
+    .from('reading_progress')
     .select(`
       work_id,
-      last_position,
-      works (
+      progress_percentage,
+      last_read_position,
+      last_read_at,
+      works!inner (
         *,
-        users!author_id (
+        users (
           username
         ),
         series (
@@ -132,8 +161,11 @@ export const getContinueReadingWorks = cache(async (userId: string) => {
       )
     `)
     .eq('user_id', userId)
-    .order('updated_at', { ascending: false })
-    .limit(5)
+    .gt('progress_percentage', 5) // 5%以上読んだ作品のみ
+    .lt('progress_percentage', 100) // 100%完了は除外
+    .is('completed_at', null) // 完了していない作品のみ
+    .order('last_read_at', { ascending: false })
+    .limit(1)
 
   if (error) {
     console.error('続きを読む作品取得エラー:', error)
@@ -143,7 +175,9 @@ export const getContinueReadingWorks = cache(async (userId: string) => {
   return data.map((item: any) => ({
     ...item.works,
     author: item.works.users?.username || item.works.author,
-    readingProgress: item.last_position,
+    readingProgress: Math.round(item.progress_percentage),
+    readingPosition: item.last_read_position,
+    lastReadAt: item.last_read_at,
     series_title: item.works.series?.title || null
   })) as Work[]
 })

@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import type { WorkCardProps } from '@/features/works/types'
-import { toggleLikeAction } from '@/features/works/server/actions'
+import { toggleLikeAction, incrementViewAction, getReadingProgressAction } from '@/features/works/server/actions'
 import { useRequireAuth } from '@/features/auth/hooks/useRequireAuth'
 import { ShareModal } from './ShareModal'
 import { BookmarkModal } from './BookmarkModal'
+import { ContinueReadingDialog } from '@/features/works/leaf/ContinueReadingDialog'
 
 export function WorkCard({ 
   work, 
@@ -20,15 +21,28 @@ export function WorkCard({
   onRemove,
   onMove,
   availableFolders = [],
-  disableNavigation = false
+  disableNavigation = false,
+  disableContinueDialog = false
 }: WorkCardProps) {
+  
+  console.log('💳 WorkCard Props:', {
+    workId: work.work_id,
+    title: work.title,
+    hasReadingProgress,
+    readingProgress,
+    disableContinueDialog,
+    disableNavigation
+  })
   const [liked, setLiked] = useState(isLiked)
   const [bookmarked, setBookmarked] = useState(isBookmarked)
   const [isHovered, setIsHovered] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
   const [showBookmarkModal, setShowBookmarkModal] = useState(false)
+  const [showContinueDialog, setShowContinueDialog] = useState(false)
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
+  const [currentViews, setCurrentViews] = useState(work.views || 0)
+  const [savedReadingProgress, setSavedReadingProgress] = useState<{ percentage: number; position: number } | null>(null)
   const moreMenuButtonRef = useRef<HTMLButtonElement>(null)
   const dropdownMenuRef = useRef<HTMLDivElement>(null)
   const [isPending, startTransition] = useTransition()
@@ -116,6 +130,27 @@ export function WorkCard({
     setShowShareModal(true)
   }
 
+  // 継続読書ダイアログのハンドラー
+  const handleContinueReading = () => {
+    setShowContinueDialog(false)
+    if (savedReadingProgress) {
+      // 読書位置パラメータ付きで遷移
+      router.push(`/works/${work.work_id}?continue=true&position=${savedReadingProgress.position}`)
+    } else {
+      router.push(`/works/${work.work_id}`)
+    }
+  }
+
+  const handleRestartReading = () => {
+    setShowContinueDialog(false)
+    router.push(`/works/${work.work_id}?restart=true`)
+  }
+
+  const handleCloseContinueDialog = () => {
+    setShowContinueDialog(false)
+    setSavedReadingProgress(null)
+  }
+
   // Close menu on outside click and ESC key
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -169,7 +204,74 @@ export function WorkCard({
         const isInteractive = target.closest('.interactive-button, .clickable')
         
         if (!isButton && !isInteractive && !disableNavigation) {
-          router.push(`/works/${work.work_id}`)
+          // 楽観的UI更新で閲覧数をすぐに+1
+          setCurrentViews(prev => prev + 1)
+          
+          // 非同期で閲覧数更新と読書進捗チェック
+          startTransition(async () => {
+            try {
+              // 閲覧数更新
+              const viewResult = await incrementViewAction(work.work_id)
+              if (viewResult.error) {
+                setCurrentViews(prev => prev - 1)
+                console.error('閲覧数更新エラー:', viewResult.error)
+              } else if (!viewResult.incremented) {
+                setCurrentViews(prev => prev - 1)
+              }
+
+              // 読書進捗チェック（ログインユーザーのみ、且つダイアログが有効な場合）
+              console.log('🔔 Continue Dialog Check:', {
+                disableContinueDialog,
+                workId: work.work_id,
+                hasReadingProgress,
+                readingProgress
+              })
+              
+              if (!disableContinueDialog) {
+                console.log('🔐 Checking auth and progress...')
+                const progressResult = await requireAuthAsync(async () => {
+                  console.log('📡 Calling getReadingProgressAction...')
+                  return await getReadingProgressAction(work.work_id)
+                })
+
+                console.log('📊 Progress Result:', progressResult)
+
+                if (progressResult.success && progressResult.progress && 
+                    progressResult.progress.percentage >= 5 && 
+                    progressResult.progress.percentage < 100) {
+                  // 5%以上100%未満の進捗がある場合、継続読書ダイアログを表示
+                  console.log('✅ Showing continue dialog:', {
+                    percentage: progressResult.progress.percentage,
+                    position: progressResult.progress.position
+                  })
+                  setSavedReadingProgress({
+                    percentage: progressResult.progress.percentage,
+                    position: progressResult.progress.position
+                  })
+                  setShowContinueDialog(true)
+                } else {
+                  // 進捗がない、または5%未満、100%の場合は直接遷移
+                  console.log('➡️  Direct navigation:', {
+                    hasProgress: !!progressResult.progress,
+                    percentage: progressResult.progress?.percentage,
+                    reason: !progressResult.progress ? 'No progress' : 
+                           progressResult.progress.percentage < 5 ? 'Less than 5%' : 
+                           'More than 100% or other'
+                  })
+                  router.push(`/works/${work.work_id}`)
+                }
+              } else {
+                // ダイアログ無効の場合は直接遷移
+                console.log('🚫 Dialog disabled, direct navigation')
+                router.push(`/works/${work.work_id}`)
+              }
+            } catch (error) {
+              setCurrentViews(prev => prev - 1)
+              console.error('処理例外:', error)
+              // エラー時も遷移
+              router.push(`/works/${work.work_id}`)
+            }
+          })
         }
         
         setShowMoreMenu(false)
@@ -279,7 +381,7 @@ export function WorkCard({
                     <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke="currentColor" strokeWidth="2"/>
                     <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z" stroke="currentColor" strokeWidth="2"/>
                   </svg>
-                  <span className="font-medium">{work.views || 0}</span>
+                  <span className="font-medium">{currentViews}</span>
                 </div>
 
                 {/* Likes */}
@@ -333,28 +435,6 @@ export function WorkCard({
             </div>
           </div>
 
-          {/* Reading progress */}
-          {hasReadingProgress && (
-            <div className="space-y-1 mt-3">
-              <div className="flex justify-between text-xs">
-                <span className={displayImageUrl ? 'text-white/80' : 'text-gray-500'}>
-                  読書進捗
-                </span>
-                <span className={displayImageUrl ? 'text-white' : 'text-gray-700'}>
-                  {readingProgress}%
-                </span>
-              </div>
-              <div className="h-2 bg-white/20 backdrop-blur-sm rounded-full overflow-hidden">
-                <div 
-                  className={cn(
-                    'h-full transition-all duration-700 ease-out rounded-full',
-                    `bg-gradient-to-r ${getCategoryGradient(work.category || 'その他').replace('/80', '')}`
-                  )}
-                  style={{ width: `${readingProgress}%` }}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Hover overlay effect */}
@@ -363,6 +443,16 @@ export function WorkCard({
           'opacity-0 transition-opacity duration-500 pointer-events-none',
           !disableNavigation && 'group-hover:opacity-100'
         )} />
+        
+        {/* YouTube-style progress bar at bottom */}
+        {hasReadingProgress && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/50 dark:bg-gray-700/50">
+            <div 
+              className="h-full bg-purple-500 transition-all duration-300 ease-out"
+              style={{ width: `${readingProgress}%` }}
+            />
+          </div>
+        )}
         </article>
       </div>
 
@@ -489,6 +579,18 @@ export function WorkCard({
         title={work.title}
         author={work.author}
       />
+
+      {/* Continue Reading Dialog */}
+      {savedReadingProgress && (
+        <ContinueReadingDialog
+          isOpen={showContinueDialog}
+          onClose={handleCloseContinueDialog}
+          onContinue={handleContinueReading}
+          onRestart={handleRestartReading}
+          workTitle={work.title}
+          progress={savedReadingProgress.percentage}
+        />
+      )}
     </>
   )
 }

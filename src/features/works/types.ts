@@ -22,6 +22,8 @@ export interface Work {
   comments?: number
   rating?: number
   readingProgress?: number
+  readingPosition?: number
+  lastReadAt?: string
 }
 
 export interface WorkCardProps {
@@ -35,10 +37,36 @@ export interface WorkCardProps {
   onMove?: (workId: string, targetFolder: string) => void
   availableFolders?: Array<{ folder_key: string; folder_name: string }>
   disableNavigation?: boolean
+  disableContinueDialog?: boolean
 }
 
 export interface CategoryChipProps {
   category: string
   isActive: boolean
   onClick: () => void
+}
+
+export interface Comment {
+  review_id: string
+  work_id: string
+  user_id: string
+  comment: string
+  created_at: string
+  updated_at: string
+  user?: {
+    id: string
+    username: string
+    avatar_url?: string
+  }
+}
+
+export interface ReadingBookmark {
+  id: string
+  user_id: string
+  work_id: string
+  scroll_position: number
+  reading_progress: number
+  bookmark_text?: string
+  created_at: string
+  updated_at: string
 }
