@@ -784,3 +784,162 @@ export async function updateBookmarkMemoAction(workId: string, folderKey: string
     return { error: 'メモの更新に失敗しました' }
   }
 }
+
+/**
+ * シリーズの作品一覧を取得
+ */
+export async function getSeriesWorksAction(seriesId: string) {
+  const supabase = await createClient()
+  
+  try {
+    // シリーズに属する作品を取得
+    const { data, error } = await supabase
+      .from('works')
+      .select(`
+        work_id,
+        user_id,
+        title,
+        description,
+        content,
+        category,
+        tags,
+        image_url,
+        series_id,
+        episode_number,
+        is_adult_content,
+        created_at,
+        updated_at,
+        views,
+        likes,
+        comments,
+        rating
+      `)
+      .eq('series_id', seriesId)
+      .eq('is_published', true)
+      .order('episode_number', { ascending: true })
+
+    if (error) {
+      console.error('Error fetching series works:', error)
+      return { error: 'シリーズ作品の取得に失敗しました' }
+    }
+
+    // 作者情報を取得
+    const userIds = [...new Set(data?.map(work => work.user_id).filter(Boolean))] || []
+    let userMap: { [key: string]: any } = {}
+    
+    if (userIds.length > 0) {
+      const { data: users, error: usersError } = await supabase
+        .from('users')
+        .select('id, username')
+        .in('id', userIds)
+      
+      if (!usersError && users) {
+        userMap = users.reduce((acc, user) => {
+          acc[user.id] = user
+          return acc
+        }, {} as { [key: string]: any })
+      }
+    }
+
+    const works = (data || []).map(work => ({
+      ...work,
+      author: userMap[work.user_id]?.username || '不明',
+      author_username: userMap[work.user_id]?.username
+    }))
+
+    return { success: true, works }
+  } catch (error) {
+    console.error('シリーズ作品取得エラー:', error)
+    return { error: 'シリーズ作品の取得に失敗しました' }
+  }
+}
+
+/**
+ * シリーズから作品を削除
+ */
+export async function removeWorkFromSeriesAction(workId: string) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    const { error } = await supabase
+      .from('works')
+      .update({ 
+        series_id: null,
+        episode_number: null,
+        updated_at: getJSTAsUTC()
+      })
+      .eq('work_id', workId)
+      .eq('user_id', user.id)
+
+    if (error) throw error
+
+    // キャッシュを無効化
+    revalidateTag(`work:${workId}`)
+    revalidateTag(`user:${user.id}:series`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('シリーズからの作品削除エラー:', error)
+    return { error: '作品の削除に失敗しました' }
+  }
+}
+
+/**
+ * シリーズ内の作品の順序を更新
+ */
+export async function updateSeriesWorkOrderAction(works: { work_id: string; episode_number: number }[]) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // トランザクション内で各作品のエピソード番号を更新
+    // まず一時的にNULLに設定してから新しい番号を設定（重複を避けるため）
+    for (const work of works) {
+      // 一時的にepisode_numberをNULLに設定
+      const { error: nullifyError } = await supabase
+        .from('works')
+        .update({ 
+          episode_number: null,
+          updated_at: getJSTAsUTC()
+        })
+        .eq('work_id', work.work_id)
+        .eq('user_id', user.id)
+
+      if (nullifyError) throw nullifyError
+    }
+
+    // 新しいエピソード番号を設定
+    for (const work of works) {
+      const { error } = await supabase
+        .from('works')
+        .update({ 
+          episode_number: work.episode_number,
+          updated_at: getJSTAsUTC()
+        })
+        .eq('work_id', work.work_id)
+        .eq('user_id', user.id)
+
+      if (error) throw error
+    }
+
+    // キャッシュを無効化
+    works.forEach(work => {
+      revalidateTag(`work:${work.work_id}`)
+    })
+    revalidateTag(`user:${user.id}:series`)
+
+    return { success: true }
+  } catch (error) {
+    console.error('作品順序更新エラー:', error)
+    return { error: '作品順序の更新に失敗しました' }
+  }
+}

@@ -27,7 +27,7 @@ import type { Work } from '@/features/works/types'
 import { SeriesCard } from '../components/SeriesCard'
 import { BookmarkFolderCard } from '../components/BookmarkFolderCard'
 import { BookmarkFolderManager } from '../leaf/BookmarkFolderManager'
-import { getBookmarkFoldersAction, getBookmarksByFolderAction, updateBookmarkOrderAction, removeBookmarkFromFolderAction, moveBookmarkToFolderAction } from '@/features/works/server/actions'
+import { getBookmarkFoldersAction, getBookmarksByFolderAction, updateBookmarkOrderAction, removeBookmarkFromFolderAction, moveBookmarkToFolderAction, getSeriesWorksAction, removeWorkFromSeriesAction, updateSeriesWorkOrderAction } from '@/features/works/server/actions'
 import { Folder, ArrowLeft, Settings, Lock, MoreVertical, ChevronLeft, Bookmark, Edit3, Trash2, Move, GripVertical, FileText, PenTool, Heart, Clock, Sparkles, Library, Cog, BookOpen, Calendar, Shield, Wrench, Mail, Key, ChevronRight } from 'lucide-react'
 import { PrivacySettingsCard } from '../leaf/PrivacySettingsCard'
 import { NotificationSettingsCard } from '../leaf/NotificationSettingsCard'
@@ -93,6 +93,61 @@ export function ProfileTabsSection({
       <div className="min-h-[400px]">
         {activeTabContent}
       </div>
+    </div>
+  )
+}
+
+// Draggable WorkCard Wrapper for Series Management
+function DraggableSeriesWorkCard({ 
+  work, 
+  onRemove 
+}: { 
+  work: Work; 
+  onRemove: (workId: string) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: work.work_id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className="relative group"
+    >
+      <div className="absolute top-2 left-2 z-10 flex gap-2">
+        <button
+          {...attributes}
+          {...listeners}
+          className="p-1 bg-gray-900/80 text-white rounded hover:bg-gray-700/80 transition-colors"
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => onRemove(work.work_id)}
+          className="p-1 bg-red-600/80 text-white rounded hover:bg-red-500/80 transition-colors"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+      
+      {/* Episode number badge - only in management mode */}
+      <div className="absolute top-2 right-2 z-10 bg-purple-600/90 text-white px-2 py-1 rounded-full text-xs font-semibold">
+        第{work.episode_number || 1}話
+      </div>
+      
+      <WorkCard work={work} isManagementMode={true} />
     </div>
   )
 }
@@ -192,6 +247,17 @@ export function DashboardTabContent({ user, publishedWorks }: { user: UserWithSt
 
 export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }: { user: UserWithStats; publishedWorks: Work[]; draftWorks: Work[]; userSeries?: Series[] }) {
   const [activeWorksTab, setActiveWorksTab] = useState('published')
+  const [showSeriesList, setShowSeriesList] = useState(true)
+  const [selectedSeries, setSelectedSeries] = useState<string | null>(null)
+  const [seriesWorks, setSeriesWorks] = useState<Work[]>([])
+  const [isSeriesManagementMode, setIsSeriesManagementMode] = useState(false)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const worksTabOptions = [
     { id: 'published', label: '投稿済みシリーズ', icon: <Library className="w-4 h-4" /> },
@@ -199,9 +265,182 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }
     { id: 'scheduled', label: '予約投稿', icon: <Clock className="w-4 h-4" /> }
   ]
 
+  const handleSeriesClick = async (seriesId: string) => {
+    const result = await getSeriesWorksAction(seriesId)
+    if (result.success) {
+      setSeriesWorks(result.works || [])
+      setSelectedSeries(seriesId)
+      setShowSeriesList(false)
+      setIsSeriesManagementMode(false)
+    } else {
+      console.error('Failed to fetch series works:', result.error)
+    }
+  }
+
+  const handleSeriesDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+
+    if (over && active.id !== over.id) {
+      setSeriesWorks((works) => {
+        const oldIndex = works.findIndex((work) => work.work_id === active.id)
+        const newIndex = works.findIndex((work) => work.work_id === over.id)
+
+        const reorderedWorks = arrayMove(works, oldIndex, newIndex)
+        
+        // Update episode numbers based on new order
+        const updatedWorks = reorderedWorks.map((work, index) => ({
+          ...work,
+          episode_number: index + 1
+        }))
+
+        // Update server with new order
+        updateSeriesWorkOrderAction(
+          updatedWorks.map(work => ({
+            work_id: work.work_id,
+            episode_number: work.episode_number
+          }))
+        )
+        
+        return updatedWorks
+      })
+    }
+  }
+
+  const handleRemoveWorkFromSeries = async (workId: string) => {
+    if (!selectedSeries) return
+
+    const result = await removeWorkFromSeriesAction(workId)
+    if (result.success) {
+      setSeriesWorks(works => works.filter(w => w.work_id !== workId))
+    } else {
+      console.error('Failed to remove work from series:', result.error)
+    }
+  }
+
+  const renderSeriesWorks = () => {
+    const selectedSeriesData = userSeries?.find(s => s.id === selectedSeries)
+    
+    if (seriesWorks.length === 0) {
+      return (
+        <div className="space-y-6">
+          {/* Series Info Header */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                    <Library className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                      {selectedSeriesData?.title || 'シリーズ'}
+                    </h1>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      作品数: {selectedSeriesData?.works_count || 0}話
+                    </p>
+                  </div>
+                </div>
+                {selectedSeriesData?.description && (
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    {selectedSeriesData.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            このシリーズには作品がありません
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="space-y-6">
+        {/* Series Info Header */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                  <Library className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    {selectedSeriesData?.title || 'シリーズ'}
+                  </h1>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    作品数: {seriesWorks.length}話 • 最終更新: {new Date().toLocaleDateString('ja-JP')}
+                  </p>
+                </div>
+              </div>
+              {selectedSeriesData?.description && (
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                  {selectedSeriesData.description}
+                </p>
+              )}
+            </div>
+            
+            <button
+              onClick={() => setIsSeriesManagementMode(!isSeriesManagementMode)}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+                isSeriesManagementMode
+                  ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-blue-500 dark:hover:border-blue-400'
+              )}
+            >
+              <Edit3 className="w-4 h-4" />
+              {isSeriesManagementMode ? '完了' : '管理'}
+            </button>
+          </div>
+        </div>
+
+        {/* Works Grid */}
+        {isSeriesManagementMode ? (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleSeriesDragEnd}
+          >
+            <SortableContext 
+              items={seriesWorks.map(w => w.work_id)}
+              strategy={rectSortingStrategy}
+            >
+              <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+                {seriesWorks.map((work) => (
+                  <DraggableSeriesWorkCard
+                    key={work.work_id}
+                    work={work}
+                    onRemove={handleRemoveWorkFromSeries}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        ) : (
+          <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+            {seriesWorks.map((work) => (
+              <WorkCard
+                key={work.work_id}
+                work={work}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   const renderWorksGrid = () => {
     if (activeWorksTab === 'published') {
-      // Show series
+      // Show series detail view or series list
+      if (!showSeriesList) {
+        return renderSeriesWorks()
+      }
+      
+      // Show series list
       if (!userSeries || userSeries.length === 0) {
         return (
           <div className="text-center py-12 text-gray-500 dark:text-gray-400">
@@ -215,6 +454,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }
             <SeriesCard
               key={series.id}
               series={series}
+              onClick={() => handleSeriesClick(series.id)}
             />
           ))}
         </div>
@@ -250,13 +490,42 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }
 
   return (
     <>
+      {/* Back button and title for series detail view */}
+      {activeWorksTab === 'published' && !showSeriesList && (
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                setShowSeriesList(true)
+                setSeriesWorks([])
+                setSelectedSeries(null)
+                setIsSeriesManagementMode(false)
+              }}
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            >
+              <ArrowLeft size={16} />
+              シリーズ一覧に戻る
+            </button>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+              📚 {userSeries?.find(s => s.id === selectedSeries)?.title || 'シリーズ'}
+            </h2>
+          </div>
+        </div>
+      )}
+
       {/* Sub-tabs - Mobile first */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <nav className="flex space-x-4 md:space-x-6 overflow-x-auto scrollbar-hide">
           {worksTabOptions.map((option) => (
             <button
               key={option.id}
-              onClick={() => setActiveWorksTab(option.id)}
+              onClick={() => {
+                setActiveWorksTab(option.id)
+                setShowSeriesList(true)
+                setSeriesWorks([])
+                setSelectedSeries(null)
+                setIsSeriesManagementMode(false)
+              }}
               className={cn(
                 'py-2 px-1 border-b-2 text-sm font-medium transition-colors',
                 'whitespace-nowrap flex-shrink-0 flex items-center gap-2',

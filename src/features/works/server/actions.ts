@@ -15,7 +15,10 @@ export {
   updateBookmarkOrderAction,
   removeBookmarkFromFolderAction,
   moveBookmarkToFolderAction,
-  updateBookmarkMemoAction
+  updateBookmarkMemoAction,
+  getSeriesWorksAction,
+  removeWorkFromSeriesAction,
+  updateSeriesWorkOrderAction
 } from './interactions'
 
 export {
