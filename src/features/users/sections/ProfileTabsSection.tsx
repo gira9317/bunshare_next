@@ -675,13 +675,14 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
         const reorderedWorks = arrayMove(folderWorks, activeIndex, overIndex)
         setFolderWorks(reorderedWorks)
         
-        // サーバー更新
+        // サーバー更新 - 全てのアイテムの新しい順序を送信
         try {
-          const result = await updateBookmarkOrderAction(
-            active.id as string, 
-            selectedFolder, 
-            overIndex
-          )
+          const workOrders = reorderedWorks.map((work, index) => ({
+            work_id: work.work_id,
+            sort_order: index + 1  // 1ベースの順序番号
+          }))
+          
+          const result = await updateBookmarkOrderAction(selectedFolder, workOrders)
           if (!result.success) {
             // エラー時は元に戻す
             setFolderWorks(folderWorks)

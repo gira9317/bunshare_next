@@ -190,35 +190,6 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
                 </div>
               </div>
               
-              {/* Right side - Stats */}
-              <div className="stat-group-right flex items-center gap-2 sm:gap-3">
-                {/* Views */}
-                {(series.total_views !== undefined && series.total_views > 0) && (
-                  <div className={cn(
-                    'stat-item flex items-center gap-1 text-xs sm:text-sm',
-                    mainImage ? 'text-white/80' : 'text-gray-500'
-                  )}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="icon">
-                      <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                    <span className="font-medium">{series.total_views.toLocaleString()}</span>
-                  </div>
-                )}
-                
-                {/* Likes */}
-                {(series.total_likes !== undefined && series.total_likes > 0) && (
-                  <div className={cn(
-                    'stat-item flex items-center gap-1 text-xs sm:text-sm',
-                    mainImage ? 'text-white/80' : 'text-gray-500'
-                  )}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="icon">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    </svg>
-                    <span className="font-medium">{series.total_likes.toLocaleString()}</span>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         </div>

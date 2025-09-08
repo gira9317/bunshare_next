@@ -318,9 +318,10 @@ export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work
   // Use bookmarks table
   const { data: bookmarkedWorkIds, error: bookmarksError } = await supabase
     .from('bookmarks')
-    .select('work_id')
+    .select('work_id, sort_order')
     .eq('user_id', userId)
-    .order('bookmarked_at', { ascending: false })
+    .order('sort_order', { ascending: true })
+    .order('bookmarked_at', { ascending: false })  // sort_orderが同じ場合のfallback
 
   if (bookmarksError || !bookmarkedWorkIds?.length) {
     console.error('Error fetching user bookmarks:', bookmarksError)

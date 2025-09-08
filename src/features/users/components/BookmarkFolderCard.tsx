@@ -204,36 +204,6 @@ export function BookmarkFolderCard({
                 </div>
               </div>
               
-              {/* Right side - Last Updated & Settings */}
-              <div className="stat-group-right flex items-center gap-2 sm:gap-3">
-                {/* Last Updated */}
-                {folder.last_updated && !folder.is_system && folder.folder_key !== 'all' && (
-                  <div className={cn(
-                    'stat-item text-xs sm:text-sm',
-                    mainImage ? 'text-white/80' : 'text-gray-500'
-                  )}>
-                    <span className="font-medium">
-                      {new Date(folder.last_updated).toLocaleDateString('ja-JP')}
-                    </span>
-                  </div>
-                )}
-                
-                {/* Settings Button */}
-                {showSettings && !folder.is_system && folder.folder_key !== 'all' && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      // TODO: フォルダメニューを開く
-                    }}
-                    className={cn(
-                      'interactive-button p-1 rounded hover:bg-white/10 transition-colors',
-                      mainImage ? 'text-white/80 hover:text-white' : 'text-gray-500 hover:text-gray-700'
-                    )}
-                  >
-                    <Settings className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
             </div>
           </div>
         </div>

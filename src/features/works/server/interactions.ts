@@ -170,13 +170,14 @@ export async function getBookmarkFoldersAction() {
           .eq('user_id', user.id)
           .eq('folder', folder.folder_key)
 
-        // 最新の作品情報を最大3件取得（スタック表示用）
+        // ソート順の上位3件を取得（スタック表示用）
         const { data: latestBookmarks } = await supabase
           .from('bookmarks')
-          .select('work_id, bookmarked_at')
+          .select('work_id, bookmarked_at, sort_order')
           .eq('user_id', user.id)
           .eq('folder', folder.folder_key)
-          .order('bookmarked_at', { ascending: false })
+          .order('sort_order', { ascending: true })
+          .order('bookmarked_at', { ascending: false })  // sort_orderが同じ場合のfallback
           .limit(3)
 
         let thumbnail_url = null
@@ -594,14 +595,33 @@ export async function getBookmarksByFolderAction(folderKey: string = 'all') {
       }
     }
 
-    // 作品データに作者情報を追加
+    // 作品データに作者情報を追加し、ブックマーク順序を保持
+    const bookmarkMap = bookmarks.reduce((acc, bookmark) => {
+      acc[bookmark.work_id] = bookmark
+      return acc
+    }, {} as { [key: string]: any })
+
     const worksWithAuthor = works?.map(work => ({
       ...work,
       author: userMap[work.user_id]?.username || '不明',
-      author_username: userMap[work.user_id]?.username
+      author_username: userMap[work.user_id]?.username,
+      bookmark_sort_order: bookmarkMap[work.work_id]?.sort_order || 0,
+      bookmarked_at: bookmarkMap[work.work_id]?.bookmarked_at,
+      memo: bookmarkMap[work.work_id]?.memo
     })) || []
 
-    return { success: true, works: worksWithAuthor, count: worksWithAuthor.length }
+    // sort_orderで並び替え（nullやundefinedは最後に）
+    const sortedWorks = worksWithAuthor.sort((a, b) => {
+      const aSort = a.bookmark_sort_order ?? 999999
+      const bSort = b.bookmark_sort_order ?? 999999
+      if (aSort !== bSort) {
+        return aSort - bSort
+      }
+      // sort_orderが同じ場合はbookmarked_atの新しい順
+      return new Date(b.bookmarked_at || 0).getTime() - new Date(a.bookmarked_at || 0).getTime()
+    })
+
+    return { success: true, works: sortedWorks, count: sortedWorks.length }
   } catch (error) {
     console.error('フォルダ別ブックマーク取得エラー:', error)
     return { error: 'ブックマークの取得に失敗しました' }
@@ -640,9 +660,9 @@ export async function getShareUrlAction(workId: string) {
 }
 
 /**
- * ブックマークの順序を更新
+ * ブックマークの順序を更新（全てのアイテムの順序を再設定）
  */
-export async function updateBookmarkOrderAction(workId: string, folderKey: string, newOrder: number) {
+export async function updateBookmarkOrderAction(folderKey: string, workOrders: { work_id: string; sort_order: number }[]) {
   const supabase = await createClient()
   
   const { data: { user } } = await supabase.auth.getUser()
@@ -651,14 +671,17 @@ export async function updateBookmarkOrderAction(workId: string, folderKey: strin
   }
 
   try {
-    const { error } = await supabase
-      .from('bookmarks')
-      .update({ sort_order: newOrder })
-      .eq('user_id', user.id)
-      .eq('work_id', workId)
-      .eq('folder', folderKey)
+    // 全てのアイテムの順序を更新
+    for (const workOrder of workOrders) {
+      const { error } = await supabase
+        .from('bookmarks')
+        .update({ sort_order: workOrder.sort_order })
+        .eq('user_id', user.id)
+        .eq('work_id', workOrder.work_id)
+        .eq('folder', folderKey)
 
-    if (error) throw error
+      if (error) throw error
+    }
 
     // キャッシュを無効化
     revalidateTag(`user:${user.id}:bookmarks:${folderKey}`)
