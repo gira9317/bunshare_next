@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { cache } from 'react'
-import { UserProfile, UserStats, UserWithStats, UserWork, FollowRelation } from '../schemas'
+import { UserProfile, UserStats, UserWithStats, UserWork, FollowRelation, Series } from '../schemas'
 import type { Work } from '@/features/works/types'
 
 export const getUserProfile = cache(async (userId: string): Promise<UserProfile | null> => {

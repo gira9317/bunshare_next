@@ -7,6 +7,7 @@ import {
   getUserDraftWorks,
   getUserLikedWorks,
   getUserBookmarkedWorks,
+  getUserSeries,
   UserProfileSection,
   UserWorksSection,
   UserStatsSection
@@ -35,7 +36,8 @@ export default async function ProfilePage() {
       getUserPublishedWorks(user.id, 12),
       getUserDraftWorks(user.id),
       getUserLikedWorks(user.id),
-      getUserBookmarkedWorks(user.id)
+      getUserBookmarkedWorks(user.id),
+      getUserSeries(user.id)
     ])
   ])
   
@@ -43,7 +45,7 @@ export default async function ProfilePage() {
     redirect('/auth/login')
   }
 
-  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks] = worksData
+  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks, userSeries] = worksData
 
   // タブの定義
   const tabs = [
@@ -57,7 +59,7 @@ export default async function ProfilePage() {
       id: 'works',
       label: '作品管理',
       icon: <PenTool className="w-5 h-5" />,
-      content: <WorksTabContent user={userWithStats} publishedWorks={publishedWorks} draftWorks={draftWorks} />
+      content: <WorksTabContent user={userWithStats} publishedWorks={publishedWorks} draftWorks={draftWorks} userSeries={userSeries} />
     },
     {
       id: 'library',

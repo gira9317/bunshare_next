@@ -82,3 +82,19 @@ export type UserWithStats = z.infer<typeof userWithStatsSchema>
 export type FollowRelation = z.infer<typeof followRelationSchema>
 export type UserProfileUpdateInput = z.infer<typeof userProfileUpdateSchema>
 export type UserWork = z.infer<typeof userWorkSchema>
+
+export const seriesSchema = z.object({
+  id: z.string().uuid(),
+  user_id: z.string().uuid().nullable(),
+  title: z.string(),
+  description: z.string().nullable(),
+  cover_image_url: z.string().nullable(),
+  created_at: z.string(),
+  works_count: z.number().int().min(0).default(0).optional(),
+  work_images: z.array(z.string()).optional(),
+  latest_work_image: z.string().nullable().optional(),
+  total_views: z.number().int().min(0).default(0).optional(),
+  total_likes: z.number().int().min(0).default(0).optional(),
+})
+
+export type Series = z.infer<typeof seriesSchema>

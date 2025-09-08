@@ -21,9 +21,11 @@ import {
   CSS,
 } from '@dnd-kit/utilities'
 import { cn } from '@/lib/utils'
-import { UserWithStats } from '../schemas'
+import { UserWithStats, Series } from '../schemas'
 import { WorkCard } from '@/components/domain/WorkCard'
 import type { Work } from '@/features/works/types'
+import { SeriesCard } from '../components/SeriesCard'
+import { BookmarkFolderCard } from '../components/BookmarkFolderCard'
 import { BookmarkFolderManager } from '../leaf/BookmarkFolderManager'
 import { getBookmarkFoldersAction, getBookmarksByFolderAction, updateBookmarkOrderAction, removeBookmarkFromFolderAction, moveBookmarkToFolderAction } from '@/features/works/server/actions'
 import { Folder, ArrowLeft, Settings, Lock, MoreVertical, ChevronLeft, Bookmark, Edit3, Trash2, Move, GripVertical, FileText, PenTool, Heart, Clock, Sparkles, Library, Cog, BookOpen, Calendar, Shield, Wrench, Mail, Key, ChevronRight } from 'lucide-react'
@@ -188,7 +190,7 @@ export function DashboardTabContent({ user, publishedWorks }: { user: UserWithSt
   )
 }
 
-export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: UserWithStats; publishedWorks: Work[]; draftWorks: Work[] }) {
+export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }: { user: UserWithStats; publishedWorks: Work[]; draftWorks: Work[]; userSeries?: Series[] }) {
   const [activeWorksTab, setActiveWorksTab] = useState('published')
 
   const worksTabOptions = [
@@ -198,38 +200,52 @@ export function WorksTabContent({ user, publishedWorks, draftWorks }: { user: Us
   ]
 
   const renderWorksGrid = () => {
-    let works: Work[] = []
-    
-    if (activeWorksTab === 'works') {
-      works = publishedWorks
-    } else if (activeWorksTab === 'published') {
-      // For series, we could group by series_id, but for now show published works
-      works = publishedWorks.filter(work => work.series_id)
+    if (activeWorksTab === 'published') {
+      // Show series
+      if (!userSeries || userSeries.length === 0) {
+        return (
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            まだシリーズがありません
+          </div>
+        )
+      }
+      return (
+        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+          {userSeries.map((series) => (
+            <SeriesCard
+              key={series.id}
+              series={series}
+            />
+          ))}
+        </div>
+      )
+    } else if (activeWorksTab === 'works') {
+      // Show published works
+      if (publishedWorks.length === 0) {
+        return (
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            まだ投稿された作品がありません
+          </div>
+        )
+      }
+      return (
+        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+          {publishedWorks.map((work) => (
+            <WorkCard
+              key={work.work_id}
+              work={work}
+            />
+          ))}
+        </div>
+      )
     } else if (activeWorksTab === 'scheduled') {
       // For scheduled works, we would need a separate query
-      works = []
-    }
-
-    if (works.length === 0) {
       return (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          {activeWorksTab === 'published' && 'まだシリーズがありません'}
-          {activeWorksTab === 'works' && 'まだ投稿された作品がありません'}
-          {activeWorksTab === 'scheduled' && '予約投稿された作品がありません'}
+          予約投稿された作品がありません
         </div>
       )
     }
-
-    return (
-      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
-        {works.map((work) => (
-          <WorkCard
-            key={work.work_id}
-            work={work}
-          />
-        ))}
-      </div>
-    )
   }
 
   return (
@@ -447,80 +463,31 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
       sort_order: 0,
       work_count: bookmarkedWorks.length,
       thumbnail_url: bookmarkedWorks[0]?.image_url,
+      work_thumbnails: bookmarkedWorks.slice(0, 3).map(work => work.image_url).filter(Boolean),
       last_updated: new Date().toISOString()
     }
 
     const foldersWithAll = [allFolder, ...bookmarkFolders]
+    
+    // 作品が入っていないフォルダを除外（デフォルトフォルダは除く）
+    const visibleFolders = foldersWithAll.filter(folder => {
+      // 「すべて」フォルダは常に表示
+      if (folder.folder_key === 'all') return true
+      // デフォルトフォルダは常に表示
+      if (folder.folder_key === 'default') return true
+      // その他は作品がある場合のみ表示
+      return (folder.work_count || 0) > 0
+    })
 
     return (
-      <div className="space-y-2">
-        {foldersWithAll.map((folder) => (
-          <div
+      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        {visibleFolders.map((folder) => (
+          <BookmarkFolderCard
             key={folder.folder_key}
-            onClick={() => loadFolderWorks(folder.folder_key)}
-            className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-purple-500 hover:shadow-md transition-all duration-200 cursor-pointer group"
-          >
-            {/* サムネイルエリア */}
-            <div className="relative w-24 h-16 sm:w-32 sm:h-20 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden flex-shrink-0">
-              {folder.thumbnail_url ? (
-                <img 
-                  src={folder.thumbnail_url} 
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Folder size={24} className="text-gray-400" />
-                </div>
-              )}
-              {/* 作品数バッジ */}
-              <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-2 py-0.5 rounded">
-                {folder.work_count || 0} 作品
-              </div>
-            </div>
-
-            {/* フォルダ情報 */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                    {folder.folder_name}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    {folder.is_private && (
-                      <span className="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                        <Lock size={12} />
-                        プライベート
-                      </span>
-                    )}
-                    {folder.is_system && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        システムフォルダ
-                      </span>
-                    )}
-                    {!folder.is_system && folder.folder_key !== 'all' && folder.last_updated && (
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        最終更新: {new Date(folder.last_updated).toLocaleDateString('ja-JP')}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                
-                {/* アクションボタン（フォルダ管理時のみ表示） */}
-                {!folder.is_system && folder.folder_key !== 'all' && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      // TODO: フォルダメニューを開く
-                    }}
-                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Settings size={16} className="text-gray-500" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+            folder={folder}
+            onFolderClick={loadFolderWorks}
+            showSettings={true}
+          />
         ))}
       </div>
     )
@@ -748,53 +715,70 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
             </h2>
           )}
         </div>
-        {activeLibraryTab === 'bookmarked' && showFolderList && (
-          <button
-            onClick={() => setShowFolderManager(!showFolderManager)}
-            className="flex items-center gap-2 px-3 py-2 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
-          >
-            <Settings size={16} />
-            <span className="hidden sm:inline">フォルダ管理</span>
-          </button>
-        )}
       </div>
 
       {/* Sub-tabs - Mobile first */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-4 md:space-x-6 overflow-x-auto scrollbar-hide">
-          {libraryTabOptions.map((option) => (
-            <button
-              key={option.id}
-              onClick={() => {
-                setActiveLibraryTab(option.id)
-                setShowFolderManager(false)
-                setShowFolderList(true)
-                setFolderWorks([])
-                setSelectedFolder('all')
-              }}
-              className={cn(
-                'flex items-center gap-2 py-2 px-1 border-b-2 text-sm font-medium transition-colors',
-                'whitespace-nowrap flex-shrink-0',
-                activeLibraryTab === option.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              )}
-            >
-              {option.icon}
-              <span className="hidden sm:inline">{option.label}</span>
-              <span className="sm:hidden">
-                {option.label.includes('いいね') ? 'いいね' :
-                 option.label.includes('ブックマーク') ? 'ブックマーク' : '履歴'}
-              </span>
-              {option.count > 0 && (
-                <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full text-xs">
-                  {option.count}
+        <nav className="flex items-center justify-between">
+          <div className="flex space-x-4 md:space-x-6 overflow-x-auto scrollbar-hide">
+            {libraryTabOptions.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => {
+                  setActiveLibraryTab(option.id)
+                  setShowFolderManager(false)
+                  setShowFolderList(true)
+                  setFolderWorks([])
+                  setSelectedFolder('all')
+                }}
+                className={cn(
+                  'flex items-center gap-2 py-2 px-1 border-b-2 text-sm font-medium transition-colors',
+                  'whitespace-nowrap flex-shrink-0',
+                  activeLibraryTab === option.id
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                )}
+              >
+                {option.icon}
+                <span className="hidden sm:inline">{option.label}</span>
+                <span className="sm:hidden">
+                  {option.label.includes('いいね') ? 'いいね' :
+                   option.label.includes('ブックマーク') ? 'ブックマーク' : '履歴'}
                 </span>
-              )}
+                {option.count > 0 && (
+                  <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full text-xs">
+                    {option.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+          
+          {/* Folder Management Button - Tab Right (Desktop only) */}
+          {activeLibraryTab === 'bookmarked' && showFolderList && (
+            <button
+              onClick={() => setShowFolderManager(!showFolderManager)}
+              className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm font-medium bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors ml-4 flex-shrink-0"
+            >
+              <Settings size={16} />
+              <span>フォルダ管理</span>
             </button>
-          ))}
+          )}
         </nav>
       </div>
+
+      {/* Folder Management Button - Mobile (Below tabs) */}
+      {activeLibraryTab === 'bookmarked' && showFolderList && (
+        <div className="sm:hidden px-4 mb-4">
+          <button
+            onClick={() => setShowFolderManager(!showFolderManager)}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+          >
+            <Settings size={16} />
+            <span>フォルダ管理</span>
+          </button>
+        </div>
+      )}
 
       {/* Folder Management Panel */}
       {showFolderManager && activeLibraryTab === 'bookmarked' && (

@@ -170,31 +170,46 @@ export async function getBookmarkFoldersAction() {
           .eq('user_id', user.id)
           .eq('folder', folder.folder_key)
 
-        // 最新の作品情報を1件取得（サムネイル用）
-        const { data: latestBookmark } = await supabase
+        // 最新の作品情報を最大3件取得（スタック表示用）
+        const { data: latestBookmarks } = await supabase
           .from('bookmarks')
           .select('work_id, bookmarked_at')
           .eq('user_id', user.id)
           .eq('folder', folder.folder_key)
           .order('bookmarked_at', { ascending: false })
-          .limit(1)
-          .single()
+          .limit(3)
 
         let thumbnail_url = null
-        if (latestBookmark) {
-          const { data: work } = await supabase
+        let work_thumbnails: string[] = []
+        
+        if (latestBookmarks && latestBookmarks.length > 0) {
+          // 各作品の画像URLを取得
+          const workIds = latestBookmarks.map(bookmark => bookmark.work_id)
+          const { data: works } = await supabase
             .from('works')
-            .select('image_url')
-            .eq('work_id', latestBookmark.work_id)
-            .single()
-          thumbnail_url = work?.image_url
+            .select('work_id, image_url')
+            .in('work_id', workIds)
+
+          if (works) {
+            // ブックマーク順序を保持して画像URLを取得
+            work_thumbnails = latestBookmarks
+              .map(bookmark => {
+                const work = works.find(w => w.work_id === bookmark.work_id)
+                return work?.image_url
+              })
+              .filter(Boolean) as string[]
+            
+            // 最新の作品画像をメインサムネイルとして設定
+            thumbnail_url = work_thumbnails[0] || null
+          }
         }
 
         return {
           ...folder,
           work_count: count || 0,
           thumbnail_url,
-          last_updated: latestBookmark?.bookmarked_at
+          work_thumbnails,
+          last_updated: latestBookmarks?.[0]?.bookmarked_at
         }
       })
     )
