@@ -20,13 +20,43 @@ export function RecommendationsSection({
   userBookmarks = [],
   userReadingProgress = {}
 }: RecommendationsSectionProps) {
-  const { works, strategy, source } = recommendations
+  const { works: initialWorks, strategy, source } = recommendations
+  const [allWorks, setAllWorks] = useState(initialWorks) // 全ての作品を管理
   const [displayCount, setDisplayCount] = useState(9) // 初期表示は9件
+  const [isLoading, setIsLoading] = useState(false)
   
-  const hasMore = works.length > displayCount
-  const displayedWorks = works.slice(0, displayCount)
+  const hasMore = allWorks.length > displayCount
+  const displayedWorks = allWorks.slice(0, displayCount)
+  
+  // 追加の推薦を取得する関数
+  const loadMoreRecommendations = async () => {
+    if (isLoading) return
+    
+    setIsLoading(true)
+    try {
+      const response = await fetch('/api/recommendations/more', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          excludeWorkIds: allWorks.map(work => work.work_id),
+          offset: allWorks.length
+        })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.works && data.works.length > 0) {
+          setAllWorks(prev => [...prev, ...data.works])
+        }
+      }
+    } catch (error) {
+      console.error('追加推薦の取得に失敗:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-  if (works.length === 0) {
+  if (allWorks.length === 0) {
     return (
       <section className="py-8">
         <div className="flex items-center gap-3 mb-4">
@@ -77,10 +107,20 @@ export function RecommendationsSection({
       {hasMore && (
         <div className="mt-6 text-center">
           <button
-            onClick={() => setDisplayCount(prev => Math.min(prev + 9, works.length))}
-            className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            onClick={async () => {
+              // 現在のデータ内で表示できる場合
+              if (displayCount + 9 <= allWorks.length) {
+                setDisplayCount(prev => prev + 9)
+              } else {
+                // 追加データが必要な場合
+                await loadMoreRecommendations()
+                setDisplayCount(prev => prev + 9)
+              }
+            }}
+            disabled={isLoading}
+            className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            もっと表示する ({works.length - displayCount}件)
+            {isLoading ? '読み込み中...' : `もっと表示する (${Math.max(0, allWorks.length - displayCount)}件以上)`}
           </button>
         </div>
       )}

@@ -38,11 +38,13 @@ export function WorkDetailContentSection({
     setTimeout(() => setNotification(null), 3000)
   }
 
-  // useReadingProgressフックを使用
+  // useReadingProgressフックを使用（高頻度保存設定）
   const { getCurrentProgress, scrollToPosition } = useReadingProgress({
     workId: work.work_id,
     userId,
-    enabled: !!userId
+    enabled: !!userId,
+    autoSaveInterval: 5000, // 5秒間隔で保存
+    scrollThreshold: 1 // 1%の変化で保存
   })
 
 

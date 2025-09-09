@@ -221,15 +221,32 @@ export async function calculateQualityScoreComponents(
 }
 
 /**
- * 複数作品の品質スコアをバッチ計算
+ * 複数作品の品質スコアをバッチ計算（キャッシュ対応）
  */
 export async function batchCalculateQualityScores(
   workIds: string[]
 ): Promise<Record<string, QualityScoreComponents>> {
   const results: Record<string, QualityScoreComponents> = {}
+  const uncachedWorkIds: string[] = []
   
-  // 並列実行で効率化
-  const promises = workIds.map(async (workId) => {
+  // キャッシュから取得可能な作品を先にチェック
+  for (const workId of workIds) {
+    try {
+      const cachedScore = await getCachedQualityScore(workId)
+      results[workId] = cachedScore
+    } catch {
+      uncachedWorkIds.push(workId)
+    }
+  }
+  
+  console.log(`⚡ [DEBUG] 品質スコア: キャッシュヒット ${workIds.length - uncachedWorkIds.length}件, 新規計算 ${uncachedWorkIds.length}件`)
+  
+  if (uncachedWorkIds.length === 0) {
+    return results // 全てキャッシュから取得済み
+  }
+  
+  // キャッシュにない作品のみ並列計算
+  const promises = uncachedWorkIds.map(async (workId) => {
     const components = await calculateQualityScoreComponents(workId)
     return { workId, components }
   })
@@ -240,9 +257,9 @@ export async function batchCalculateQualityScores(
     if (result.status === 'fulfilled') {
       results[result.value.workId] = result.value.components
     } else {
-      console.error(`品質スコア計算失敗 workId: ${workIds[index]}`, result.reason)
+      console.error(`品質スコア計算失敗 workId: ${uncachedWorkIds[index]}`, result.reason)
       // デフォルト値を設定
-      results[workIds[index]] = {
+      results[uncachedWorkIds[index]] = {
         ctr_score: 0,
         engagement_score: 5,
         content_quality_score: 2,
@@ -255,3 +272,115 @@ export async function batchCalculateQualityScores(
   
   return results
 }
+
+/**
+ * 個別作品の品質スコアキャッシュ（cookiesを使用しないバージョン）
+ */
+const getCachedQualityScore = unstable_cache(
+  async (workId: string): Promise<QualityScoreComponents> => {
+    console.log(`💾 [DEBUG] 品質スコア計算 (キャッシュ) - workId: ${workId}`)
+    
+    // cookiesを使用しない公開クライアントで作品情報を取得
+    const supabase = createPublicClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    
+    const { data: work, error } = await supabase
+      .from('works')
+      .select('image_url, title, description, content')
+      .eq('work_id', workId)
+      .single()
+    
+    if (error || !work) {
+      // デフォルト値を返す
+      return {
+        ctr_score: 0,
+        engagement_score: 5,
+        content_quality_score: 2,
+        visual_score: 2,
+        consistency_score: 5,
+        overall_quality_score: 3.0
+      }
+    }
+    
+    // CTR統計を取得
+    const ctrStats = await getWorkCTRStats([workId])
+    const stats = ctrStats[0] || {
+      ctr_unique: 0,
+      avg_display_duration: 1000,
+      avg_intersection_ratio: 0.5,
+      impression_count: 0
+    }
+    
+    // 各スコア要素を計算
+    const ctr_score = calculateCTRScore(stats.ctr_unique)
+    const engagement_score = calculateEngagementScore(
+      stats.avg_display_duration,
+      stats.avg_intersection_ratio,
+      stats.impression_count
+    )
+    
+    // コンテンツ品質スコアを直接計算
+    let content_quality_score = 0
+    
+    // 本文の文章量評価 (最重要: 40%)
+    const contentLength = work.content?.length || 0
+    if (contentLength <= 10) {
+      content_quality_score += 0.1 // 10文字以下は大幅減点
+    } else if (contentLength >= 2000) {
+      content_quality_score += 4 // 2000文字以上で満点
+    } else if (contentLength >= 1000) {
+      content_quality_score += 3 // 1000文字以上
+    } else if (contentLength >= 500) {
+      content_quality_score += 2 // 500文字以上
+    } else if (contentLength >= 200) {
+      content_quality_score += 1 // 200文字以上
+    } else {
+      content_quality_score += 0.5 // 200文字未満はペナルティ
+    }
+    
+    // 画像有無 (30% - 重要度を下げた)
+    if (work.image_url) {
+      content_quality_score += 3 // 画像があれば3点（7点から減らした）
+    } else {
+      content_quality_score += 1 // なくても1点
+    }
+    
+    // タイトルの質 (15%)
+    if (work.title && work.title.length >= 10 && work.title.length <= 50) {
+      content_quality_score += 1.5
+    } else if (work.title && work.title.length > 0) {
+      content_quality_score += 0.5
+    }
+    
+    // 説明の質 (15%)
+    if (work.description && work.description.length >= 20) {
+      content_quality_score += 1.5
+    } else if (work.description && work.description.length > 0) {
+      content_quality_score += 0.5
+    }
+    
+    content_quality_score = Math.min(10, content_quality_score)
+    
+    const consistency_score = 5 // 暫定的に中間値
+    
+    // 重み付き総合スコア
+    const overall_quality_score = 
+      (ctr_score * 0.4) +                // CTRが最重要 40%
+      (engagement_score * 0.3) +         // エンゲージメント 30%
+      (content_quality_score * 0.2) +    // コンテンツ品質 20%
+      (consistency_score * 0.1)          // 一貫性 10%
+    
+    return {
+      ctr_score,
+      engagement_score,
+      content_quality_score,
+      visual_score: content_quality_score, // 後方互換
+      consistency_score,
+      overall_quality_score: Math.round(overall_quality_score * 100) / 100
+    }
+  },
+  ['quality-score'],
+  { revalidate: 3600 } // 1時間キャッシュ
+)

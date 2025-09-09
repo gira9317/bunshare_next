@@ -4,6 +4,7 @@ import { ContinueReadingSuspense } from '@/features/home/components/ContinueRead
 import { RecommendationsSuspense } from '@/features/home/components/RecommendationsSuspense'
 import { WorksFeedSuspense } from '@/features/home/components/WorksFeedSuspense'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { RecommendationsSkeleton } from '@/components/shared/RecommendationsSkeleton'
 import { Suspense } from 'react'
 
 async function HomePage() {
@@ -23,7 +24,7 @@ async function HomePage() {
       )}
       
       {/* おすすめセクション - 全ユーザー対応 */}
-      <Suspense fallback={<LoadingSpinner size="sm" text="おすすめ作品を読み込み中..." />}>
+      <Suspense fallback={<RecommendationsSkeleton />}>
         <RecommendationsSuspense userId={user?.id} />
       </Suspense>
       

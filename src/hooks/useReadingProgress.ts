@@ -16,8 +16,8 @@ export function useReadingProgress({
   workId,
   userId,
   enabled = true,
-  autoSaveInterval = 30000, // 30秒
-  scrollThreshold = 5 // 5%以上の変化で保存
+  autoSaveInterval = 10000, // 10秒に短縮
+  scrollThreshold = 2 // 2%以上の変化で保存（より敏感に）
 }: UseReadingProgressOptions) {
   const lastProgressRef = useRef<number>(0)
   const lastScrollPositionRef = useRef<number>(0)
@@ -111,7 +111,7 @@ export function useReadingProgress({
     saveTimeoutRef.current = setTimeout(() => {
       const { progress, position } = calculateProgress()
       saveProgress(progress, position)
-    }, 3000) // 3秒後に保存
+    }, 1500) // 1.5秒後に保存（短縮）
   }, [calculateProgress, saveProgress])
 
   // スクロールイベントハンドラー
@@ -180,10 +180,10 @@ export function useReadingProgress({
   useEffect(() => {
     if (!enabled) return
 
-    // 2秒後に初期化完了とみなす（スクロール位置復帰完了後）
+    // 1秒後に初期化完了とみなす（より早く保存開始）
     const initTimer = setTimeout(() => {
       isInitializedRef.current = true
-    }, 2000)
+    }, 1000)
 
     // イベントリスナー設定
     window.addEventListener('scroll', handleScroll, { passive: true })
