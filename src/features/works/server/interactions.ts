@@ -1387,3 +1387,46 @@ export async function incrementViewAction(workId: string) {
     return { error: '閲覧数の更新に失敗しました' }
   }
 }
+
+/**
+ * シェア行動を記録
+ */
+export async function recordShareAction(
+  workId: string, 
+  shareType: 'twitter' | 'facebook' | 'line' | 'copy_link' | 'native',
+  sharedUrl?: string,
+  shareText?: string
+) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  try {
+    // シェアを記録
+    const { data, error } = await supabase
+      .from('shares')
+      .insert({
+        user_id: user.id,
+        work_id: workId,
+        share_type: shareType,
+        shared_url: sharedUrl || null,
+        share_text: shareText || null
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // キャッシュを無効化
+    revalidateTag(`work:${workId}`)
+    revalidateTag(`user:${user.id}:shares`)
+
+    return { success: true, share: data }
+  } catch (error) {
+    console.error('シェア記録エラー:', error)
+    return { error: 'シェア記録に失敗しました' }
+  }
+}

@@ -70,3 +70,15 @@ export interface ReadingBookmark {
   created_at: string
   updated_at: string
 }
+
+export interface ShareRecord {
+  id: string
+  user_id: string
+  work_id: string
+  share_type: 'twitter' | 'facebook' | 'line' | 'copy_link' | 'native'
+  shared_at: string
+  shared_url?: string
+  share_text?: string
+  created_at: string
+  updated_at: string
+}

@@ -51,3 +51,17 @@ export const readingBookmarkSchema = z.object({
 })
 
 export type ReadingBookmarkSchema = z.infer<typeof readingBookmarkSchema>
+
+export const shareRecordSchema = z.object({
+  id: z.string().uuid(),
+  user_id: z.string().uuid(),
+  work_id: z.string().uuid(),
+  share_type: z.enum(['twitter', 'facebook', 'line', 'copy_link', 'native']),
+  shared_at: z.string(),
+  shared_url: z.string().url().nullable().optional(),
+  share_text: z.string().nullable().optional(),
+  created_at: z.string(),
+  updated_at: z.string()
+})
+
+export type ShareRecordSchema = z.infer<typeof shareRecordSchema>

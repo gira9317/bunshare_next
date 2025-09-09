@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X, Copy, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { recordShareAction } from '@/features/works/server/interactions'
 
 interface ShareModalProps {
   isOpen: boolean
@@ -58,6 +59,9 @@ export function ShareModal({
       await navigator.clipboard.writeText(shareUrl)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
+      
+      // シェア行動を記録
+      await recordShareAction(workId, 'copy_link', shareUrl, shareText)
     } catch (error) {
       console.error('コピーに失敗しました:', error)
     }
@@ -71,6 +75,9 @@ export function ShareModal({
           text: shareText,
           url: shareUrl,
         })
+        
+        // シェア行動を記録（シェアが成功した場合のみ）
+        await recordShareAction(workId, 'native', shareUrl, shareText)
       } catch (error) {
         if ((error as Error).name !== 'AbortError') {
           console.error('シェアに失敗しました:', error)
@@ -79,19 +86,28 @@ export function ShareModal({
     }
   }
 
-  const shareToTwitter = () => {
+  const shareToTwitter = async () => {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`
     window.open(url, '_blank', 'noopener,noreferrer')
+    
+    // シェア行動を記録
+    await recordShareAction(workId, 'twitter', shareUrl, shareText)
   }
 
-  const shareToFacebook = () => {
+  const shareToFacebook = async () => {
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     window.open(url, '_blank', 'noopener,noreferrer')
+    
+    // シェア行動を記録
+    await recordShareAction(workId, 'facebook', shareUrl, shareText)
   }
 
-  const shareToLine = () => {
+  const shareToLine = async () => {
     const url = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}`
     window.open(url, '_blank', 'noopener,noreferrer')
+    
+    // シェア行動を記録
+    await recordShareAction(workId, 'line', shareUrl, shareText)
   }
 
   if (!mounted || !isOpen) return null
