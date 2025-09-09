@@ -3,23 +3,17 @@
 import { useState, useTransition } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FilterChips } from '../leaf/FilterChips';
-import { SearchTabs, SearchTabType } from '../leaf/SearchTabs';
 import { SearchFilters } from '../types';
 
 interface SearchFiltersSectionProps {
   filters: SearchFilters;
-  workCount?: number;
-  userCount?: number;
 }
 
-export function SearchFiltersSection({ filters, workCount, userCount }: SearchFiltersSectionProps) {
+export function SearchFiltersSection({ filters }: SearchFiltersSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
-  const [activeTab, setActiveTab] = useState<SearchTabType>(
-    (filters.type as SearchTabType) || 'all'
-  );
 
   const handleFilterChange = (key: keyof SearchFilters, value: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
@@ -56,32 +50,9 @@ export function SearchFiltersSection({ filters, workCount, userCount }: SearchFi
     { value: 'oldest', label: '古い順' }
   ];
 
-  const handleTabChange = (tab: SearchTabType) => {
-    setActiveTab(tab);
-    const newParams = new URLSearchParams(searchParams.toString());
-    
-    if (tab === 'all') {
-      newParams.delete('type');
-    } else {
-      newParams.set('type', tab);
-    }
-    
-    startTransition(() => {
-      router.push(`/search?${newParams.toString()}`);
-    });
-  };
 
   return (
     <div className="search-filters-section mb-6">
-      {/* 検索タブ（モバイル・デスクトップ共通） */}
-      <div className="mb-4">
-        <SearchTabs
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-          workCount={workCount}
-          userCount={userCount}
-        />
-      </div>
 
       {/* デスクトップフィルター */}
       <div className="hidden lg:block">

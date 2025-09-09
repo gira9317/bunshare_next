@@ -5,6 +5,7 @@ import { UserCard } from '@/features/users/leaf/UserCard';
 import { EmptyResults } from '../leaf/EmptyResults';
 import { ResultsPagination } from '../leaf/ResultsPagination';
 import { RelatedSearches } from '../leaf/RelatedSearches';
+import { UserResultsWrapper } from '../components/UserResultsWrapper';
 
 interface SearchResultsSectionProps {
   query: string;
@@ -36,40 +37,20 @@ export async function SearchResultsSection({
       return <EmptyResults query={query} />;
     }
 
-    // タブに基づいて表示を切り替え
-    const showAuthors = searchType === 'all' || searchType === 'users';
-    const showWorks = searchType === 'all' || searchType === 'works';
+    // 常に両方を表示
+    const showAuthors = true;
+    const showWorks = true;
 
     return (
       <div className="search-results-section space-y-8">
         {/* 作者セクション */}
         {showAuthors && authors.length > 0 && (
-          <section className="authors-section">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                作者 ({total_authors}人)
-              </h2>
-            </div>
-            
-            <div className="authors-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {authors.slice(0, searchType === 'users' ? undefined : 6).map((author) => (
-                <UserCard
-                  key={author.user_id}
-                  user={{
-                    id: author.user_id,
-                    username: author.username,
-                    custom_user_id: null,
-                    avatar_img_url: author.avatar_url || null,
-                    bio: author.bio,
-                    works_count: author.works_count,
-                    followers_count: author.followers_count,
-                    following_count: 0
-                  }}
-                  compact={true}
-                />
-              ))}
-            </div>
-          </section>
+          <UserResultsWrapper
+            users={authors}
+            searchType={searchType}
+            query={query}
+            totalCount={total_authors}
+          />
         )}
 
         {/* 作品セクション */}

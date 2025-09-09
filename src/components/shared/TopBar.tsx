@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { UserIconDropdownSection } from '@/features/users_icon'
 import { NotificationPanelSection } from '@/features/notifications'
+import { MobileSearchModal } from './MobileSearchModal'
 import type { UserProfile } from '@/features/users_icon/types'
 import type { Notification } from '@/features/notifications/types'
 
@@ -21,6 +22,7 @@ export function TopBar({
   initialUnreadCount
 }: TopBarProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [showMobileSearch, setShowMobileSearch] = useState(false)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +32,7 @@ export function TopBar({
   }
 
   const handleMobileSearch = () => {
-    console.log('Open mobile search modal')
+    setShowMobileSearch(true)
   }
 
   return (
@@ -160,6 +162,12 @@ export function TopBar({
           />
         </div>
       </div>
+
+      {/* モバイル検索モーダル */}
+      <MobileSearchModal
+        isOpen={showMobileSearch}
+        onClose={() => setShowMobileSearch(false)}
+      />
     </header>
   )
 }

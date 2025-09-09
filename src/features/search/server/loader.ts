@@ -43,7 +43,7 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
           username,
           avatar_img_url
         )
-      `)
+      `, { count: 'exact' })
       .eq('is_published', true);
 
     // キーワード検索（タイトル、説明、タグ）
@@ -134,15 +134,56 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
       tags: work.tags || []
     }));
 
+    // 作者の統計情報を取得
+    const authorIds = (authors || []).map(a => a.id);
+    let authorStats: Record<string, { works_count: number; followers_count: number; following_count: number }> = {};
+
+    if (authorIds.length > 0) {
+      // 作品数を取得
+      const { data: authorWorksCounts } = await supabase
+        .from('works')
+        .select('user_id')
+        .in('user_id', authorIds)
+        .eq('is_published', true);
+
+      // フォロワー数を取得
+      const { data: authorFollowersCounts } = await supabase
+        .from('follows')
+        .select('followed_id')
+        .in('followed_id', authorIds)
+        .eq('status', 'approved');
+
+      // フォロー数を取得  
+      const { data: authorFollowingCounts } = await supabase
+        .from('follows')
+        .select('follower_id')
+        .in('follower_id', authorIds)
+        .eq('status', 'approved');
+
+      // 統計を集計
+      authorIds.forEach(id => {
+        const worksCount = authorWorksCounts?.filter(w => w.user_id === id).length || 0;
+        const followersCount = authorFollowersCounts?.filter(f => f.followed_id === id).length || 0;
+        const followingCount = authorFollowingCounts?.filter(f => f.follower_id === id).length || 0;
+        
+        authorStats[id] = {
+          works_count: worksCount,
+          followers_count: followersCount,
+          following_count: followingCount
+        };
+      });
+    }
+
     const formattedAuthors: AuthorResult[] = (authors || []).map(author => ({
       user_id: author.id,
       username: author.username,
       display_name: author.username, // usernameを表示名として使用
       bio: author.bio,
       avatar_url: author.avatar_img_url,
-      followers_count: 0, // 現在のテーブル構造にない
-      works_count: 0, // 現在のテーブル構造にない
-      total_likes: 0 // 現在のテーブル構造にない
+      followers_count: authorStats[author.id]?.followers_count || 0,
+      following_count: authorStats[author.id]?.following_count || 0,
+      works_count: authorStats[author.id]?.works_count || 0,
+      total_likes: 0 // TODO: 実装が必要
     }));
 
     // 期間別人気ソートの場合、views_logからデータを取得して並び替え
