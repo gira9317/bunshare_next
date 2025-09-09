@@ -1,6 +1,7 @@
 import { getSearchResults } from '../server/actions';
 import { SearchFilters } from '../types';
-import { WorkCard } from '@/components/domain/WorkCard';
+import { WorkCard } from '@/components/domain/WorkCard'
+import { TrackedWorkCard } from '@/components/domain/TrackedWorkCard';
 import { UserCard } from '@/features/users/leaf/UserCard';
 import { EmptyResults } from '../leaf/EmptyResults';
 import { ResultsPagination } from '../leaf/ResultsPagination';
@@ -63,8 +64,8 @@ export async function SearchResultsSection({
             </div>
             
             <div className="works-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {works.map((work) => (
-                <WorkCard 
+              {works.map((work, index) => (
+                <TrackedWorkCard 
                   key={work.work_id}
                   work={{
                     work_id: work.work_id,
@@ -87,6 +88,16 @@ export async function SearchResultsSection({
                       username: work.username || '',
                       display_name: work.display_name,
                       avatar_url: work.avatar_url
+                    }
+                  }}
+                  impressionContext={{
+                    impressionType: 'search',
+                    pageContext: 'search',
+                    position: index + 1,
+                    additionalData: {
+                      query,
+                      searchType,
+                      page
                     }
                   }}
                 />

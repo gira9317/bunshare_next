@@ -24,6 +24,22 @@ export interface Work {
   readingProgress?: number
   readingPosition?: number
   lastReadAt?: string
+  // デバッグ用スコア情報
+  quality_score?: number
+  user_behavior_score?: number
+  recommendation_score?: number
+  // スコア詳細
+  ctr_stats?: {
+    impression_count?: number
+    ctr_unique?: number
+  }
+  snapshot_views?: number
+  snapshot_likes?: number
+  snapshot_comments?: number
+  is_followed_author?: boolean
+  is_category_match?: boolean
+  is_tag_match?: boolean
+  is_new_work?: boolean
 }
 
 export interface WorkCardProps {
