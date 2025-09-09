@@ -1,50 +1,53 @@
-import { getUserProfileByUser } from '@/features/users_icon/server/loader'
-import { getNotificationsByUser } from '@/features/notifications/server/loader'
+'use client'
+
+import { useState, useEffect } from 'react'
 import { TopBar } from './TopBar'
-import { getAuthenticatedUser } from '@/lib/auth'
+import type { UserProfile } from '@/features/users_icon/types'
+import type { Notification } from '@/features/notifications/types'
 
-export async function TopBarWrapper() {
-  try {
-    console.log('TopBarWrapper: Getting authenticated user...')
-    const user = await getAuthenticatedUser()
-    
-    console.log('TopBarWrapper: User result:', user ? { id: user.id, email: user.email } : 'No user')
+interface TopBarWrapperProps {
+  onMobileSearchOpen?: () => void
+}
 
-    if (!user) {
-      console.log('TopBarWrapper: No user found, showing default TopBar')
-      return (
-        <TopBar 
-          userProfile={null}
-          initialNotifications={[]}
-          initialUnreadCount={0}
-        />
-      )
+export function TopBarWrapper({ onMobileSearchOpen }: TopBarWrapperProps) {
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      try {
+        setLoading(true)
+        console.log('TopBarWrapper: Loading user data...')
+        
+        // サーバーからユーザーデータをフェッチ
+        const response = await fetch('/api/user/profile')
+        if (response.ok) {
+          const data = await response.json()
+          setUserProfile(data.userProfile)
+          setNotifications(data.notifications || [])
+          setUnreadCount(data.unreadCount || 0)
+        }
+      } catch (error) {
+        console.error('TopBarWrapper error:', error)
+        setUserProfile(null)
+        setNotifications([])
+        setUnreadCount(0)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    console.log('TopBarWrapper: Loading user profile and notifications...')
-    const [userProfile, notificationData] = await Promise.all([
-      getUserProfileByUser(user),
-      getNotificationsByUser(user)
-    ])
-    
-    console.log('TopBarWrapper: User profile loaded:', userProfile ? { id: userProfile.id, username: userProfile.username } : 'No profile')
-    console.log('TopBarWrapper: Notifications loaded:', notificationData.notifications.length, 'notifications')
+    loadUserData()
+  }, [])
 
-    return (
-      <TopBar 
-        userProfile={userProfile}
-        initialNotifications={notificationData.notifications}
-        initialUnreadCount={notificationData.unreadCount}
-      />
-    )
-  } catch (error) {
-    console.error('TopBarWrapper error:', error)
-    return (
-      <TopBar 
-        userProfile={null}
-        initialNotifications={[]}
-        initialUnreadCount={0}
-      />
-    )
-  }
+  return (
+    <TopBar 
+      userProfile={userProfile}
+      initialNotifications={notifications}
+      initialUnreadCount={unreadCount}
+      onMobileSearchOpen={onMobileSearchOpen}
+    />
+  )
 }

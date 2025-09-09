@@ -95,7 +95,7 @@ export function MobileSearchModal({ isOpen, onClose }: MobileSearchModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-white dark:bg-gray-900 md:hidden">
+    <div className="fixed inset-0 z-[9999] bg-white dark:bg-gray-900 md:hidden">
       {/* 検索ヘッダー */}
       <div className="flex items-center h-14 px-4 border-b border-gray-200 dark:border-gray-700">
         {/* 戻るボタン */}
