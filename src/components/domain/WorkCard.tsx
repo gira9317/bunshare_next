@@ -171,7 +171,9 @@ export function WorkCard({
     }
   }, [showMoreMenu])
 
-  const excerpt = work.description?.slice(0, 100) + (work.description && work.description.length > 100 ? '...' : '')
+  const excerpt = work.description 
+    ? work.description.slice(0, 100) + (work.description.length > 100 ? '...' : '')
+    : 'この作品にはまだ概要が設定されていません。タイトルやカテゴリから内容を想像してお読みください。'
 
   const getCategoryGradient = (category: string) => {
     const categoryColors = {
@@ -339,7 +341,8 @@ export function WorkCard({
             'transition-all duration-300',
             displayImageUrl 
               ? cn('text-gray-100', !disableNavigation && 'group-hover:text-white')
-              : 'text-gray-700 dark:text-gray-300'
+              : 'text-gray-700 dark:text-gray-300',
+            !work.description && 'italic opacity-75'
           )}>
             {excerpt}
           </p>
