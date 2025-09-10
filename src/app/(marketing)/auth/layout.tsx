@@ -1,6 +1,6 @@
 import { SiteFooter } from '@/components/shared/SiteFooter'
 
-export default function MarketingLayout({
+export default function AuthLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -14,10 +14,12 @@ export default function MarketingLayout({
         <div className="absolute top-40 left-40 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
       
-      {/* メインコンテンツ - 広いページ用 */}
-      <div className="relative min-h-screen">
-        {children}
-      </div>
+      {/* メインコンテンツ - 認証フォーム用の狭いレイアウト */}
+      <main className="relative min-h-screen flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {children}
+        </div>
+      </main>
       
       {/* フッター */}
       <div className="relative">

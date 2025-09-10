@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/shared/Sidebar'
 import { TopBarWrapper } from '@/components/shared/TopBarWrapper'
 import { BottomNav } from '@/components/shared/BottomNav'
 import { MobileSearchModal } from './MobileSearchModal'
+import { SiteFooter } from './SiteFooter'
 import { cn } from '@/lib/utils'
 
 interface ClientLayoutProps {
@@ -34,6 +35,9 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         )}>
           {children}
         </main>
+        
+        {/* フッター */}
+        <SiteFooter />
       </div>
       
       {/* モバイルボトムナビ */}

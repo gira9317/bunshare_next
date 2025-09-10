@@ -74,7 +74,7 @@ export default function HelpPage() {
               </summary>
               <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
                 <ol className="list-decimal list-inside space-y-2">
-                  <li>ログイン後、画面上部の「新規作成」ボタンをクリック</li>
+                  <li>ログイン後、サイドバーもしくはボトムバーから作品を投稿ボタンをクリック</li>
                   <li>タイトル、カテゴリー、本文を入力</li>
                   <li>必要に応じてタグや画像を追加</li>
                   <li>「公開」または「下書き保存」を選択</li>
@@ -179,7 +179,7 @@ export default function HelpPage() {
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 dark:text-blue-400">•</span>
-                  <span>「新規作成」から投稿画面へ</span>
+                  <span>サイドバーまたはボトムバーから投稿画面へ</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 dark:text-blue-400">•</span>
