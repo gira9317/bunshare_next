@@ -4,6 +4,7 @@ import { ContinueReadingSuspense } from '@/features/home/components/ContinueRead
 import { RecommendationsSuspense } from '@/features/home/components/RecommendationsSuspense'
 import { NovelsSuspense } from '@/features/home/components/NovelsSuspense'
 import { EssaysSuspense } from '@/features/home/components/EssaysSuspense'
+import { UserTagsSuspense } from '@/features/home/components/UserTagsSuspense'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { RecommendationsSkeleton } from '@/components/shared/RecommendationsSkeleton'
 import { Suspense } from 'react'
@@ -38,6 +39,9 @@ async function HomePage() {
       <Suspense fallback={<LoadingSpinner text="エッセイを読み込み中..." />}>
         <EssaysSuspense userId={user?.id} />
       </Suspense>
+      
+      {/* ユーザータグセクション */}
+      <UserTagsSuspense userId={user?.id} />
       
     </div>
   )

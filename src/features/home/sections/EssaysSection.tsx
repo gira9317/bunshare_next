@@ -93,7 +93,7 @@ export function EssaysSection({
       <section className="py-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            📝 エッセイ
+            エッセイ
           </h2>
           <SortSelect
             options={sortOptions}
