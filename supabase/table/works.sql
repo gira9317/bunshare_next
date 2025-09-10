@@ -31,6 +31,11 @@ create table public.works (
   recent_views_7d bigint null default 0,
   trend_score numeric(5, 2) null default 0.00,
   view_stats_updated_at timestamp with time zone null default now(),
+  likes_count integer null default 0,
+  comments_count integer null default 0,
+  views_count bigint null default 0,
+  stats_last_updated timestamp with time zone null default now(),
+  recent_views_30d bigint null default 0,
   constraint works_pkey primary key (work_id),
   constraint works_series_episode_unique unique (series_id, episode_number) deferrable initially DEFERRED,
   constraint works_image_url_key unique (image_url),
@@ -84,6 +89,14 @@ create index IF not exists idx_works_recent_views_24h on public.works using btre
 create index IF not exists idx_works_recent_views_7d on public.works using btree (recent_views_7d desc) TABLESPACE pg_default;
 
 create index IF not exists idx_works_trend_score on public.works using btree (trend_score desc) TABLESPACE pg_default;
+
+create index IF not exists idx_works_likes_count on public.works using btree (likes_count desc) TABLESPACE pg_default;
+
+create index IF not exists idx_works_comments_count on public.works using btree (comments_count desc) TABLESPACE pg_default;
+
+create index IF not exists idx_works_views_count on public.works using btree (views_count desc) TABLESPACE pg_default;
+
+create index IF not exists idx_works_recent_views_30d on public.works using btree (recent_views_30d desc) TABLESPACE pg_default;
 
 create trigger trigger_auto_queue_embedding
 after INSERT

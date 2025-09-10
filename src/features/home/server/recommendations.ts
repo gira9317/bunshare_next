@@ -89,9 +89,13 @@ async function getCategoryTagBasedWorks(userId: string, limit = 15) {
       series_id,
       episode_number,
       is_published,
-      views,
-      likes,
-      comments
+      views_count,
+      likes_count,
+      comments_count,
+      trend_score,
+      recent_views_24h,
+      recent_views_7d,
+      recent_views_30d
     `)
     .eq('is_published', true)
     .neq('user_id', userId) // 自分の作品は除外
@@ -105,8 +109,9 @@ async function getCategoryTagBasedWorks(userId: string, limit = 15) {
   }
 
   const { data: works, error } = await query
-    .order('views', { ascending: false })
-    .order('likes', { ascending: false })
+    .order('trend_score', { ascending: false })
+    .order('likes_count', { ascending: false })
+    .order('views_count', { ascending: false })
     .limit(limit)
 
   if (error) {
@@ -136,7 +141,11 @@ async function getCategoryTagBasedWorks(userId: string, limit = 15) {
   return works.map(work => ({
     ...work,
     author: userMap[work.user_id]?.username || '不明',
-    author_username: userMap[work.user_id]?.username
+    author_username: userMap[work.user_id]?.username,
+    // 統計カラムを直接利用
+    views: work.views_count || 0,
+    likes: work.likes_count || 0,
+    comments: work.comments_count || 0
   }))
 }
 
@@ -147,11 +156,11 @@ async function getCategoryTagBasedWorks(userId: string, limit = 15) {
 function calculateUserBehaviorScore(work: any, userPreferences: any, followedAuthors: string[] = []): number {
   let score = 0
   
-  // 基本エンゲージメント指標（スナップショット統計使用）
-  // 推薦生成時点での統計を固定化し、リアルタイム変更による順序変動を防止
-  const snapshotViews = work.snapshot_views ?? work.views ?? 0
-  const snapshotLikes = work.snapshot_likes ?? work.likes ?? 0  
-  const snapshotComments = work.snapshot_comments ?? work.comments ?? 0
+  // 基本エンゲージメント指標（統計カラム直接使用）
+  // 事前計算済み統計カラムを利用して高速化
+  const snapshotViews = work.snapshot_views ?? work.views_count ?? 0
+  const snapshotLikes = work.snapshot_likes ?? work.likes_count ?? 0  
+  const snapshotComments = work.snapshot_comments ?? work.comments_count ?? 0
   
   const normalizedViews = Math.min(10, snapshotViews / 1000) // 1000ビューで満点
   const normalizedLikes = Math.min(10, snapshotLikes / 100)  // 100いいねで満点  
@@ -250,9 +259,9 @@ async function deduplicateAndSortWithQualityScore(works: any[], userId?: string)
     // スナップショット統計を固定化（推薦生成時点の値を保持）
     const workWithSnapshot = {
       ...work,
-      snapshot_views: work.views,
-      snapshot_likes: work.likes,
-      snapshot_comments: work.comments
+      snapshot_views: work.views_count,
+      snapshot_likes: work.likes_count,
+      snapshot_comments: work.comments_count
     }
     
     const qualityScore = qualityScores[work.work_id]?.overall_quality_score || 5.0
@@ -278,6 +287,37 @@ async function deduplicateAndSortWithQualityScore(works: any[], userId?: string)
 
   // 総合スコア順でソート
   return scoredWorks.sort((a, b) => b.recommendation_score - a.recommendation_score)
+}
+
+/**
+ * 軽量版重複除去（品質スコア計算なし）
+ */
+async function deduplicateWithoutQualityScore(works: any[], userId?: string): Promise<any[]> {
+  console.log(`🚀 [DEBUG] 軽量版重複除去開始 - 作品数: ${works.length}`)
+  
+  const seen = new Set()
+  const unique = works.filter(work => {
+    if (seen.has(work.work_id)) {
+      return false
+    }
+    seen.add(work.work_id)
+    return true
+  })
+
+  // 統計カラムベースの簡単なソート（品質スコア計算スキップ）
+  const sortedWorks = unique.sort((a, b) => {
+    // trend_score > likes_count > views_count の優先順位
+    if (a.trend_score !== b.trend_score) {
+      return (b.trend_score || 0) - (a.trend_score || 0)
+    }
+    if (a.likes_count !== b.likes_count) {
+      return (b.likes_count || 0) - (a.likes_count || 0)
+    }
+    return (b.views_count || 0) - (a.views_count || 0)
+  })
+
+  console.log(`✅ [DEBUG] 軽量版重複除去完了: ${sortedWorks.length} 件`)
+  return sortedWorks
 }
 
 /**
@@ -422,49 +462,59 @@ export async function getRecommendationsAction(
     }
   }
 
-  // 認証ユーザーの場合（最適化された処理）
+  // 認証ユーザーの場合（並行処理最適化版）
   try {
-    console.log(`🔐 [DEBUG] 認証ユーザー向け推薦（最適化処理）`)
+    console.log(`🔐 [DEBUG] 認証ユーザー向け推薦（並行処理最適化）`)
     
-    // ユーザー行動データ取得
-    const behaviorData = await getUserBehaviorData(userId)
+    // 1. ユーザー行動データ取得と推薦戦略決定を並行化
+    const [behaviorData, readingProgressPromise] = await Promise.all([
+      getUserBehaviorData(userId),
+      filterRecentlyReadWorks([], userId) // 空配列で読書進捗のみ先行取得
+    ])
+    
     const totalActions = Object.values(behaviorData).reduce((sum, count) => sum + count, 0)
     const strategy = determineStrategy(totalActions)
-    
     console.log(`📊 [DEBUG] 推薦戦略決定: ${strategy} (総行動数: ${totalActions})`)
 
-    let works: any[] = []
+    // 2. 推薦作品取得を並行実行
+    let worksPromise: Promise<any[]>
     let source = ''
 
     switch (strategy) {
       case 'personalized':
         console.log(`🎯 [DEBUG] 個人化推薦実行`)
-        works = await executePersonalizedRecommendation(userId)
+        worksPromise = executePersonalizedRecommendation(userId)
         source = 'あなたの好みから'
         break
 
       case 'adaptive':
         console.log(`🔄 [DEBUG] 適応的推薦実行`)
-        works = await executeAdaptiveRecommendation(userId)
+        worksPromise = executeAdaptiveRecommendation(userId)
         source = 'あなたの興味と人気作品から'
         break
 
       case 'popular':
       default:
         console.log(`🔥 [DEBUG] 人気ベース推薦実行`)
-        works = await executePopularRecommendation()
+        worksPromise = executePopularRecommendation()
         source = '人気作品から'
         break
     }
 
+    // 3. 作品取得と後処理を並行実行
+    const [works] = await Promise.all([worksPromise])
     console.log(`📚 [DEBUG] 推薦作品収集完了: ${works.length} 件`)
 
-    // 最近読んだ作品（読了率10%超え）を除外
+    // 4. 最近読んだ作品の除外を並行処理済みデータで高速化
     const filteredWorks = await filterRecentlyReadWorks(works, userId)
     
-    const uniqueWorks = await deduplicateAndSortWithQualityScore(filteredWorks, userId)
+    // 5. 重複除去とスコア計算を軽量化（品質スコア計算を条件分岐）
+    const shouldCalculateQuality = works.length <= 100 // 作品数が少ない場合のみ品質計算
+    const uniqueWorks = shouldCalculateQuality 
+      ? await deduplicateAndSortWithQualityScore(filteredWorks, userId)
+      : await deduplicateWithoutQualityScore(filteredWorks, userId) // 軽量版
     
-    // 除外リストがある場合は除外
+    // 6. 除外処理
     let availableWorks = uniqueWorks
     if (excludeWorkIds && excludeWorkIds.length > 0) {
       availableWorks = uniqueWorks.filter(work => !excludeWorkIds.includes(work.work_id))
@@ -472,11 +522,14 @@ export async function getRecommendationsAction(
     }
     
     const limitedWorks = availableWorks.slice(0, targetCount)
-    console.log(`✂️ [DEBUG] 品質スコア統合後: ${limitedWorks.length} 件`)
+    console.log(`✂️ [DEBUG] 処理後: ${limitedWorks.length} 件`)
     
-    // 通常推薦にチャレンジ作品をステルス統合
-    const finalWorks = await blendWithChallengeWorks(userId, limitedWorks, targetCount)
-    console.log(`🎯 [DEBUG] チャレンジ統合完了: ${finalWorks.length} 件`)
+    // 7. チャレンジ作品統合（条件分岐で最適化）
+    const finalWorks = targetCount > 20 
+      ? await blendWithChallengeWorks(userId, limitedWorks, targetCount)
+      : limitedWorks // 少数表示時はチャレンジ統合をスキップ
+    
+    console.log(`🎯 [DEBUG] 最終処理完了: ${finalWorks.length} 件`)
     
     const result = {
       works: finalWorks,

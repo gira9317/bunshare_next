@@ -41,7 +41,15 @@ interface RecommendationsSuspenseProps {
 }
 
 async function RecommendationsContent({ userId }: RecommendationsSuspenseProps) {
-  const recommendationsResult = await getRecommendationsAction(userId)
+  // 推薦取得とユーザーデータ取得を並行実行
+  const [recommendationsResult, userData] = await Promise.all([
+    getRecommendationsAction(userId),
+    userId ? getUserInteractionData(userId) : Promise.resolve({
+      userLikes: [],
+      userBookmarks: [],
+      userReadingProgress: {}
+    })
+  ])
   
   // エラーハンドリング
   if ('error' in recommendationsResult) {
@@ -55,13 +63,6 @@ async function RecommendationsContent({ userId }: RecommendationsSuspenseProps) 
         </div>
       </div>
     )
-  }
-
-  // ユーザーがいる場合、ユーザーデータを統合取得
-  const userData = userId ? await getUserInteractionData(userId) : {
-    userLikes: [],
-    userBookmarks: [],
-    userReadingProgress: {}
   }
 
   return (

@@ -14,7 +14,7 @@ const createPublicClient = () => {
 }
 
 /**
- * ユーザーの行動データ統計を取得
+ * ユーザーの行動データ統計を取得（cookiesエラー回避版）
  */
 export const getUserBehaviorData = cache(async (userId: string): Promise<UserBehaviorData> => {
   console.log(`🔍 [DEBUG] ユーザー行動データ取得開始 - userId: ${userId}`)
@@ -55,7 +55,7 @@ export const getUserBehaviorData = cache(async (userId: string): Promise<UserBeh
 })
 
 /**
- * ユーザーがインタラクションした作品のカテゴリ・タグ分析
+ * ユーザーがインタラクションした作品のカテゴリ・タグ分析（cookiesエラー回避版）
  */
 export const getUserPreferences = cache(async (userId: string) => {
   console.log(`🎯 [DEBUG] ユーザー好み分析開始 - userId: ${userId}`)
@@ -208,10 +208,12 @@ export const getFollowedAuthorsWorks = cache(async (userId: string, limit = 10) 
       comments_count,
       trend_score,
       recent_views_24h,
-      recent_views_7d
+      recent_views_7d,
+      recent_views_30d
     `)
     .eq('is_published', true)
     .in('user_id', followedUserIds)
+    .order('trend_score', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -247,7 +249,11 @@ export const getFollowedAuthorsWorks = cache(async (userId: string, limit = 10) 
   const result = works.map(work => ({
     ...work,
     author: userMap[work.user_id]?.username || '不明',
-    author_username: userMap[work.user_id]?.username
+    author_username: userMap[work.user_id]?.username,
+    // 統計カラムを直接利用
+    views: work.views_count || 0,
+    likes: work.likes_count || 0,
+    comments: work.comments_count || 0
   }))
 
   console.log(`✅ [DEBUG] フォロー作者作品 ${result.length} 件返却`)
@@ -271,22 +277,18 @@ export const getPopularWorks = unstable_cache(
       category,
       tags,
       created_at,
-      updated_at,
       user_id,
       series_id,
       episode_number,
-      is_published,
       views_count,
       likes_count,
       comments_count,
-      trend_score,
-      recent_views_24h,
-      recent_views_7d
+      trend_score
     `)
     .eq('is_published', true)
     .order('trend_score', { ascending: false })
     .order('likes_count', { ascending: false })
-    .order('created_at', { ascending: false })
+    .order('views_count', { ascending: false })
     .limit(limit)
 
   if (error) {
@@ -316,14 +318,13 @@ export const getPopularWorks = unstable_cache(
         views_count,
         likes_count,
         comments_count,
-        views,
-        likes,
-        comments,
         trend_score,
         recent_views_24h,
-        recent_views_7d
+        recent_views_7d,
+        recent_views_30d
       `)
       .eq('is_published', true)
+      .order('views_count', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(limit)
     
@@ -351,8 +352,9 @@ export const getPopularWorks = unstable_cache(
   console.log(`🔥 [DEBUG] 人気作品サンプル:`, works.slice(0, 3).map(w => ({ 
     id: w.work_id, 
     title: w.title, 
-    views: w.views_count || w.views, 
-    likes: w.likes_count || w.likes,
+    views: w.views_count, 
+    likes: w.likes_count,
+    trend_score: w.trend_score,
     is_published: w.is_published 
   })))
 
@@ -360,14 +362,17 @@ export const getPopularWorks = unstable_cache(
     ...work,
     author: userMap[work.user_id]?.username || '不明',
     author_username: userMap[work.user_id]?.username,
-    // 新旧両方の形式をサポート
-    views: work.views_count || work.views || 0,
-    likes: work.likes_count || work.likes || 0,
-    comments: work.comments_count || work.comments || 0
+    // 統計カラムを直接利用
+    views: work.views_count || 0,
+    likes: work.likes_count || 0,
+    comments: work.comments_count || 0
   }))
   },
   ['popular-works'],
-  { revalidate: 1800 } // 30分キャッシュ
+  { 
+    revalidate: 900, // 15分キャッシュ（高速化のため短縮）
+    tags: ['popular-works']
+  }
 )
 
 /**
