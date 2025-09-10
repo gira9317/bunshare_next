@@ -2,7 +2,8 @@ import { getAuthenticatedUser } from '@/lib/auth'
 import { CategoryChipsClient } from '@/features/home/leaf/CategoryChipsClient'
 import { ContinueReadingSuspense } from '@/features/home/components/ContinueReadingSuspense'
 import { RecommendationsSuspense } from '@/features/home/components/RecommendationsSuspense'
-import { WorksFeedSuspense } from '@/features/home/components/WorksFeedSuspense'
+import { NovelsSuspense } from '@/features/home/components/NovelsSuspense'
+import { EssaysSuspense } from '@/features/home/components/EssaysSuspense'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { RecommendationsSkeleton } from '@/components/shared/RecommendationsSkeleton'
 import { Suspense } from 'react'
@@ -28,10 +29,16 @@ async function HomePage() {
         <RecommendationsSuspense userId={user?.id} />
       </Suspense>
       
-      {/* 作品フィード - 段階的に読み込み */}
-      <Suspense fallback={<LoadingSpinner text="作品を読み込み中..." />}>
-        <WorksFeedSuspense userId={user?.id} />
+      {/* 小説セクション */}
+      <Suspense fallback={<LoadingSpinner text="小説を読み込み中..." />}>
+        <NovelsSuspense userId={user?.id} />
       </Suspense>
+      
+      {/* エッセイセクション */}
+      <Suspense fallback={<LoadingSpinner text="エッセイを読み込み中..." />}>
+        <EssaysSuspense userId={user?.id} />
+      </Suspense>
+      
     </div>
   )
 }

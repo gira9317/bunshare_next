@@ -98,6 +98,92 @@ export const getWorksByCategory = cache(async (category: string, limit = 10, off
   })) as Work[]
 })
 
+export const getWorksByCategoriesWithSort = cache(async (
+  categories: string[], 
+  sortBy: 'views_all' | 'views_month' | 'views_week' | 'views_day' | 'created_at' = 'views_all',
+  limit = 12, 
+  offset = 0
+) => {
+  const supabase = await createClient()
+  
+  // ソート設定を決定
+  let orderColumn: string
+  let ascending = false
+  
+  switch (sortBy) {
+    case 'views_all':
+      orderColumn = 'views_count'
+      break
+    case 'views_month':
+      orderColumn = 'recent_views_30d'
+      break
+    case 'views_week':
+      orderColumn = 'recent_views_7d'
+      break
+    case 'views_day':
+      orderColumn = 'recent_views_24h'
+      break
+    case 'created_at':
+      orderColumn = 'created_at'
+      break
+    default:
+      orderColumn = 'views_count'
+  }
+  
+  const { data, error } = await supabase
+    .from('works')
+    .select(`
+      work_id,
+      title,
+      category,
+      views,
+      views_count,
+      recent_views_24h,
+      recent_views_7d,
+      recent_views_30d,
+      likes,
+      likes_count,
+      comments,
+      comments_count,
+      created_at,
+      tags,
+      description,
+      image_url,
+      series_id,
+      episode_number,
+      use_series_image,
+      users (
+        username
+      ),
+      series (
+        id,
+        title,
+        cover_image_url
+      )
+    `)
+    .in('category', categories)
+    .eq('is_published', true)
+    .order(orderColumn, { ascending })
+    .range(offset, offset + limit - 1)
+
+  if (error) {
+    console.error('複数カテゴリ作品取得エラー:', error)
+    return []
+  }
+
+  return data.map((work: any) => ({
+    ...work,
+    author: work.users?.username || 'Unknown',
+    author_username: work.users?.username || 'Unknown',
+    series_title: work.series?.title || null,
+    series_cover_image_url: work.series?.cover_image_url || null,
+    // 新旧両方の形式をサポート
+    views: work.views_count || work.views || 0,
+    likes: work.likes_count || work.likes || 0,
+    comments: work.comments_count || work.comments || 0
+  })) as Work[]
+})
+
 export const getUserLikesAndBookmarks = cache(async (userId: string, workIds: string[]) => {
   const supabase = await createClient()
   
