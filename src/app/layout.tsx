@@ -31,6 +31,13 @@ export default async function RootLayout({
     <html lang="ja" className="h-full">
       <head>
         <ThemeScript />
+        {/* 重要データの先行取得（プリロード） */}
+        <link rel="preload" href="/api/recommendations" as="fetch" crossOrigin="anonymous" />
+        <link rel="preload" href="/api/novels" as="fetch" crossOrigin="anonymous" />
+        <link rel="preload" href="/api/essays" as="fetch" crossOrigin="anonymous" />
+        {user && (
+          <link rel="preload" href="/api/user-tags" as="fetch" crossOrigin="anonymous" />
+        )}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
         <ClientProviders user={user}>

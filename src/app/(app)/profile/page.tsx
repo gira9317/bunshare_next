@@ -2,24 +2,10 @@ import { getAuthenticatedUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { 
   getUserWithStats, 
-  getUserWorks,
-  getUserPublishedWorks,
-  getUserDraftWorks,
-  getUserLikedWorks,
-  getUserBookmarkedWorks,
   getUserSeries,
-  UserProfileSection,
-  UserWorksSection,
-  UserStatsSection
+  UserProfileSection
 } from '@/features/users'
-import { 
-  ProfileTabsSection,
-  DashboardTabContent,
-  WorksTabContent,
-  LibraryTabContent,
-  SettingsTabContent
-} from '@/features/users/sections/ProfileTabsSection'
-import { FileText, PenTool, Library, Cog } from 'lucide-react'
+import { ProfileSuspense } from '@/features/users/sections/ProfileSuspense'
 
 export default async function ProfilePage() {
   const user = await getAuthenticatedUser()
@@ -29,67 +15,30 @@ export default async function ProfilePage() {
     redirect('/auth/login')
   }
 
-  // ユーザー情報と統計、作品データを並列取得して最適化
-  const [userWithStats, worksData] = await Promise.all([
+  // 🚀 段階的読み込み: ユーザー情報を先に表示、作品データは後で読み込み
+  const [userWithStats, userSeries] = await Promise.all([
     getUserWithStats(user.id),
-    Promise.all([
-      getUserPublishedWorks(user.id, 12),
-      getUserDraftWorks(user.id),
-      getUserLikedWorks(user.id),
-      getUserBookmarkedWorks(user.id),
-      getUserSeries(user.id)
-    ])
+    getUserSeries(user.id)  // シリーズ情報は軽量なので先に取得
   ])
   
   if (!userWithStats) {
     redirect('/auth/login')
   }
 
-  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks, userSeries] = worksData
-
-  // タブの定義
-  const tabs = [
-    {
-      id: 'dashboard',
-      label: '投稿作品一覧',
-      icon: <FileText className="w-5 h-5" />,
-      content: <DashboardTabContent user={userWithStats} publishedWorks={publishedWorks} />
-    },
-    {
-      id: 'works',
-      label: '作品管理',
-      icon: <PenTool className="w-5 h-5" />,
-      content: <WorksTabContent user={userWithStats} publishedWorks={publishedWorks} draftWorks={draftWorks} userSeries={userSeries} />
-    },
-    {
-      id: 'library',
-      label: 'ライブラリ',
-      icon: <Library className="w-5 h-5" />,
-      content: <LibraryTabContent user={userWithStats} likedWorks={likedWorks} bookmarkedWorks={bookmarkedWorks} />
-    },
-    {
-      id: 'settings',
-      label: '設定',
-      icon: <Cog className="w-5 h-5" />,
-      content: <SettingsTabContent user={userWithStats} currentUserId={user.id} />
-    }
-  ]
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* プロフィールセクション */}
+        {/* プロフィールセクション - 即座に表示 */}
         <UserProfileSection
           user={userWithStats}
           currentUserId={user.id}
         />
 
-        {/* タブセクション */}
-        <ProfileTabsSection
+        {/* タブセクション - Suspense で段階的読み込み */}
+        <ProfileSuspense 
           user={userWithStats}
           currentUserId={user.id}
-          tabs={tabs}
-          defaultTab="dashboard"
+          userSeries={userSeries}
         />
       </div>
     </div>

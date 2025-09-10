@@ -2,6 +2,7 @@
 
 import { AuthProvider } from '@/components/shared/AuthProvider'
 import { AuthModalProvider } from '@/components/shared/auth/AuthModalProvider'
+import { PreloadedDataProvider } from '@/components/shared/PreloadedDataProvider'
 import { LoginModal } from '@/features/auth/components/LoginModal'
 import type { User } from '@supabase/supabase-js'
 
@@ -14,8 +15,10 @@ export function ClientProviders({ user, children }: ClientProvidersProps) {
   return (
     <AuthProvider user={user}>
       <AuthModalProvider>
-        {children}
-        <LoginModal />
+        <PreloadedDataProvider user={user}>
+          {children}
+          <LoginModal />
+        </PreloadedDataProvider>
       </AuthModalProvider>
     </AuthProvider>
   )

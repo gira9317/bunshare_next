@@ -1,7 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
+import { getSharedClient } from './pool'
 
 export async function createClient() {
+  // 共有プールを優先利用（高速化）
+  return getSharedClient()
+}
+
+// 後方互換性のため旧実装も保持
+export async function createDirectClient() {
   const cookieStore = await cookies()
 
   return createServerClient(

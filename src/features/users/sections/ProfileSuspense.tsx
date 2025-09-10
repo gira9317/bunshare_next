@@ -1,0 +1,108 @@
+import { Suspense } from 'react'
+import { FileText, PenTool, Library, Cog } from 'lucide-react'
+import { UserWithStats } from '../schemas'
+import { 
+  ProfileTabsSection,
+  DashboardTabContent,
+  WorksTabContent,
+  LibraryTabContent,
+  SettingsTabContent
+} from './ProfileTabsSection'
+import { 
+  getUserPublishedWorks,
+  getUserDraftWorks, 
+  getUserLikedWorks,
+  getUserBookmarkedWorks
+} from '../server/loader'
+import type { Series } from '../schemas'
+
+interface ProfileSuspenseProps {
+  user: UserWithStats
+  currentUserId: string
+  userSeries: Series[]
+}
+
+// 作品データをSuspense境界で遅延読み込み
+async function WorksDataLoader({ user, currentUserId, userSeries }: ProfileSuspenseProps) {
+  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks] = await Promise.all([
+    getUserPublishedWorks(user.id, 12),
+    getUserDraftWorks(user.id),
+    getUserLikedWorks(user.id),
+    getUserBookmarkedWorks(user.id)
+  ])
+
+  const tabs = [
+    {
+      id: 'dashboard',
+      label: '投稿作品一覧', 
+      icon: <FileText className="w-5 h-5" />,
+      content: <DashboardTabContent user={user} publishedWorks={publishedWorks} />
+    },
+    {
+      id: 'works',
+      label: '作品管理',
+      icon: <PenTool className="w-5 h-5" />,
+      content: <WorksTabContent user={user} publishedWorks={publishedWorks} draftWorks={draftWorks} userSeries={userSeries} />
+    },
+    {
+      id: 'library', 
+      label: 'ライブラリ',
+      icon: <Library className="w-5 h-5" />,
+      content: <LibraryTabContent user={user} likedWorks={likedWorks} bookmarkedWorks={bookmarkedWorks} />
+    },
+    {
+      id: 'settings',
+      label: '設定',
+      icon: <Cog className="w-5 h-5" />,
+      content: <SettingsTabContent user={user} currentUserId={currentUserId} />
+    }
+  ]
+
+  return (
+    <ProfileTabsSection
+      user={user}
+      currentUserId={currentUserId}
+      tabs={tabs}
+      defaultTab="dashboard"
+    />
+  )
+}
+
+// スケルトン UI
+function ProfileTabsSkeleton() {
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+      {/* タブヘッダー */}
+      <div className="border-b border-gray-200 dark:border-gray-700">
+        <nav className="-mb-px flex space-x-8 px-6">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="py-4 px-1 border-b-2 border-transparent">
+              <div className="h-5 w-20 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+            </div>
+          ))}
+        </nav>
+      </div>
+      
+      {/* タブコンテンツ */}
+      <div className="p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+              <div className="h-32 w-full bg-gray-200 dark:bg-gray-600 rounded mb-4 animate-pulse" />
+              <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-600 rounded mb-2 animate-pulse" />
+              <div className="h-3 w-1/2 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function ProfileSuspense({ user, currentUserId, userSeries }: ProfileSuspenseProps) {
+  return (
+    <Suspense fallback={<ProfileTabsSkeleton />}>
+      <WorksDataLoader user={user} currentUserId={currentUserId} userSeries={userSeries} />
+    </Suspense>
+  )
+}

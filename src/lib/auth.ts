@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { User } from '@supabase/supabase-js'
 import { cache } from 'react'
 
-export const getAuthenticatedUser = async (): Promise<User | null> => {
+export const getAuthenticatedUser = cache(async (): Promise<User | null> => {
   console.log('getAuthenticatedUser: Starting auth check...')
   const supabase = await createClient()
   
@@ -39,4 +39,4 @@ export const getAuthenticatedUser = async (): Promise<User | null> => {
     console.error('Auth user exception:', error)
     return null
   }
-}
+})

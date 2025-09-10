@@ -24,27 +24,35 @@ export const getUserProfile = cache(async (userId: string): Promise<UserProfile 
 export const getUserStats = cache(async (userId: string): Promise<UserStats> => {
   const supabase = await createClient()
 
-  // 統計データを高速化（exactカウントを避け、推定値を使用）
-  const [
-    { count: followersCount },
-    { count: followingCount },
-    { count: worksCount },
-    { count: likesCount },
-    { count: bookmarksCount }
-  ] = await Promise.all([
-    // estimated countで高速化
-    supabase.from('follows').select('*', { count: 'estimated', head: true }).eq('followed_id', userId).eq('status', 'approved'),
-    supabase.from('follows').select('*', { count: 'estimated', head: true }).eq('follower_id', userId).eq('status', 'approved'),
-    supabase.from('works').select('*', { count: 'estimated', head: true }).eq('user_id', userId).eq('is_published', true),
-    supabase.from('likes').select('*', { count: 'estimated', head: true }).eq('user_id', userId),
-    supabase.from('reading_bookmarks').select('*', { count: 'estimated', head: true }).eq('user_id', userId)
-  ])
+  // 🚀 統計カラムを直接取得（5並行クエリ → 1クエリ）
+  const { data: user, error } = await supabase
+    .from('users')
+    .select('works_count, followers_count, following_count, total_likes, total_views, total_comments')
+    .eq('id', userId)
+    .single()
+
+  if (error || !user) {
+    console.warn('ユーザー統計取得エラー:', error)
+    return {
+      followers_count: 0,
+      following_count: 0,
+      works_count: 0,
+      likes_count: 0,
+      bookmarks_count: 0,
+    }
+  }
+
+  // ブックマーク数のみ別途取得（統計カラムなし）
+  const { count: bookmarksCount } = await supabase
+    .from('bookmarks')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
 
   return {
-    followers_count: followersCount || 0,
-    following_count: followingCount || 0,
-    works_count: worksCount || 0,
-    likes_count: likesCount || 0,
+    followers_count: user.followers_count || 0,
+    following_count: user.following_count || 0, 
+    works_count: user.works_count || 0,
+    likes_count: user.total_likes || 0, // total_likesを活用
     bookmarks_count: bookmarksCount || 0,
   }
 })
@@ -144,7 +152,7 @@ export const canViewProfile = cache(async (viewerId: string | null, profileUserI
   return isFollowingUser
 })
 
-// 新しい作品取得関数
+// 🚀 統計カラム活用の高速化作品取得
 export const getUserPublishedWorks = cache(async (userId: string, limit: number = 12): Promise<Work[]> => {
   const supabase = await createClient()
   
@@ -164,16 +172,17 @@ export const getUserPublishedWorks = cache(async (userId: string, limit: number 
       is_adult_content,
       created_at,
       updated_at,
-      views,
-      likes,
-      comments,
-      rating,
+      views_count,
+      likes_count,
+      comments_count,
       trend_score,
       recent_views_24h,
-      recent_views_7d
+      recent_views_7d,
+      recent_views_30d
     `)
     .eq('user_id', userId)
     .eq('is_published', true)
+    .order('trend_score', { ascending: false }) // 人気順優先
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -182,7 +191,7 @@ export const getUserPublishedWorks = cache(async (userId: string, limit: number 
     return []
   }
 
-  // 作者情報を別途取得
+  // 作者情報を別途取得（キャッシュ再利用）
   const { data: user } = await supabase
     .from('users')
     .select('username')
@@ -194,7 +203,11 @@ export const getUserPublishedWorks = cache(async (userId: string, limit: number 
   return (data || []).map(work => ({
     ...work,
     author,
-    author_username: user?.username
+    author_username: user?.username,
+    // 統計カラムを直接利用
+    views: work.views_count || 0,
+    likes: work.likes_count || 0,
+    comments: work.comments_count || 0
   })) as Work[]
 })
 
@@ -217,10 +230,10 @@ export const getUserDraftWorks = cache(async (userId: string): Promise<Work[]> =
       is_adult_content,
       created_at,
       updated_at,
-      views,
-      likes,
-      comments,
-      rating
+      views_count,
+      likes_count,
+      comments_count,
+      trend_score
     `)
     .eq('user_id', userId)
     .eq('is_published', false)
@@ -231,7 +244,7 @@ export const getUserDraftWorks = cache(async (userId: string): Promise<Work[]> =
     return []
   }
 
-  // 作者情報を別途取得
+  // 作者情報を別途取得（キャッシュ再利用）
   const { data: user } = await supabase
     .from('users')
     .select('username')
@@ -243,7 +256,11 @@ export const getUserDraftWorks = cache(async (userId: string): Promise<Work[]> =
   return (data || []).map(work => ({
     ...work,
     author,
-    author_username: user?.username
+    author_username: user?.username,
+    // 統計カラムを直接利用
+    views: work.views_count || 0,
+    likes: work.likes_count || 0,
+    comments: work.comments_count || 0
   })) as Work[]
 })
 
@@ -262,7 +279,7 @@ export const getUserLikedWorks = cache(async (userId: string): Promise<Work[]> =
     return []
   }
 
-  // Get works details
+  // Get works details with statistical columns
   const workIds = likedWorkIds.map(like => like.work_id)
   const { data, error } = await supabase
     .from('works')
@@ -280,9 +297,9 @@ export const getUserLikedWorks = cache(async (userId: string): Promise<Work[]> =
       is_adult_content,
       created_at,
       updated_at,
-      views,
-      likes,
-      comments,
+      views_count,
+      likes_count,
+      comments_count,
       rating
     `)
     .in('work_id', workIds)
@@ -314,7 +331,11 @@ export const getUserLikedWorks = cache(async (userId: string): Promise<Work[]> =
   return (data || []).map(work => ({
     ...work,
     author: userMap[work.user_id]?.username || '不明',
-    author_username: userMap[work.user_id]?.username
+    author_username: userMap[work.user_id]?.username,
+    // 統計カラムを直接利用
+    views: work.views_count || 0,
+    likes: work.likes_count || 0,
+    comments: work.comments_count || 0
   })) as Work[]
 })
 
@@ -334,7 +355,7 @@ export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work
     return []
   }
 
-  // Get works details
+  // Get works details with statistical columns
   const workIds = bookmarkedWorkIds.map(bookmark => bookmark.work_id)
   const { data, error } = await supabase
     .from('works')
@@ -352,9 +373,9 @@ export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work
       is_adult_content,
       created_at,
       updated_at,
-      views,
-      likes,
-      comments,
+      views_count,
+      likes_count,
+      comments_count,
       rating
     `)
     .in('work_id', workIds)
@@ -386,6 +407,10 @@ export const getUserBookmarkedWorks = cache(async (userId: string): Promise<Work
   return (data || []).map(work => ({
     ...work,
     author: userMap[work.user_id]?.username || '不明',
-    author_username: userMap[work.user_id]?.username
+    author_username: userMap[work.user_id]?.username,
+    // 統計カラムを直接利用
+    views: work.views_count || 0,
+    likes: work.likes_count || 0,
+    comments: work.comments_count || 0
   })) as Work[]
 })

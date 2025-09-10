@@ -20,10 +20,10 @@ export const getUserSeries = cache(async (userId: string): Promise<Series[]> => 
   // Get aggregated work information for each series
   const seriesWithStats = await Promise.all(
     seriesData.map(async (series) => {
-      // Get work count and stats for this series
+      // Get work count and stats for this series using statistical columns
       const { data: works, error: worksError } = await supabase
         .from('works')
-        .select('work_id, views, likes, image_url, created_at')
+        .select('work_id, views_count, likes_count, image_url, created_at')
         .eq('series_id', series.id)
         .eq('is_published', true)
         .order('created_at', { ascending: false })
@@ -40,8 +40,8 @@ export const getUserSeries = cache(async (userId: string): Promise<Series[]> => 
       }
 
       const works_count = works?.length || 0
-      const total_views = works?.reduce((sum, work) => sum + (work.views || 0), 0) || 0
-      const total_likes = works?.reduce((sum, work) => sum + (work.likes || 0), 0) || 0
+      const total_views = works?.reduce((sum, work) => sum + (work.views_count || 0), 0) || 0
+      const total_likes = works?.reduce((sum, work) => sum + (work.likes_count || 0), 0) || 0
       const latest_work_image = works?.[0]?.image_url || series.cover_image_url
       
       // Get up to 3 work images for stacked display
