@@ -34,7 +34,9 @@ export function WorkCard({
   const [showContinueDialog, setShowContinueDialog] = useState(false)
   
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
-  const [currentViews, setCurrentViews] = useState(work.views || 0)
+  const [currentViews, setCurrentViews] = useState(work.views_count || work.views || 0)
+  const [currentLikes, setCurrentLikes] = useState(work.likes_count || work.likes || 0)
+  const [currentComments, setCurrentComments] = useState(work.comments_count || work.comments || 0)
   const [savedReadingProgress, setSavedReadingProgress] = useState<{ percentage: number; position: number } | null>(null)
   const moreMenuButtonRef = useRef<HTMLButtonElement>(null)
   const dropdownMenuRef = useRef<HTMLDivElement>(null)
@@ -51,19 +53,33 @@ export function WorkCard({
     e.preventDefault()
     e.stopPropagation()
     
-    // 認証チェック & 楽観的UI更新
+    // 楽観的UI更新（即座に反映）
+    const newLikedState = !liked
+    setLiked(newLikedState)
+    setCurrentLikes(prev => newLikedState ? prev + 1 : prev - 1)
+    
+    // 認証チェック & サーバー更新
     const result = await requireAuthAsync(async () => {
-      setLiked(!liked)
       return await toggleLikeAction(work.work_id)
     })
     
     // エラー時は元に戻す
     if (result.error) {
       setLiked(liked)
+      setCurrentLikes(work.likes_count || work.likes || 0) // 元の値に戻す
       if (result.error !== 'ログインが必要です') {
         console.error(result.error)
       }
     }
+  }
+
+  // コメント投稿時の楽観的UI更新（将来の機能拡張用）
+  const handleCommentAdded = () => {
+    setCurrentComments(prev => prev + 1)
+  }
+
+  const handleCommentDeleted = () => {
+    setCurrentComments(prev => Math.max(0, prev - 1))
   }
 
   const handleBookmark = (e: React.MouseEvent) => {
@@ -391,7 +407,7 @@ export function WorkCard({
                   <svg width="16" height="16" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} className="icon">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2"/>
                   </svg>
-                  <span className="font-medium">{work.likes || 0}</span>
+                  <span className="font-medium">{currentLikes}</span>
                 </button>
 
                 {/* Comments */}
@@ -402,7 +418,7 @@ export function WorkCard({
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="icon">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2"/>
                   </svg>
-                  <span className="font-medium">{work.comments || 0}</span>
+                  <span className="font-medium">{currentComments}</span>
                 </div>
 
                 {/* More Menu Button Only */}

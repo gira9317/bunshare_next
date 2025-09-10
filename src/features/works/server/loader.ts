@@ -14,10 +14,13 @@ export const getWorks = cache(async (limit = 10, offset = 0) => {
       title,
       category,
       views,
+      views_count,
+      likes,
+      likes_count,
+      comments,
+      comments_count,
       created_at,
       tags,
-      likes,
-      comments,
       description,
       image_url,
       series_id,
@@ -48,7 +51,11 @@ export const getWorks = cache(async (limit = 10, offset = 0) => {
     author: work.users?.username || 'Unknown',
     author_username: work.users?.username || 'Unknown',
     series_title: work.series?.title || null,
-    series_cover_image_url: work.series?.cover_image_url || null
+    series_cover_image_url: work.series?.cover_image_url || null,
+    // 新旧両方の形式をサポート
+    views: work.views_count || work.views || 0,
+    likes: work.likes_count || work.likes || 0,
+    comments: work.comments_count || work.comments || 0
   })) as Work[]
 })
 
@@ -83,7 +90,11 @@ export const getWorksByCategory = cache(async (category: string, limit = 10, off
     author: work.users?.username || 'Unknown',
     author_username: work.users?.username || 'Unknown',
     series_title: work.series?.title || null,
-    series_cover_image_url: work.series?.cover_image_url || null
+    series_cover_image_url: work.series?.cover_image_url || null,
+    // 新旧両方の形式をサポート
+    views: work.views_count || work.views || 0,
+    likes: work.likes_count || work.likes || 0,
+    comments: work.comments_count || work.comments || 0
   })) as Work[]
 })
 
@@ -260,6 +271,10 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
     author: data.users?.username || 'Unknown',
     author_username: data.users?.username || 'Unknown',
     series_title: data.series?.title || null,
-    series_cover_image_url: data.series?.cover_image_url || null
+    series_cover_image_url: data.series?.cover_image_url || null,
+    // 新旧両方の形式をサポート
+    views: data.views_count || data.views || 0,
+    likes: data.likes_count || data.likes || 0,
+    comments: data.comments_count || data.comments || 0
   } as Work
 })

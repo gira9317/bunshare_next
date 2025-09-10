@@ -203,9 +203,12 @@ export const getFollowedAuthorsWorks = cache(async (userId: string, limit = 10) 
       series_id,
       episode_number,
       is_published,
-      views,
-      likes,
-      comments
+      views_count,
+      likes_count,
+      comments_count,
+      trend_score,
+      recent_views_24h,
+      recent_views_7d
     `)
     .eq('is_published', true)
     .in('user_id', followedUserIds)
@@ -273,13 +276,16 @@ export const getPopularWorks = unstable_cache(
       series_id,
       episode_number,
       is_published,
-      views,
-      likes,
-      comments
+      views_count,
+      likes_count,
+      comments_count,
+      trend_score,
+      recent_views_24h,
+      recent_views_7d
     `)
     .eq('is_published', true)
-    .order('views', { ascending: false })
-    .order('likes', { ascending: false })
+    .order('trend_score', { ascending: false })
+    .order('likes_count', { ascending: false })
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -307,9 +313,15 @@ export const getPopularWorks = unstable_cache(
         series_id,
         episode_number,
         is_published,
+        views_count,
+        likes_count,
+        comments_count,
         views,
         likes,
-        comments
+        comments,
+        trend_score,
+        recent_views_24h,
+        recent_views_7d
       `)
       .eq('is_published', true)
       .order('created_at', { ascending: false })
@@ -339,15 +351,19 @@ export const getPopularWorks = unstable_cache(
   console.log(`🔥 [DEBUG] 人気作品サンプル:`, works.slice(0, 3).map(w => ({ 
     id: w.work_id, 
     title: w.title, 
-    views: w.views, 
-    likes: w.likes,
+    views: w.views_count || w.views, 
+    likes: w.likes_count || w.likes,
     is_published: w.is_published 
   })))
 
   return works.map(work => ({
     ...work,
     author: userMap[work.user_id]?.username || '不明',
-    author_username: userMap[work.user_id]?.username
+    author_username: userMap[work.user_id]?.username,
+    // 新旧両方の形式をサポート
+    views: work.views_count || work.views || 0,
+    likes: work.likes_count || work.likes || 0,
+    comments: work.comments_count || work.comments || 0
   }))
   },
   ['popular-works'],
@@ -365,8 +381,8 @@ export const getQualityNewWorks = async (limit = 10) => {
   console.log(`🆕 [DEBUG] 品質スコア統合サンプル:`, result.slice(0, 3).map(w => ({ 
     id: w.work_id, 
     title: w.title, 
-    views: w.views, 
-    likes: w.likes,
+    views: w.views_count || w.views, 
+    likes: w.likes_count || w.likes,
     quality_score: w.quality_score,
     has_ctr: !!w.ctr_stats
   })))
@@ -406,13 +422,14 @@ export const getChallengeWorks = cache(async (userId: string, userCategories: st
       .select(`
         work_id, title, description, image_url, category, tags,
         created_at, updated_at, user_id, series_id, episode_number,
-        is_published, views, likes, comments
+        is_published, views, likes, comments, trend_score,
+        recent_views_24h, recent_views_7d
       `)
       .eq('is_published', true)
       .not('category', 'in', `(${userCategories.join(',')})`)
       .not('work_id', 'in', `(${Array.from(interactedWorkIds).join(',') || 'null'})`)
-      .gt('views', 10) // 品質フィルタ
-      .order('likes', { ascending: false })
+      .gt('views_count', 10) // 品質フィルタ
+      .order('likes_count', { ascending: false })
       .limit(Math.ceil(limit / 3))
 
     if (unexploredWorks?.length) {
@@ -436,13 +453,14 @@ export const getChallengeWorks = cache(async (userId: string, userCategories: st
       .select(`
         work_id, title, description, image_url, category, tags,
         created_at, updated_at, user_id, series_id, episode_number,
-        is_published, views, likes, comments
+        is_published, views, likes, comments, trend_score,
+        recent_views_24h, recent_views_7d
       `)
       .eq('is_published', true)
       .not('user_id', 'in', `(${followedUserIds.join(',')})`)
       .neq('user_id', userId) // 自分の作品も除外
       .not('work_id', 'in', `(${Array.from(interactedWorkIds).join(',') || 'null'})`)
-      .gt('views', 15) // やや高めの品質フィルタ
+      .gt('views_count', 15) // やや高めの品質フィルタ
       .order('created_at', { ascending: false }) // 新しい作品優先
       .limit(Math.ceil(limit / 3))
 
@@ -461,15 +479,16 @@ export const getChallengeWorks = cache(async (userId: string, userCategories: st
     .select(`
       work_id, title, description, image_url, category, tags,
       created_at, updated_at, user_id, series_id, episode_number,
-      is_published, views, likes, comments
+      is_published, views, likes, comments, trend_score,
+      recent_views_24h, recent_views_7d
     `)
     .eq('is_published', true)
     .not('work_id', 'in', `(${Array.from(interactedWorkIds).join(',') || 'null'})`)
     .neq('user_id', userId)
     .gte('updated_at', sevenDaysAgo.toISOString()) // 最近更新
-    .gt('likes', 5) // 一定のいいね数
-    .order('likes', { ascending: false })
-    .order('views', { ascending: false })
+    .gt('likes_count', 5) // 一定のいいね数
+    .order('likes_count', { ascending: false })
+    .order('views_count', { ascending: false })
     .limit(Math.ceil(limit / 3))
 
   if (trendingWorks?.length) {

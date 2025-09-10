@@ -20,6 +20,10 @@ export interface Work {
   views?: number
   likes?: number
   comments?: number
+  // 新しい集計カラム
+  views_count?: number
+  likes_count?: number
+  comments_count?: number
   rating?: number
   readingProgress?: number
   readingPosition?: number

@@ -11,6 +11,10 @@ export interface SearchResult {
   views: number;
   likes: number;
   comments: number;
+  // 新しい集計カラム
+  views_count?: number;
+  likes_count?: number;
+  comments_count?: number;
   rating: number;
   average_rating: number;
   total_ratings: number;

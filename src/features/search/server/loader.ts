@@ -23,6 +23,9 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
         work_id,
         title,
         category,
+        views_count,
+        likes_count,
+        comments_count,
         views,
         likes,
         comments,
@@ -39,6 +42,9 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
         episode_number,
         user_id,
         tags,
+        trend_score,
+        recent_views_24h,
+        recent_views_7d,
         users!works_user_id_fkey (
           username,
           avatar_img_url
@@ -56,13 +62,13 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
       worksQuery = worksQuery.eq('category', filters.category);
     }
 
-    // ソート順 (基本ソートのみ、期間別人気は後で処理)
+    // ソート順 (新しいカラムを活用)
     switch (filters.sort) {
       case 'popular_all':
-        worksQuery = worksQuery.order('views', { ascending: false });
+        worksQuery = worksQuery.order('trend_score', { ascending: false });
         break;
       case 'likes':
-        worksQuery = worksQuery.order('likes', { ascending: false });
+        worksQuery = worksQuery.order('likes_count', { ascending: false });
         break;
       case 'newest':
         worksQuery = worksQuery.order('created_at', { ascending: false });
@@ -71,13 +77,17 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
         worksQuery = worksQuery.order('created_at', { ascending: true });
         break;
       case 'popular_today':
+        worksQuery = worksQuery.order('recent_views_24h', { ascending: false });
+        break;
       case 'popular_week':
+        worksQuery = worksQuery.order('recent_views_7d', { ascending: false });
+        break;
       case 'popular_month':
-        // 期間別人気は一旦スコア順で取得
-        worksQuery = worksQuery.order('score_normalized', { ascending: false });
+        // 月間は集計カラムを使用
+        worksQuery = worksQuery.order('views_count', { ascending: false });
         break;
       default: // relevance
-        worksQuery = worksQuery.order('score_normalized', { ascending: false });
+        worksQuery = worksQuery.order('trend_score', { ascending: false });
     }
 
     // ページネーション
@@ -113,9 +123,13 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
       work_id: work.work_id,
       title: work.title,
       category: work.category,
-      views: work.views,
-      likes: work.likes,
-      comments: work.comments,
+      views: work.views_count || work.views || 0,
+      likes: work.likes_count || work.likes || 0,
+      comments: work.comments_count || work.comments || 0,
+      // 新旧両方の形式をサポート
+      views_count: work.views_count,
+      likes_count: work.likes_count,
+      comments_count: work.comments_count,
       rating: work.rating,
       average_rating: work.average_rating,
       total_ratings: work.total_ratings,
@@ -134,42 +148,23 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
       tags: work.tags || []
     }));
 
-    // 作者の統計情報を取得
+    // 作者の統計情報をusersテーブルから直接取得（高速）
     const authorIds = (authors || []).map(a => a.id);
     let authorStats: Record<string, { works_count: number; followers_count: number; following_count: number }> = {};
 
     if (authorIds.length > 0) {
-      // 作品数を取得
-      const { data: authorWorksCounts } = await supabase
-        .from('works')
-        .select('user_id')
-        .in('user_id', authorIds)
-        .eq('is_published', true);
+      // usersテーブルから集計済みの統計を直接取得
+      const { data: authorStatsData } = await supabase
+        .from('users')
+        .select('id, works_count, followers_count, following_count')
+        .in('id', authorIds);
 
-      // フォロワー数を取得
-      const { data: authorFollowersCounts } = await supabase
-        .from('follows')
-        .select('followed_id')
-        .in('followed_id', authorIds)
-        .eq('status', 'approved');
-
-      // フォロー数を取得  
-      const { data: authorFollowingCounts } = await supabase
-        .from('follows')
-        .select('follower_id')
-        .in('follower_id', authorIds)
-        .eq('status', 'approved');
-
-      // 統計を集計
-      authorIds.forEach(id => {
-        const worksCount = authorWorksCounts?.filter(w => w.user_id === id).length || 0;
-        const followersCount = authorFollowersCounts?.filter(f => f.followed_id === id).length || 0;
-        const followingCount = authorFollowingCounts?.filter(f => f.follower_id === id).length || 0;
-        
-        authorStats[id] = {
-          works_count: worksCount,
-          followers_count: followersCount,
-          following_count: followingCount
+      // 統計データをマップに変換
+      authorStatsData?.forEach(user => {
+        authorStats[user.id] = {
+          works_count: user.works_count || 0,
+          followers_count: user.followers_count || 0,
+          following_count: user.following_count || 0
         };
       });
     }

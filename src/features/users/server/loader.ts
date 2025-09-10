@@ -75,9 +75,12 @@ export const getUserWorks = cache(async (userId: string, limit: number = 10, off
       is_private,
       created_at,
       updated_at,
-      likes,
-      comments,
-      views
+      likes_count,
+      comments_count,
+      views_count,
+      trend_score,
+      recent_views_24h,
+      recent_views_7d
     `)
     .eq('user_id', userId)
     .eq('is_published', true)
@@ -90,9 +93,9 @@ export const getUserWorks = cache(async (userId: string, limit: number = 10, off
 
   return data.map((work: any) => ({
     ...work,
-    likes_count: work.likes || 0,
-    comments_count: work.comments || 0,
-    views_count: work.views || 0
+    likes_count: work.likes_count || 0,
+    comments_count: work.comments_count || 0,
+    views_count: work.views_count || 0
   }))
 })
 
@@ -164,7 +167,10 @@ export const getUserPublishedWorks = cache(async (userId: string, limit: number 
       views,
       likes,
       comments,
-      rating
+      rating,
+      trend_score,
+      recent_views_24h,
+      recent_views_7d
     `)
     .eq('user_id', userId)
     .eq('is_published', true)

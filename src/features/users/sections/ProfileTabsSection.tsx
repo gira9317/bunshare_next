@@ -21,6 +21,7 @@ import {
   CSS,
 } from '@dnd-kit/utilities'
 import { cn } from '@/lib/utils'
+import { UnderlineTabs } from '@/components/shared/AnimatedTabs'
 import { UserWithStats, Series } from '../schemas'
 import { WorkCard } from '@/components/domain/WorkCard'
 import type { Work } from '@/features/works/types'
@@ -59,35 +60,24 @@ export function ProfileTabsSection({
 
   const activeTabContent = tabs.find(tab => tab.id === activeTab)?.content
 
+  // AnimatedTabsに対応したタブデータを作成
+  const animatedTabs = tabs.map(tab => ({
+    id: tab.id,
+    label: tab.label,
+    icon: tab.icon
+  }));
+
   return (
     <div className={cn('space-y-6', className)}>
-      {/* Tab Navigation - Mobile first */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-4 md:space-x-8 overflow-x-auto scrollbar-hide">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors',
-                'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500',
-                'whitespace-nowrap flex-shrink-0', // Prevent text wrapping
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500'
-              )}
-            >
-              <span className="flex-shrink-0">{tab.icon}</span>
-              <span className="hidden sm:inline">{tab.label}</span>
-              <span className="sm:hidden">
-                {tab.label === '投稿作品一覧' ? '作品' : 
-                 tab.label === '作品管理' ? '管理' :
-                 tab.label === 'ライブラリ' ? 'ライブラリ' : '設定'}
-              </span>
-            </button>
-          ))}
-        </nav>
-      </div>
+      {/* Tab Navigation with AnimatedTabs */}
+      <UnderlineTabs
+        tabs={animatedTabs}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        size="md"
+        showCounts={false}
+        scrollable={true}
+      />
 
       {/* Tab Content */}
       <div className="min-h-[400px]">
@@ -513,37 +503,21 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }
         </div>
       )}
 
-      {/* Sub-tabs - Mobile first */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex space-x-4 md:space-x-6 overflow-x-auto scrollbar-hide">
-          {worksTabOptions.map((option) => (
-            <button
-              key={option.id}
-              onClick={() => {
-                setActiveWorksTab(option.id)
-                setShowSeriesList(true)
-                setSeriesWorks([])
-                setSelectedSeries(null)
-                setIsSeriesManagementMode(false)
-              }}
-              className={cn(
-                'py-2 px-1 border-b-2 text-sm font-medium transition-colors',
-                'whitespace-nowrap flex-shrink-0 flex items-center gap-2',
-                activeWorksTab === option.id
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              )}
-            >
-              {option.icon}
-              <span className="hidden sm:inline">{option.label}</span>
-              <span className="sm:hidden">
-                {option.label.includes('シリーズ') ? 'シリーズ' :
-                 option.label.includes('作品') ? '作品' : '予約'}
-              </span>
-            </button>
-          ))}
-        </nav>
-      </div>
+      {/* Sub-tabs with AnimatedTabs */}
+      <UnderlineTabs
+        tabs={worksTabOptions}
+        activeTab={activeWorksTab}
+        onTabChange={(tab) => {
+          setActiveWorksTab(tab)
+          setShowSeriesList(true)
+          setSeriesWorks([])
+          setSelectedSeries(null)
+          setIsSeriesManagementMode(false)
+        }}
+        size="sm"
+        showCounts={false}
+        scrollable={true}
+      />
 
       <div className="mt-4">
         {renderWorksGrid()}
@@ -987,42 +961,24 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
         </div>
       </div>
 
-      {/* Sub-tabs - Mobile first */}
+      {/* Sub-tabs with AnimatedTabs */}
       <div className="border-b border-gray-200 dark:border-gray-700">
-        <nav className="flex items-center justify-between">
-          <div className="flex space-x-4 md:space-x-6 overflow-x-auto scrollbar-hide">
-            {libraryTabOptions.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => {
-                  setActiveLibraryTab(option.id)
-                  setShowFolderManager(false)
-                  setShowFolderList(true)
-                  setFolderWorks([])
-                  setSelectedFolder('all')
-                }}
-                className={cn(
-                  'flex items-center gap-2 py-2 px-1 border-b-2 text-sm font-medium transition-colors',
-                  'whitespace-nowrap flex-shrink-0',
-                  activeLibraryTab === option.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                )}
-              >
-                {option.icon}
-                <span className="hidden sm:inline">{option.label}</span>
-                <span className="sm:hidden">
-                  {option.label.includes('いいね') ? 'いいね' :
-                   option.label.includes('ブックマーク') ? 'ブックマーク' : '履歴'}
-                </span>
-                {option.count > 0 && (
-                  <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full text-xs">
-                    {option.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center justify-between">
+          <UnderlineTabs
+            tabs={libraryTabOptions}
+            activeTab={activeLibraryTab}
+            onTabChange={(tab) => {
+              setActiveLibraryTab(tab)
+              setShowFolderManager(false)
+              setShowFolderList(true)
+              setFolderWorks([])
+              setSelectedFolder('all')
+            }}
+            size="sm"
+            showCounts={true}
+            scrollable={true}
+            className="flex-1"
+          />
           
           {/* Folder Management Button - Tab Right (Desktop only) */}
           {activeLibraryTab === 'bookmarked' && showFolderList && (
@@ -1034,7 +990,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
               <span>フォルダ管理</span>
             </button>
           )}
-        </nav>
+        </div>
       </div>
 
       {/* Folder Management Button - Mobile (Below tabs) */}
