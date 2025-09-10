@@ -7,13 +7,20 @@ import {
 } from '@/features/users'
 import { ProfileSuspense } from '@/features/users/sections/ProfileSuspense'
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams
+}: {
+  searchParams: Promise<{ tab?: string }>
+}) {
   const user = await getAuthenticatedUser()
 
   // ログインしていない場合はログインページにリダイレクト
   if (!user) {
     redirect('/auth/login')
   }
+
+  // searchParamsを解決
+  const params = await searchParams
 
   // 🚀 段階的読み込み: ユーザー情報を先に表示、作品データは後で読み込み
   const [userWithStats, userSeries] = await Promise.all([
@@ -24,6 +31,9 @@ export default async function ProfilePage() {
   if (!userWithStats) {
     redirect('/auth/login')
   }
+
+  // URLパラメータからタブを取得（デフォルトは'dashboard'）
+  const defaultTab = params.tab || 'dashboard'
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -39,6 +49,7 @@ export default async function ProfilePage() {
           user={userWithStats}
           currentUserId={user.id}
           userSeries={userSeries}
+          defaultTab={defaultTab}
         />
       </div>
     </div>

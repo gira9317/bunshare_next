@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, ReactNode } from 'react'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import {
   DndContext,
   closestCenter,
@@ -56,9 +57,55 @@ export function ProfileTabsSection({
   defaultTab,
   className 
 }: ProfileTabsSectionProps) {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id || '')
+  const [isLoading, setIsLoading] = useState(false)
+
+  // URLパラメータの変更を監視
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam && tabs.some(tab => tab.id === tabParam)) {
+      setActiveTab(tabParam)
+      setIsLoading(false)
+    } else if (!tabParam && defaultTab) {
+      setActiveTab(defaultTab)
+      setIsLoading(false)
+    }
+  }, [searchParams, tabs, defaultTab])
 
   const activeTabContent = tabs.find(tab => tab.id === activeTab)?.content
+
+  // タブ変更時にURLも更新
+  const handleTabChange = (tabId: string) => {
+    // ローディング表示を開始
+    setIsLoading(true)
+    
+    // 即座にタブを切り替え
+    setActiveTab(tabId)
+    
+    // 少し遅延してローディングを解除（コンテンツが切り替わった感を演出）
+    setTimeout(() => setIsLoading(false), 150)
+    
+    // URLパラメータを非同期で更新（UIブロックを防ぐ）
+    requestAnimationFrame(() => {
+      const params = new URLSearchParams(searchParams)
+      if (tabId === 'dashboard') {
+        params.delete('tab')
+      } else {
+        params.set('tab', tabId)
+      }
+      const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname
+      
+      // shallow routingで高速化
+      window.history.replaceState(
+        { ...window.history.state, as: newUrl, url: newUrl },
+        '',
+        newUrl
+      )
+    })
+  }
 
   // AnimatedTabsに対応したタブデータを作成
   const animatedTabs = tabs.map(tab => ({
@@ -73,15 +120,28 @@ export function ProfileTabsSection({
       <UnderlineTabs
         tabs={animatedTabs}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         size="md"
         showCounts={false}
         scrollable={true}
       />
 
       {/* Tab Content */}
-      <div className="min-h-[400px]">
-        {activeTabContent}
+      <div className="min-h-[400px] relative">
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 z-10 flex items-center justify-center">
+            <div className="relative">
+              <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-10 h-10 border-4 border-purple-600 dark:border-purple-400 rounded-full border-t-transparent animate-spin"></div>
+            </div>
+          </div>
+        )}
+        <div className={cn(
+          "transition-opacity duration-150",
+          isLoading ? "opacity-50" : "opacity-100"
+        )}>
+          {activeTabContent}
+        </div>
       </div>
     </div>
   )

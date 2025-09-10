@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { FileText, PenTool, Library, Cog } from 'lucide-react'
+import { FileText, PenTool, Library, Settings } from 'lucide-react'
 import { UserWithStats } from '../schemas'
 import { 
   ProfileTabsSection,
@@ -20,10 +20,11 @@ interface ProfileSuspenseProps {
   user: UserWithStats
   currentUserId: string
   userSeries: Series[]
+  defaultTab?: string
 }
 
 // 作品データをSuspense境界で遅延読み込み
-async function WorksDataLoader({ user, currentUserId, userSeries }: ProfileSuspenseProps) {
+async function WorksDataLoader({ user, currentUserId, userSeries, defaultTab }: ProfileSuspenseProps) {
   const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks] = await Promise.all([
     getUserPublishedWorks(user.id, 12),
     getUserDraftWorks(user.id),
@@ -53,7 +54,7 @@ async function WorksDataLoader({ user, currentUserId, userSeries }: ProfileSuspe
     {
       id: 'settings',
       label: '設定',
-      icon: <Cog className="w-5 h-5" />,
+      icon: <Settings className="w-5 h-5" />,
       content: <SettingsTabContent user={user} currentUserId={currentUserId} />
     }
   ]
@@ -63,7 +64,7 @@ async function WorksDataLoader({ user, currentUserId, userSeries }: ProfileSuspe
       user={user}
       currentUserId={currentUserId}
       tabs={tabs}
-      defaultTab="dashboard"
+      defaultTab={defaultTab || "dashboard"}
     />
   )
 }
@@ -83,10 +84,20 @@ function ProfileTabsSkeleton() {
         </nav>
       </div>
       
-      {/* タブコンテンツ */}
+      {/* タブコンテンツ - スピナーを中央に表示 */}
       <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
+        <div className="flex flex-col items-center justify-center py-12">
+          {/* スピナー */}
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
+            <div className="absolute top-0 left-0 w-12 h-12 border-4 border-purple-600 dark:border-purple-400 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">作品を読み込み中...</p>
+        </div>
+        
+        {/* オプション: カードのスケルトンも薄く表示 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-30 mt-8">
+          {[1, 2, 3].map(i => (
             <div key={i} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <div className="h-32 w-full bg-gray-200 dark:bg-gray-600 rounded mb-4 animate-pulse" />
               <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-600 rounded mb-2 animate-pulse" />
@@ -99,10 +110,10 @@ function ProfileTabsSkeleton() {
   )
 }
 
-export function ProfileSuspense({ user, currentUserId, userSeries }: ProfileSuspenseProps) {
+export function ProfileSuspense({ user, currentUserId, userSeries, defaultTab }: ProfileSuspenseProps) {
   return (
     <Suspense fallback={<ProfileTabsSkeleton />}>
-      <WorksDataLoader user={user} currentUserId={currentUserId} userSeries={userSeries} />
+      <WorksDataLoader user={user} currentUserId={currentUserId} userSeries={userSeries} defaultTab={defaultTab} />
     </Suspense>
   )
 }

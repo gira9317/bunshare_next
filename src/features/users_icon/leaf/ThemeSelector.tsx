@@ -22,7 +22,13 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
         'text-sm text-gray-700 dark:text-gray-200',
         className
       )}>
-        <span className="text-base w-5 text-center">💻</span>
+        <span className="w-5 h-5 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect width="20" height="14" x="2" y="3" rx="2" />
+            <line x1="8" x2="16" y1="21" y2="21" />
+            <line x1="12" x2="12" y1="17" y2="21" />
+          </svg>
+        </span>
         <span className="font-medium flex-1">テーマ</span>
         <span className="text-xs text-gray-500 dark:text-gray-400">読み込み中...</span>
       </div>
@@ -40,8 +46,24 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
           'transition-colors duration-150'
         )}
       >
-        <span className="text-base w-5 text-center">
-          {isDark ? '🌙' : '☀️'}
+        <span className="w-5 h-5 flex items-center justify-center">
+          {isDark ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2" />
+              <path d="M12 20v2" />
+              <path d="M4.93 4.93l1.41 1.41" />
+              <path d="M17.66 17.66l1.41 1.41" />
+              <path d="M2 12h2" />
+              <path d="M20 12h2" />
+              <path d="M6.34 17.66l-1.41 1.41" />
+              <path d="M19.07 4.93l-1.41 1.41" />
+            </svg>
+          )}
         </span>
         <span className="font-medium flex-1">テーマ</span>
         <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -68,7 +90,43 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
       
       {isOpen && (
         <div className="ml-4 border-l border-gray-200 dark:border-gray-700">
-          {themes.map(({ key, label, icon }) => (
+          {themes.map(({ key, label, icon }) => {
+          const getIconElement = (iconKey: string) => {
+            switch(iconKey) {
+              case '☀️':
+                return (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2" />
+                    <path d="M12 20v2" />
+                    <path d="M4.93 4.93l1.41 1.41" />
+                    <path d="M17.66 17.66l1.41 1.41" />
+                    <path d="M2 12h2" />
+                    <path d="M20 12h2" />
+                    <path d="M6.34 17.66l-1.41 1.41" />
+                    <path d="M19.07 4.93l-1.41 1.41" />
+                  </svg>
+                )
+              case '🌙':
+                return (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                  </svg>
+                )
+              case '💻':
+                return (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="20" height="14" x="2" y="3" rx="2" />
+                    <line x1="8" x2="16" y1="21" y2="21" />
+                    <line x1="12" x2="12" y1="17" y2="21" />
+                  </svg>
+                )
+              default:
+                return <span className="text-base">{iconKey}</span>
+            }
+          }
+          
+          return (
             <button
               key={key}
               onClick={() => {
@@ -84,7 +142,7 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
                 theme === key && 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
               )}
             >
-              <span className="text-base w-5 text-center">{icon}</span>
+              <span className="w-5 h-5 flex items-center justify-center">{getIconElement(icon)}</span>
               <span className="font-medium">{label}</span>
               {theme === key && (
                 <svg 
@@ -103,7 +161,8 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
                 </svg>
               )}
             </button>
-          ))}
+          )
+        })}
         </div>
       )}
     </div>

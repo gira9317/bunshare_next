@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { ReactNode } from 'react'
 
 interface UserIconMenuItemProps {
-  label: string
-  icon: string
+  label?: string
+  icon?: string | ReactNode
   href?: string
   onClick?: () => void
+  onItemClick?: (href?: string) => void
   divider?: boolean
   className?: string
 }
@@ -17,6 +19,7 @@ export function UserIconMenuItem({
   icon,
   href,
   onClick,
+  onItemClick,
   divider,
   className
 }: UserIconMenuItemProps) {
@@ -37,14 +40,34 @@ export function UserIconMenuItem({
   
   const content = (
     <>
-      <span className="text-base w-5 text-center">{icon}</span>
+      <span className="w-5 h-5 flex items-center justify-center">
+        {typeof icon === 'string' ? (
+          <span className="text-base">{icon}</span>
+        ) : (
+          icon
+        )}
+      </span>
       <span className="font-medium">{label}</span>
     </>
   )
   
+  const handleClick = () => {
+    if (onClick) {
+      onClick()
+    }
+    if (onItemClick) {
+      onItemClick(href)
+    }
+  }
+  
   if (href) {
     return (
-      <Link href={href} className={itemClass}>
+      <Link 
+        href={href} 
+        className={itemClass}
+        onClick={handleClick}
+        prefetch={true}
+      >
         {content}
       </Link>
     )
@@ -52,7 +75,7 @@ export function UserIconMenuItem({
   
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       className={cn(itemClass, 'w-full text-left')}
     >
       {content}
