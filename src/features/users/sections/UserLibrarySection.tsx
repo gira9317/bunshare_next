@@ -172,6 +172,7 @@ export function UserLibrarySection({
             }}
             isLiked={false}
             isBookmarked={false}
+            disableContinueDialog={true}
           />
         ))}
       </div>

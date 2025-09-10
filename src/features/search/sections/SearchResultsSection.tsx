@@ -91,6 +91,7 @@ export async function SearchResultsSection({
                       avatar_url: work.avatar_url
                     }
                   }}
+                  disableContinueDialog={true}
                   impressionContext={{
                     impressionType: 'search',
                     pageContext: 'search',

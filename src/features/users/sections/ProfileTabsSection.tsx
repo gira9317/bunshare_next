@@ -197,7 +197,7 @@ function DraggableSeriesWorkCard({
         第{work.episode_number || 1}話
       </div>
       
-      <WorkCard work={work} isManagementMode={true} />
+      <WorkCard work={work} isManagementMode={true} disableContinueDialog={true} />
     </div>
   )
 }
@@ -268,6 +268,7 @@ function DraggableWorkCard({ work, isManagementMode, onRemove, onMove, available
         onMove={onMove}
         availableFolders={availableFolders}
         disableNavigation={isManagementMode}
+        disableContinueDialog={true}
       />
     </div>
   )
@@ -283,6 +284,7 @@ export function DashboardTabContent({ user, publishedWorks }: { user: UserWithSt
             <WorkCard
               key={work.work_id}
               work={work}
+              disableContinueDialog={true}
             />
           ))}
         </div>
@@ -475,6 +477,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }
               <WorkCard
                 key={work.work_id}
                 work={work}
+                disableContinueDialog={true}
               />
             ))}
           </div>
@@ -524,6 +527,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }
             <WorkCard
               key={work.work_id}
               work={work}
+              disableContinueDialog={true}
             />
           ))}
         </div>
@@ -989,6 +993,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
             work={work}
             isLiked={activeLibraryTab === 'liked'}
             isBookmarked={activeLibraryTab === 'bookmarked'}
+            disableContinueDialog={true}
           />
         ))}
       </div>

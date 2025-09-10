@@ -66,6 +66,7 @@ export function UserWorksSection({
             }}
             isLiked={false}
             isBookmarked={false}
+            disableContinueDialog={true}
           />
         ))}
       </div>

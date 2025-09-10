@@ -1,5 +1,4 @@
 import { getAuthenticatedUser } from '@/lib/auth'
-import { CategoryChipsClient } from '@/features/home/leaf/CategoryChipsClient'
 import { ContinueReadingSuspense } from '@/features/home/components/ContinueReadingSuspense'
 import { RecommendationsSuspense } from '@/features/home/components/RecommendationsSuspense'
 import { NovelsSuspense } from '@/features/home/components/NovelsSuspense'
@@ -15,9 +14,6 @@ async function HomePage() {
 
   return (
     <div className="space-y-8">
-      {/* カテゴリチップス - 即座に表示 */}
-      <CategoryChipsClient />
-      
       {/* 続きを読むセクション - ユーザーがいる場合のみ */}
       {user && (
         <Suspense fallback={<LoadingSpinner size="sm" text="続きから読む作品を読み込み中..." />}>
