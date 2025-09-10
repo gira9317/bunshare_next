@@ -8,6 +8,8 @@ create table public.likes (
   constraint likes_user_id_work_id_key unique (user_id, work_id)
 ) TABLESPACE pg_default;
 
+create index IF not exists idx_likes_user_work on public.likes using btree (user_id, work_id) TABLESPACE pg_default;
+
 create trigger trigger_likes_delete
 after DELETE on likes for EACH row
 execute FUNCTION trigger_update_likes ();
