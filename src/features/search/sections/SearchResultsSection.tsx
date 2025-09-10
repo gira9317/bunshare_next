@@ -63,13 +63,14 @@ export async function SearchResultsSection({
               </h2>
             </div>
             
-            <div className="works-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="works-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {works.map((work, index) => (
                 <TrackedWorkCard 
                   key={work.work_id}
                   work={{
                     work_id: work.work_id,
                     title: work.title,
+                    author: work.username || '不明',
                     category: work.category,
                     views: work.views,
                     likes: work.likes,
