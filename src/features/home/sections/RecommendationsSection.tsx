@@ -24,8 +24,9 @@ export function RecommendationsSection({
   const [allWorks, setAllWorks] = useState(initialWorks) // 全ての作品を管理
   const [displayCount, setDisplayCount] = useState(9) // 初期表示は9件
   const [isLoading, setIsLoading] = useState(false)
+  const [hasMoreAvailable, setHasMoreAvailable] = useState(true) // 追加データが存在する可能性
   
-  const hasMore = allWorks.length > displayCount
+  const hasMore = allWorks.length > displayCount || hasMoreAvailable
   const displayedWorks = allWorks.slice(0, displayCount)
   
   // 追加の推薦を取得する関数
@@ -47,6 +48,10 @@ export function RecommendationsSection({
         const data = await response.json()
         if (data.works && data.works.length > 0) {
           setAllWorks(prev => [...prev, ...data.works])
+        }
+        // APIから「もうデータがない」情報を受け取った場合
+        if (!data.hasMore || data.works.length === 0) {
+          setHasMoreAvailable(false)
         }
       }
     } catch (error) {
@@ -120,7 +125,7 @@ export function RecommendationsSection({
             disabled={isLoading}
             className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? '読み込み中...' : `もっと表示する (${Math.max(0, allWorks.length - displayCount)}件以上)`}
+            {isLoading ? '読み込み中...' : 'もっと表示する'}
           </button>
         </div>
       )}

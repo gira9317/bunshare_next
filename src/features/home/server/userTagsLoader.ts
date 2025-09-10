@@ -58,7 +58,7 @@ const getPopularTags = cache(async (limit = 3): Promise<string[]> => {
 /**
  * 特定タグの人気作品を取得
  */
-const getWorksByTag = cache(async (
+export const getWorksByTag = cache(async (
   tag: string, 
   sortBy: 'views_all' | 'views_month' | 'views_week' | 'views_day' | 'created_at' = 'views_all',
   limit = 3,

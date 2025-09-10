@@ -425,7 +425,7 @@ const getCachedGuestRecommendations = unstable_cache(
   async () => {
     const works = await executePopularRecommendation()
     const uniqueWorks = await deduplicateAndSortWithQualityScore(works) // ゲストはuserIdなし
-    const limitedWorks = uniqueWorks.slice(0, 72) // 段階的表示用に増量
+    const limitedWorks = uniqueWorks.slice(0, 9) // 初期表示用に削減
     
     return {
       works: limitedWorks,
@@ -445,7 +445,7 @@ const getCachedGuestRecommendations = unstable_cache(
 export async function getRecommendationsAction(
   userId?: string, 
   excludeWorkIds?: string[], 
-  targetCount = 72
+  targetCount = 9
 ): Promise<RecommendationResult | { error: string }> {
   console.log(`🚀 [DEBUG] 推薦機能開始 - userId: ${userId || 'ゲスト'}`)
   
@@ -525,9 +525,9 @@ export async function getRecommendationsAction(
     console.log(`✂️ [DEBUG] 処理後: ${limitedWorks.length} 件`)
     
     // 7. チャレンジ作品統合（条件分岐で最適化）
-    const finalWorks = targetCount > 20 
+    const finalWorks = targetCount > 9 
       ? await blendWithChallengeWorks(userId, limitedWorks, targetCount)
-      : limitedWorks // 少数表示時はチャレンジ統合をスキップ
+      : limitedWorks // 9作品以下の表示時はチャレンジ統合をスキップ
     
     console.log(`🎯 [DEBUG] 最終処理完了: ${finalWorks.length} 件`)
     

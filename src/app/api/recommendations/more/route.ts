@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     console.log(`🔄 [DEBUG] 追加推薦取得 - offset: ${offset}, 除外: ${excludeWorkIds?.length || 0}件`)
     
     // 追加の推薦を取得（除外リストを考慮）
-    const result = await getRecommendationsAction(user?.id, excludeWorkIds, 72)
+    const result = await getRecommendationsAction(user?.id, excludeWorkIds, 36)
     
     if ('error' in result) {
       return NextResponse.json({ error: result.error }, { status: 500 })

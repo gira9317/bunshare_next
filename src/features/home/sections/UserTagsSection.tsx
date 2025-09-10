@@ -35,6 +35,7 @@ export function UserTagsSection({
   const [currentTagGroups, setCurrentTagGroups] = useState(tagGroups)
   const [showMore, setShowMore] = useState(false)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [tagSortSettings, setTagSortSettings] = useState<Record<string, string>>({})
   
   const handleSortChange = async (newSortBy: string) => {
     if (newSortBy === sortBy || isLoading) return
@@ -93,6 +94,93 @@ export function UserTagsSection({
     }
   }
 
+  // 個別タグのソート処理
+  const [tagLoadingStates, setTagLoadingStates] = useState<Record<string, boolean>>({})
+  
+  const handleTagSortChange = async (tag: string, newSortBy: string) => {
+    const currentSort = tagSortSettings[tag] || sortBy
+    if (newSortBy === currentSort || tagLoadingStates[tag]) return
+    
+    setTagLoadingStates(prev => ({ ...prev, [tag]: true }))
+    setTagSortSettings(prev => ({ ...prev, [tag]: newSortBy }))
+    
+    try {
+      // 現在表示中の作品数を維持
+      const currentGroup = currentTagGroups.find(group => group.tag === tag)
+      const currentWorkCount = currentGroup?.works.length || 3
+      
+      const response = await fetch('/api/user-tags/more', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tag,
+          sortBy: newSortBy,
+          excludeWorkIds: [], // ソート時は全作品を新規取得
+          limit: currentWorkCount // 現在と同じ作品数を取得
+        })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.works) {
+          setCurrentTagGroups(prev => 
+            prev.map(group => 
+              group.tag === tag 
+                ? { ...group, works: data.works }
+                : group
+            )
+          )
+        }
+      }
+    } catch (error) {
+      console.error(`タグ「${tag}」のソートエラー:`, error)
+    } finally {
+      setTagLoadingStates(prev => ({ ...prev, [tag]: false }))
+    }
+  }
+  
+  // 個別タグの追加作品を取得する関数
+  const loadMoreForTag = async (tag: string) => {
+    if (tagLoadingStates[tag]) return
+    
+    setTagLoadingStates(prev => ({ ...prev, [tag]: true }))
+    
+    try {
+      const currentGroup = currentTagGroups.find(group => group.tag === tag)
+      if (!currentGroup) return
+      
+      const excludeWorkIds = currentGroup.works.map(work => work.work_id)
+      
+      const response = await fetch('/api/user-tags/more', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tag,
+          sortBy: tagSortSettings[tag] || sortBy, // 個別ソート設定を優先
+          excludeWorkIds,
+          limit: 6
+        })
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.works && data.works.length > 0) {
+          setCurrentTagGroups(prev => 
+            prev.map(group => 
+              group.tag === tag 
+                ? { ...group, works: [...group.works, ...data.works] }
+                : group
+            )
+          )
+        }
+      }
+    } catch (error) {
+      console.error(`タグ「${tag}」の追加取得エラー:`, error)
+    } finally {
+      setTagLoadingStates(prev => ({ ...prev, [tag]: false }))
+    }
+  }
+
   if (currentTagGroups.length === 0) {
     return null // セクションを非表示
   }
@@ -103,15 +191,10 @@ export function UserTagsSection({
 
   return (
     <section className="py-8">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
           {sectionTitle}
         </h2>
-        <SortSelect
-          options={sortOptions}
-          value={sortBy}
-          onChange={handleSortChange}
-        />
       </div>
       
       {isLoading && (
@@ -125,11 +208,18 @@ export function UserTagsSection({
       <div className="space-y-8">
         {displayedGroups.map((group) => (
           <div key={group.tag} className="space-y-4">
-            <div className="flex items-center gap-2">
-              <TagBadge tag={group.tag} />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                からの作品
-              </span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <TagBadge tag={group.tag} />
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  からの作品
+                </span>
+              </div>
+              <SortSelect
+                options={sortOptions}
+                value={tagSortSettings[group.tag] || sortBy}
+                onChange={(newSort) => handleTagSortChange(group.tag, newSort)}
+              />
             </div>
             
             <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
@@ -147,6 +237,17 @@ export function UserTagsSection({
                   />
                 )
               })}
+            </div>
+            
+            {/* 各タグごとの「もっと表示する」ボタン */}
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => loadMoreForTag(group.tag)}
+                disabled={tagLoadingStates[group.tag]}
+                className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {tagLoadingStates[group.tag] ? '読み込み中...' : 'もっと表示する'}
+              </button>
             </div>
           </div>
         ))}
