@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { 
-    href: '/', 
+    href: '/app', 
     label: 'ホーム',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -63,7 +63,7 @@ export function Sidebar() {
         'px-4 lg:px-6 py-4 lg:py-6',
         'border-b border-gray-200 dark:border-gray-700'
       )}>
-        <Link href="/" className="flex items-center gap-2 lg:gap-3 group">
+        <Link href="/app" className="flex items-center gap-2 lg:gap-3 group">
           <Image
             src="/images/logo/Bunshare_logo.png"
             alt="Bunshare"

@@ -34,8 +34,8 @@ export function LoginFormSection() {
         throw new Error('ログインに失敗しました')
       }
       
-      // 成功時はホームにリダイレクト
-      window.location.href = '/'
+      // 成功時はアプリホームにリダイレクト
+      window.location.href = '/app'
     } catch (error) {
       console.error('ログインエラー:', error)
       setErrors({ email: 'メールアドレスまたはパスワードが正しくありません' })

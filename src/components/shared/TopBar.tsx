@@ -49,7 +49,7 @@ export function TopBar({
       )}>
         {/* モバイル・タブレット用ロゴ */}
         <div className="flex items-center gap-2 md:hidden">
-          <Link href="/" className="flex items-center gap-2 group active:scale-95 transition-transform">
+          <Link href="/app" className="flex items-center gap-2 group active:scale-95 transition-transform">
             <Image
               src="/images/logo/Bunshare_logo.png"
               alt="Bunshare"

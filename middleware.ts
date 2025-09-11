@@ -1,16 +1,41 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
-  // Temporarily disable auth middleware to fix refresh token issue
-  // TODO: Re-enable auth middleware after fixing token problem
-  
-  const supabaseResponse = NextResponse.next({
+  let supabaseResponse = NextResponse.next({
     request,
   })
 
-  // Basic redirect protection for profile pages (without auth)
-  if (request.nextUrl.pathname.startsWith('/profile')) {
-    // Allow access for now - TODO: Re-enable auth check later
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // ルートパス "/" へのアクセス時、ログイン済みなら /app へリダイレクト
+  if (request.nextUrl.pathname === '/') {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/app'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
