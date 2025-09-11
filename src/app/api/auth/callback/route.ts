@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
             console.error('Exception updating users table email:', updateError)
           }
           
-          return NextResponse.redirect(`${origin}/profile?success=email_changed`)
+          return NextResponse.redirect(`${origin}/app/profile?success=email_changed`)
         }
         
         if (type === 'recovery') {
@@ -63,14 +63,14 @@ export async function GET(request: NextRequest) {
           return NextResponse.redirect(`${origin}/auth/reset-password`)
         }
         
-        return NextResponse.redirect(`${origin}/profile?success=confirmed`)
+        return NextResponse.redirect(`${origin}/app/profile?success=confirmed`)
       } else {
         console.error('Token confirmation error:', error)
-        return NextResponse.redirect(`${origin}/profile?error=confirmation_failed`)
+        return NextResponse.redirect(`${origin}/app/profile?error=confirmation_failed`)
       }
     } catch (error) {
       console.error('Token confirmation exception:', error)
-      return NextResponse.redirect(`${origin}/profile?error=confirmation_exception`)
+      return NextResponse.redirect(`${origin}/app/profile?error=confirmation_exception`)
     }
   }
 

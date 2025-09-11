@@ -193,7 +193,7 @@ export function WorkCreatePreviewSection() {
       if (result.success && result.workId) {
         if (type === 'publish') {
           // 公開後、作品詳細ページへ遷移
-          router.push(`/works/${result.workId}`)
+          router.push(`/app/works/${result.workId}`)
         } else {
           // 下書き保存後、成功メッセージ表示
           alert('下書きを保存しました')

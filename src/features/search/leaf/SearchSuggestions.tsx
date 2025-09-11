@@ -149,7 +149,7 @@ export function SearchSuggestions({
       {!query && (
         <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-2">
           <button
-            onClick={() => router.push('/search/advanced')}
+            onClick={() => router.push('/app/search')}
             className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
           >
             詳細検索 →

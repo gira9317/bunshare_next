@@ -68,7 +68,7 @@ export function CommentCard({
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <a 
-            href={`/profile/${comment.user_id}`}
+            href={`/app/profile/${comment.user_id}`}
             className="flex-shrink-0"
           >
             {comment.user?.avatar_url ? (
@@ -87,7 +87,7 @@ export function CommentCard({
           </a>
           <div>
             <a 
-              href={`/profile/${comment.user_id}`}
+              href={`/app/profile/${comment.user_id}`}
               className="font-semibold text-gray-900 dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
             >
               {comment.user?.username || 'Unknown User'}

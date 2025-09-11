@@ -219,7 +219,7 @@ export default async function LandingPage() {
           
           <div className="text-center mt-12">
             <Link
-              href="/works"
+              href="/app/works"
               className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold"
             >
               すべての作品を見る

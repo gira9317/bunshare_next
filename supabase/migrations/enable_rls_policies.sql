@@ -325,26 +325,39 @@ CREATE POLICY "user_preferences_update_own" ON public.user_preferences
 -- 14. bookmark_foldersテーブルのポリシー
 -- ===================================================================
 
--- 自分のフォルダのみ閲覧可能
-CREATE POLICY "bookmark_folders_select_own" ON public.bookmark_folders
+-- システムフォルダは全員閲覧可能、ユーザーフォルダは本人のみ、または公開ブックマークがある場合
+CREATE POLICY "bookmark_folders_select_system_or_own_or_public" ON public.bookmark_folders
     FOR SELECT
-    USING (user_id = auth.uid());
+    USING (
+        is_system = true  -- システムフォルダ
+        OR user_id = auth.uid()  -- 自分のフォルダ
+        OR (
+            -- 公開ブックマークが含まれるフォルダ（他ユーザーも閲覧可能）
+            is_private = false
+            AND EXISTS (
+                SELECT 1 FROM public.bookmarks b
+                WHERE b.folder = bookmark_folders.folder_key
+                AND b.user_id = bookmark_folders.user_id
+                AND b.is_private = false
+            )
+        )
+    );
 
--- 自分のフォルダのみ作成可能
+-- 自分のフォルダのみ作成可能（システムフォルダはservice_roleで作成）
 CREATE POLICY "bookmark_folders_insert_own" ON public.bookmark_folders
     FOR INSERT
     WITH CHECK (user_id = auth.uid());
 
--- 自分のフォルダのみ更新可能
+-- 自分のフォルダのみ更新可能（システムフォルダは更新不可）
 CREATE POLICY "bookmark_folders_update_own" ON public.bookmark_folders
     FOR UPDATE
-    USING (user_id = auth.uid())
-    WITH CHECK (user_id = auth.uid());
+    USING (user_id = auth.uid() AND is_system = false)
+    WITH CHECK (user_id = auth.uid() AND is_system = false);
 
--- 自分のフォルダのみ削除可能
+-- 自分のフォルダのみ削除可能（システムフォルダは削除不可）
 CREATE POLICY "bookmark_folders_delete_own" ON public.bookmark_folders
     FOR DELETE
-    USING (user_id = auth.uid());
+    USING (user_id = auth.uid() AND is_system = false);
 
 -- ===================================================================
 -- 15. reading_bookmarksテーブルのポリシー

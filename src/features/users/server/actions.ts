@@ -72,7 +72,7 @@ export async function followUser(targetUserId: string) {
 
   revalidateTag(`user-${targetUserId}`)
   revalidateTag(`user-${user.id}`)
-  revalidatePath(`/profile/${targetUserId}`)
+  revalidatePath(`/app/profile/${targetUserId}`)
   
   return { success: true, status }
 }
@@ -97,7 +97,7 @@ export async function unfollowUser(targetUserId: string) {
 
   revalidateTag(`user-${targetUserId}`)
   revalidateTag(`user-${user.id}`)
-  revalidatePath(`/profile/${targetUserId}`)
+  revalidatePath(`/app/profile/${targetUserId}`)
   
   return { success: true }
 }

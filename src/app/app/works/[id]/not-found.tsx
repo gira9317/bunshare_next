@@ -28,7 +28,7 @@ export default function WorkNotFound() {
           </Link>
           
           <Link
-            href="/explore"
+            href="/app/search"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
           >
             作品を探す

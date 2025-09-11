@@ -144,15 +144,15 @@ export function WorkCard({
     setShowContinueDialog(false)
     if (savedReadingProgress) {
       // 読書位置パラメータ付きで遷移
-      router.push(`/works/${work.work_id}?continue=true&position=${savedReadingProgress.position}`)
+      router.push(`/app/works/${work.work_id}?continue=true&position=${savedReadingProgress.position}`)
     } else {
-      router.push(`/works/${work.work_id}`)
+      router.push(`/app/works/${work.work_id}`)
     }
   }
 
   const handleRestartReading = () => {
     setShowContinueDialog(false)
-    router.push(`/works/${work.work_id}?restart=true`)
+    router.push(`/app/works/${work.work_id}?restart=true`)
   }
 
   const handleCloseContinueDialog = () => {
@@ -264,18 +264,18 @@ export function WorkCard({
                     setShowContinueDialog(true)
                   } else {
                     // 進捗がない、または5%未満、100%の場合は直接遷移
-                    router.push(`/works/${work.work_id}`)
+                    router.push(`/app/works/${work.work_id}`)
                   }
                 }
               } else {
                 // ダイアログ無効の場合は直接遷移
-                router.push(`/works/${work.work_id}`)
+                router.push(`/app/works/${work.work_id}`)
               }
             } catch (error) {
               setCurrentViews(prev => prev - 1)
               console.error('処理例外:', error)
               // エラー時も遷移
-              router.push(`/works/${work.work_id}`)
+              router.push(`/app/works/${work.work_id}`)
             }
           })
         }

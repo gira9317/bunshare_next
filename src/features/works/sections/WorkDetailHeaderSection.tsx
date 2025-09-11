@@ -92,7 +92,7 @@ export function WorkDetailHeaderSection({
         {/* 作者と投稿日 */}
         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
           <a 
-            href={`/profile/${work.user_id}`}
+            href={`/app/profile/${work.user_id}`}
             className="flex items-center gap-1 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
           >
             <User className="w-4 h-4" />

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ChevronLeft, Mail, Send, Loader2, CheckCircle, AlertCircle, MessageCircle, HelpCircle, Bug, Lightbulb, Shield, User, Search } from 'lucide-react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { submitContactAction, type ContactFormData } from '@/features/contact/server/actions'
 
 const categoryOptions = [
   { value: 'bug', label: '不具合・エラー報告', icon: Bug },
@@ -176,20 +177,48 @@ export default function ContactPage() {
     setSubmitStatus('idle')
 
     try {
-      // TODO: Supabaseへの送信処理を実装
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // ブラウザ情報を収集
+      const browserInfo = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        cookieEnabled: navigator.cookieEnabled,
+        onLine: navigator.onLine,
+        timestamp: new Date().toISOString()
+      }
+
+      // フォームデータを準備
+      const contactData: ContactFormData = {
+        name: formData.name,
+        email: formData.email || undefined,
+        device: formData.device || undefined,
+        category: formData.category || undefined,
+        message: formData.message
+      }
+
+      // Server Actionを呼び出し
+      const result = await submitContactAction(contactData)
       
-      setSubmitStatus('success')
-      setFormData({
-        name: '',
-        email: '',
-        device: '',
-        category: '',
-        message: ''
-      })
+      if (result.success) {
+        setSubmitStatus('success')
+        // フォームをリセット（デバイス情報は保持）
+        setFormData(prev => ({
+          name: '',
+          email: '',
+          device: prev.device, // デバイス情報は保持
+          category: '',
+          message: ''
+        }))
+      } else {
+        console.error('送信エラー:', result.error)
+        setSubmitStatus('error')
+        // エラーメッセージを表示するため、状態を更新
+        setErrors({ submit: result.error || '送信に失敗しました' })
+      }
     } catch (error) {
-      console.error('送信エラー:', error)
+      console.error('送信例外:', error)
       setSubmitStatus('error')
+      setErrors({ submit: 'システムエラーが発生しました。時間をおいて再度お試しください。' })
     } finally {
       setIsSubmitting(false)
     }
@@ -199,8 +228,19 @@ export default function ContactPage() {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     
+    // エラーメッセージをクリア
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }))
+    }
+    
+    // 送信エラーもクリア
+    if (errors.submit) {
+      setErrors(prev => ({ ...prev, submit: '' }))
+    }
+    
+    // エラー状態をリセット
+    if (submitStatus === 'error') {
+      setSubmitStatus('idle')
     }
   }
 
@@ -259,7 +299,9 @@ export default function ContactPage() {
               <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
               <div>
                 <h3 className="font-semibold text-red-800 dark:text-red-200">送信エラー</h3>
-                <p className="text-red-700 dark:text-red-300">送信に失敗しました。時間をおいて再度お試しください。</p>
+                <p className="text-red-700 dark:text-red-300">
+                  {errors.submit || '送信に失敗しました。時間をおいて再度お試しください。'}
+                </p>
               </div>
             </div>
           </div>

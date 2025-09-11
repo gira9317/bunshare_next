@@ -16,7 +16,7 @@ const navItems = [
     )
   },
   { 
-    href: '/trends', 
+    href: '/app/trends', 
     label: 'トレンド',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -26,7 +26,7 @@ const navItems = [
     )
   },
   { 
-    href: '/works/create', 
+    href: '/app/works/create', 
     label: '投稿',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -35,7 +35,7 @@ const navItems = [
     )
   },
   { 
-    href: '/profile', 
+    href: '/app/profile', 
     label: 'プロフィール',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
