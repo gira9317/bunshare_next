@@ -2,176 +2,163 @@
 
 import { LandingWork } from '@/lib/landing-works'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 
 interface FloatingWorkCardsProps {
   works: LandingWork[]
 }
 
 export function FloatingWorkCards({ works }: FloatingWorkCardsProps) {
-  // モバイル: 3行, タブレット: 4行, デスクトップ: 5行
-  const mobileRowSize = Math.ceil(works.length / 3)
-  const tabletRowSize = Math.ceil(works.length / 4)
-  const desktopRowSize = Math.ceil(works.length / 5)
-  
-  const mobileRows = {
-    row1: works.slice(0, mobileRowSize),
-    row2: works.slice(mobileRowSize, mobileRowSize * 2),
-    row3: works.slice(mobileRowSize * 2)
+  const [screenSize, setScreenSize] = useState<'mobile' | 'tablet' | 'desktop'>('mobile')
+  const [rowPositions, setRowPositions] = useState<number[]>([])
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      
+      if (width < 768) {
+        setScreenSize('mobile')
+        // モバイル: 画面を敷き詰める
+        const cardHeight = 112 * (9/16) // w-28のアスペクト比
+        const minGap = 4 // 最小間隔
+        const maxRows = Math.floor(height / (cardHeight + minGap))
+        const actualGap = (height - (cardHeight * maxRows)) / (maxRows + 1)
+        const positions = Array.from({ length: maxRows }, (_, i) => 
+          actualGap + i * (cardHeight + actualGap)
+        )
+        setRowPositions(positions)
+      } else if (width < 1024) {
+        setScreenSize('tablet')
+        // タブレット: 画面を敷き詰める
+        const cardHeight = 160 * (9/16)
+        const minGap = 8
+        const maxRows = Math.floor(height / (cardHeight + minGap))
+        const actualGap = (height - (cardHeight * maxRows)) / (maxRows + 1)
+        const positions = Array.from({ length: maxRows }, (_, i) => 
+          actualGap + i * (cardHeight + actualGap)
+        )
+        setRowPositions(positions)
+      } else {
+        setScreenSize('desktop')
+        // デスクトップ: 画面を敷き詰める
+        const cardHeight = 256 * (9/16)
+        const minGap = 12
+        const maxRows = Math.floor(height / (cardHeight + minGap))
+        const actualGap = (height - (cardHeight * maxRows)) / (maxRows + 1)
+        const positions = Array.from({ length: maxRows }, (_, i) => 
+          actualGap + i * (cardHeight + actualGap)
+        )
+        setRowPositions(positions)
+      }
+    }
+
+    updateScreenSize()
+    window.addEventListener('resize', updateScreenSize)
+    return () => window.removeEventListener('resize', updateScreenSize)
+  }, [])
+
+  const createRows = (totalWorks: LandingWork[], rowCount: number) => {
+    const baseSize = Math.floor(totalWorks.length / rowCount)
+    const rows: LandingWork[][] = []
+    
+    for (let i = 0; i < rowCount; i++) {
+      const startIndex = i * baseSize
+      const endIndex = startIndex + baseSize
+      rows.push(totalWorks.slice(startIndex, endIndex))
+    }
+    
+    return rows
   }
+
+  const maxRows = rowPositions.length
+  const rowsArray = createRows(works, maxRows)
   
-  const tabletRows = {
-    row1: works.slice(0, tabletRowSize),
-    row2: works.slice(tabletRowSize, tabletRowSize * 2),
-    row3: works.slice(tabletRowSize * 2, tabletRowSize * 3),
-    row4: works.slice(tabletRowSize * 3)
+  // レスポンシブアニメーション設定
+  const getAnimationConfig = (direction: 'left' | 'right') => {
+    const duration = screenSize === 'mobile' ? 15 : screenSize === 'tablet' ? 18 : 20
+    
+    return {
+      x: direction === 'right' ? ['-33.333%', '0%'] : ['0%', '-33.333%'],
+      transition: {
+        duration,
+        repeat: Infinity,
+        ease: 'linear',
+        repeatType: 'loop' as const
+      }
+    }
   }
-  
-  const desktopRows = {
-    row1: works.slice(0, desktopRowSize),
-    row2: works.slice(desktopRowSize, desktopRowSize * 2),
-    row3: works.slice(desktopRowSize * 2, desktopRowSize * 3),
-    row4: works.slice(desktopRowSize * 3, desktopRowSize * 4),
-    row5: works.slice(desktopRowSize * 4)
+
+  const getCardClasses = () => {
+    switch (screenSize) {
+      case 'mobile':
+        return 'flex-shrink-0 w-28 aspect-video relative rounded-md overflow-hidden shadow-md bg-white dark:bg-gray-800'
+      case 'tablet':
+        return 'flex-shrink-0 w-40 aspect-video relative rounded-lg overflow-hidden shadow-md bg-white dark:bg-gray-800'
+      case 'desktop':
+        return 'flex-shrink-0 w-64 aspect-video relative rounded-lg overflow-hidden shadow-lg bg-white dark:bg-gray-800'
+      default:
+        return 'flex-shrink-0 w-28 aspect-video relative rounded-md overflow-hidden shadow-md bg-white dark:bg-gray-800'
+    }
+  }
+
+  const getGapClass = () => {
+    switch (screenSize) {
+      case 'mobile': return 'gap-1'
+      case 'tablet': return 'gap-2'
+      case 'desktop': return 'gap-3'
+      default: return 'gap-1'
+    }
+  }
+
+  const getSizes = () => {
+    switch (screenSize) {
+      case 'mobile': return '112px'
+      case 'tablet': return '160px'
+      case 'desktop': return '256px'
+      default: return '112px'
+    }
+  }
+
+  if (rowPositions.length === 0) {
+    return null // 初期計算中は何も表示しない
   }
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-10">
-      {/* モバイル: 3行 */}
-      <div className="block md:hidden">
-        {/* モバイル 1行目 */}
-        <div className="absolute top-4 left-0 w-full">
-          <div className="flex gap-3 animate-scroll-right">
-            {[...mobileRows.row1, ...mobileRows.row1, ...mobileRows.row1].map((work, index) => (
-              <WorkCardMini key={`mobile-row1-${work.id}-${index}`} work={work} size="mobile" />
-            ))}
+      {rowsArray.map((rowData, rowIndex) => {
+        if (!rowData || rowData.length === 0) return null
+        
+        const isEvenRow = rowIndex % 2 === 0
+        const animation = getAnimationConfig(isEvenRow ? 'right' : 'left')
+        
+        return (
+          <div 
+            key={`row-${rowIndex}`}
+            className="absolute left-0 w-full"
+            style={{ top: `${rowPositions[rowIndex]}px` }}
+          >
+            <motion.div 
+              className={`flex ${getGapClass()} w-full whitespace-nowrap`}
+              animate={animation}
+              style={{ willChange: 'transform' }}
+            >
+              {[...rowData, ...rowData, ...rowData].map((work, index) => (
+                <div key={`row${rowIndex}-${work.id}-${index}`} className={getCardClasses()}>
+                  <Image
+                    src={work.header_image_url}
+                    alt="作品画像"
+                    fill
+                    className="object-cover"
+                    sizes={getSizes()}
+                  />
+                </div>
+              ))}
+            </motion.div>
           </div>
-        </div>
-        {/* モバイル 2行目 */}
-        <div className="absolute top-1/2 transform -translate-y-1/2 left-0 w-full">
-          <div className="flex gap-3 animate-scroll-left">
-            {[...mobileRows.row2, ...mobileRows.row2, ...mobileRows.row2].map((work, index) => (
-              <WorkCardMini key={`mobile-row2-${work.id}-${index}`} work={work} size="mobile" />
-            ))}
-          </div>
-        </div>
-        {/* モバイル 3行目 */}
-        <div className="absolute bottom-4 left-0 w-full">
-          <div className="flex gap-3 animate-scroll-right">
-            {[...mobileRows.row3, ...mobileRows.row3, ...mobileRows.row3].map((work, index) => (
-              <WorkCardMini key={`mobile-row3-${work.id}-${index}`} work={work} size="mobile" />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* タブレット: 4行 */}
-      <div className="hidden md:block lg:hidden">
-        {/* タブレット 1行目 */}
-        <div className="absolute top-6 left-0 w-full">
-          <div className="flex gap-4 animate-scroll-right">
-            {[...tabletRows.row1, ...tabletRows.row1, ...tabletRows.row1].map((work, index) => (
-              <WorkCardMini key={`tablet-row1-${work.id}-${index}`} work={work} size="tablet" />
-            ))}
-          </div>
-        </div>
-        {/* タブレット 2行目 */}
-        <div className="absolute top-1/3 left-0 w-full">
-          <div className="flex gap-4 animate-scroll-left">
-            {[...tabletRows.row2, ...tabletRows.row2, ...tabletRows.row2].map((work, index) => (
-              <WorkCardMini key={`tablet-row2-${work.id}-${index}`} work={work} size="tablet" />
-            ))}
-          </div>
-        </div>
-        {/* タブレット 3行目 */}
-        <div className="absolute bottom-1/3 left-0 w-full">
-          <div className="flex gap-4 animate-scroll-right-slow">
-            {[...tabletRows.row3, ...tabletRows.row3, ...tabletRows.row3].map((work, index) => (
-              <WorkCardMini key={`tablet-row3-${work.id}-${index}`} work={work} size="tablet" />
-            ))}
-          </div>
-        </div>
-        {/* タブレット 4行目 */}
-        <div className="absolute bottom-6 left-0 w-full">
-          <div className="flex gap-4 animate-scroll-left">
-            {[...tabletRows.row4, ...tabletRows.row4, ...tabletRows.row4].map((work, index) => (
-              <WorkCardMini key={`tablet-row4-${work.id}-${index}`} work={work} size="tablet" />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* デスクトップ: 5行 */}
-      <div className="hidden lg:block">
-        {/* デスクトップ 1行目 */}
-        <div className="absolute top-8 left-0 w-full">
-          <div className="flex gap-8 animate-scroll-right">
-            {[...desktopRows.row1, ...desktopRows.row1, ...desktopRows.row1].map((work, index) => (
-              <WorkCardMini key={`desktop-row1-${work.id}-${index}`} work={work} size="desktop" />
-            ))}
-          </div>
-        </div>
-        {/* デスクトップ 2行目 */}
-        <div className="absolute" style={{top: 'calc(32px + 216px + 32px)'}}>
-          <div className="flex gap-8 animate-scroll-left w-full">
-            {[...desktopRows.row2, ...desktopRows.row2, ...desktopRows.row2].map((work, index) => (
-              <WorkCardMini key={`desktop-row2-${work.id}-${index}`} work={work} size="desktop" />
-            ))}
-          </div>
-        </div>
-        {/* デスクトップ 3行目 */}
-        <div className="absolute" style={{top: 'calc(32px + 216px + 32px + 216px + 32px)'}}>
-          <div className="flex gap-8 animate-scroll-right-slow w-full">
-            {[...desktopRows.row3, ...desktopRows.row3, ...desktopRows.row3].map((work, index) => (
-              <WorkCardMini key={`desktop-row3-${work.id}-${index}`} work={work} size="desktop" />
-            ))}
-          </div>
-        </div>
-        {/* デスクトップ 4行目 */}
-        <div className="absolute" style={{top: 'calc(32px + 216px + 32px + 216px + 32px + 216px + 32px)'}}>
-          <div className="flex gap-8 animate-scroll-left w-full">
-            {[...desktopRows.row4, ...desktopRows.row4, ...desktopRows.row4].map((work, index) => (
-              <WorkCardMini key={`desktop-row4-${work.id}-${index}`} work={work} size="desktop" />
-            ))}
-          </div>
-        </div>
-        {/* デスクトップ 5行目 */}
-        <div className="absolute" style={{top: 'calc(32px + 216px + 32px + 216px + 32px + 216px + 32px + 216px + 32px)'}}>
-          <div className="flex gap-8 animate-scroll-right w-full">
-            {[...desktopRows.row5, ...desktopRows.row5, ...desktopRows.row5].map((work, index) => (
-              <WorkCardMini key={`desktop-row5-${work.id}-${index}`} work={work} size="desktop" />
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function WorkCardMini({ work, size = 'desktop' }: { work: LandingWork; size?: 'mobile' | 'tablet' | 'desktop' }) {
-  const sizeClasses = {
-    mobile: 'w-48',    // 192px
-    tablet: 'w-64',    // 256px  
-    desktop: 'w-96'    // 384px
-  }
-  
-  const imageSizes = {
-    mobile: '192px',
-    tablet: '256px',
-    desktop: '384px'
-  }
-  
-  return (
-    <div className={`flex-shrink-0 ${sizeClasses[size]} relative rounded-lg overflow-hidden shadow-lg bg-white dark:bg-gray-800`}>
-      {/* 16:9のアスペクト比コンテナ */}
-      <div className="aspect-video relative">
-        <Image
-          src={work.header_image_url}
-          alt="作品画像"
-          fill
-          className="object-cover"
-          sizes={imageSizes[size]}
-        />
-      </div>
+        )
+      })}
     </div>
   )
 }

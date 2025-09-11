@@ -27,7 +27,7 @@ export default async function LandingPage() {
               </Link>
             </div>
             
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="md:flex items-center space-x-8">
               <Link href="#features" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                 機能
               </Link>
@@ -58,7 +58,7 @@ export default async function LandingPage() {
       </header>
 
       {/* ヒーローセクション */}
-      <section className="pt-40 pb-32 px-4 relative overflow-hidden flex items-center h-screen md:h-[900px] lg:h-[1300px]">
+      <section className="pt-20 md:pt-32 lg:pt-40 pb-16 md:pb-24 lg:pb-32 px-4 relative overflow-hidden flex items-center h-screen md:h-[900px] lg:h-[1040px]">
         {/* 背景の流れる作品カード */}
         <FloatingWorkCards works={landingWorks} />
         
@@ -70,25 +70,25 @@ export default async function LandingPage() {
         </div>
         
         <div className="max-w-6xl mx-auto text-center relative">
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-8">
+          <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-8">
             <span className="block">もっと多くの人に。</span>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               あなたの物語。
             </span>
           </h1>
-          <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-10 max-w-4xl mx-auto">
+          <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-10 max-w-4xl mx-auto">
             Bunshareは、創作者と読者をつなぐ新しいプラットフォーム。<br />
             あなたの想像力を、世界中の読者と共有しましょう。
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-xl"
+              className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-full hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-xl"
             >
               無料で始める
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
-            <button className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+            <button className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
               <div className="w-5 h-5 mr-2 bg-blue-600 rounded-full flex items-center justify-center">
                 <div className="w-0 h-0 border-l-2 border-l-white border-t-transparent border-b-transparent border-t border-b ml-0.5"></div>
               </div>
@@ -104,7 +104,7 @@ export default async function LandingPage() {
           <p className="text-center text-gray-600 dark:text-gray-400 mb-12 text-lg">
             多くの創作者に選ばれています
           </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">10,000+</div>
               <div className="text-gray-600 dark:text-gray-400">アクティブな創作者</div>
@@ -132,15 +132,15 @@ export default async function LandingPage() {
             <div className="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium mb-4">
               機能
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               創作活動を支える充実の機能
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Bunshareは、物語を書く人と読む人、すべての人のために設計されています。
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               icon={<BookOpen className="h-8 w-8" />}
               title="シンプルな投稿フロー"
@@ -182,15 +182,15 @@ export default async function LandingPage() {
             <div className="inline-block px-4 py-2 bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full text-sm font-medium mb-4">
               ギャラリー
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               注目の作品
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300">
               今月最も読まれている作品をご紹介
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <WorkCard
               title="星の記憶"
               author="流星ライター"
@@ -236,15 +236,15 @@ export default async function LandingPage() {
             <div className="inline-block px-4 py-2 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full text-sm font-medium mb-4">
               レビュー
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               創作者からの声
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300">
               Bunshareを利用している創作者の方々からのメッセージ
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <TestimonialCard
               rating={5}
               text="シンプルな操作で、自分の作品を世界中の読者に届けられる。読者からのフィードバックもリアルタイムで得られて、次の創作のモチベーションになっています。"
@@ -277,15 +277,15 @@ export default async function LandingPage() {
             <div className="inline-block px-4 py-2 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 rounded-full text-sm font-medium mb-4">
               料金
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6">
               シンプルな料金プラン
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300">
               あなたの創作スタイルに合わせたプランを選べます
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <PricingCard
               name="フリー"
               price="0"
@@ -335,11 +335,11 @@ export default async function LandingPage() {
       {/* CTAセクション */}
       <section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-6">
             あなたの物語を、<br />
             世界中の読者に届けませんか？
           </h2>
-          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg lg:text-xl mb-8 opacity-90 max-w-2xl mx-auto">
             Bunshareは、創作者のための最高のプラットフォームです。<br />
             今すぐ無料で始めて、あなたの作品を世界に発信しましょう。
           </p>
@@ -362,7 +362,7 @@ export default async function LandingPage() {
       {/* フッター */}
       <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
         <div className="max-w-6xl mx-auto px-4 py-12">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
             <div className="col-span-2">
               <Link href="/" className="flex items-center space-x-2 mb-4">
                 <img 

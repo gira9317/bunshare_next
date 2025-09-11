@@ -13,7 +13,7 @@ export async function getLandingWorks(): Promise<LandingWork[]> {
     const { data: files, error } = await supabase.storage
       .from('work-assets')
       .list('headers', {
-        limit: 30,
+        limit: 100,
         sortBy: { column: 'created_at', order: 'desc' }
       })
 
