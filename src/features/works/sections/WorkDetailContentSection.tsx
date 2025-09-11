@@ -150,7 +150,7 @@ export function WorkDetailContentSection({
           <div className="flex items-center gap-2">
             {prevEpisode ? (
               <a
-                href={`/works/${prevEpisode.work_id}`}
+                href={`/app/works/${prevEpisode.work_id}`}
                 className="flex items-center gap-1 text-sm text-purple-600 dark:text-purple-400 hover:underline"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -168,7 +168,7 @@ export function WorkDetailContentSection({
           <div className="flex items-center gap-2">
             {nextEpisode ? (
               <a
-                href={`/works/${nextEpisode.work_id}`}
+                href={`/app/works/${nextEpisode.work_id}`}
                 className="flex items-center gap-1 text-sm text-purple-600 dark:text-purple-400 hover:underline"
               >
                 <span>次話: {nextEpisode.title}</span>
