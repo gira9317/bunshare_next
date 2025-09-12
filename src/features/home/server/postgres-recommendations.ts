@@ -122,25 +122,25 @@ export async function getPostgreSQLRecommendations(
 }
 
 /**
- * キャッシュ済み人気作品フォールバック
+ * キャッシュ済み人気作品フォールバック（_internalスキーマ対応）
  */
 const getPopularWorksFallback = unstable_cache(
   async (): Promise<RecommendationResult | { error: string }> => {
     try {
       const supabase = await createClient()
       
+      // _internalスキーマのマテリアライズドビューにアクセスするため、
+      // 専用のRPC関数を使用
       const { data: popularWorks, error } = await supabase
-        .from('popular_works_snapshot')
-        .select('*')
-        .limit(20)
-        .order('popularity_rank')
+        .rpc('get_popular_works_fallback', { p_limit: 20 })
       
       if (error || !popularWorks?.length) {
+        console.error('人気作品フォールバック取得エラー:', error)
         return { error: '人気作品の取得に失敗しました' }
       }
       
       return {
-        works: popularWorks.map(work => ({
+        works: popularWorks.map((work: any) => ({
           work_id: work.work_id,
           title: work.title,
           description: work.description,
@@ -154,11 +154,14 @@ const getPopularWorksFallback = unstable_cache(
           comments: work.comments,
           created_at: work.created_at,
           trend_score: work.trend_score,
-          user_id: work.user_id
+          recommendation_score: Math.round((work.trend_score || 0) / 10 * 100) / 100,
+          recommendation_reason: '人気作品',
+          user_id: null // プライバシー保護
         })),
         strategy: 'popular' as const,
         source: '人気作品',
         total: popularWorks.length,
+        queryTime: '0ms', // フォールバック用
         engine: 'PostgreSQL (Fallback)'
       }
     } catch (error) {

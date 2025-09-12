@@ -7,19 +7,21 @@ import { TrackedWorkCard } from '@/components/domain/TrackedWorkCard'
 import type { Work } from '@/features/works/types'
 import type { RecommendationResult } from '../types'
 
-interface RecommendationsSectionProps {
+interface PostgreSQLRecommendationsSectionProps {
   recommendations: RecommendationResult
   userLikes?: string[]
   userBookmarks?: string[]
   userReadingProgress?: Record<string, number>
+  title?: string
 }
 
-export function RecommendationsSection({ 
+export function PostgreSQLRecommendationsSection({ 
   recommendations,
   userLikes = [], 
   userBookmarks = [],
-  userReadingProgress = {}
-}: RecommendationsSectionProps) {
+  userReadingProgress = {},
+  title
+}: PostgreSQLRecommendationsSectionProps) {
   const { works: initialWorks, strategy, source } = recommendations
   const [allWorks, setAllWorks] = useState(initialWorks) // 全ての作品を管理
   const [displayCount, setDisplayCount] = useState(9) // 初期表示は9件
@@ -29,13 +31,13 @@ export function RecommendationsSection({
   const hasMore = allWorks.length > displayCount || hasMoreAvailable
   const displayedWorks = allWorks.slice(0, displayCount)
   
-  // 追加の推薦を取得する関数
+  // PostgreSQL推薦システム用の追加取得関数
   const loadMoreRecommendations = async () => {
     if (isLoading) return
     
     setIsLoading(true)
     try {
-      const response = await fetch('/api/recommendations/more', {
+      const response = await fetch('/api/recommendations/postgresql', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -48,16 +50,27 @@ export function RecommendationsSection({
         const data = await response.json()
         if (data.works && data.works.length > 0) {
           setAllWorks(prev => [...prev, ...data.works])
+        } else {
+          setHasMoreAvailable(false) // これ以上取得できない
         }
-        // APIから「もうデータがない」情報を受け取った場合
-        if (!data.hasMore || data.works.length === 0) {
-          setHasMoreAvailable(false)
-        }
+      } else {
+        console.error('PostgreSQL追加推薦取得失敗:', response.status)
+        setHasMoreAvailable(false)
       }
     } catch (error) {
-      console.error('追加推薦の取得に失敗:', error)
-    } finally {
-      setIsLoading(false)
+      console.error('PostgreSQL追加推薦取得エラー:', error)
+      setHasMoreAvailable(false)
+    }
+    setIsLoading(false)
+  }
+
+  const showMoreWorks = () => {
+    if (allWorks.length > displayCount) {
+      // 既存の作品から表示数を増加
+      setDisplayCount(prev => Math.min(prev + 9, allWorks.length))
+    } else if (hasMoreAvailable) {
+      // 新しい作品を取得
+      loadMoreRecommendations()
     }
   }
 
@@ -66,7 +79,7 @@ export function RecommendationsSection({
       <section className="py-8">
         <div className="flex items-center gap-3 mb-4">
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-            あなたへのおすすめ
+            {title || 'あなたへのおすすめ'}
           </h2>
           <RecommendationSourceBadge source={source} strategy={strategy} />
         </div>
@@ -82,27 +95,29 @@ export function RecommendationsSection({
     <section className="py-8">
       <div className="flex items-center gap-3 mb-4">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          あなたへのおすすめ
+          {title || 'あなたへのおすすめ'}
         </h2>
         <RecommendationSourceBadge source={source} strategy={strategy} />
       </div>
       
       <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         {displayedWorks.map((work, index) => {
-          const readingProgress = userReadingProgress[work.work_id]
+          const isLiked = userLikes.includes(work.work_id)
+          const isBookmarked = userBookmarks.includes(work.work_id)
+          const readingProgress = userReadingProgress[work.work_id] || 0
+          
           return (
             <TrackedWorkCard
-              key={work.work_id}
-              work={work}
-              isLiked={userLikes.includes(work.work_id)}
-              isBookmarked={userBookmarks.includes(work.work_id)}
-              hasReadingProgress={readingProgress > 0}
-              readingProgress={readingProgress || 0}
-              disableContinueDialog={true}
-              impressionContext={{
-                impressionType: 'recommendation',
-                pageContext: 'home',
-                position: index + 1
+              key={`${work.work_id}-${index}`}
+              work={work as Work}
+              isLiked={isLiked}
+              isBookmarked={isBookmarked}
+              readingProgress={readingProgress}
+              trackingContext={{
+                section: 'postgresql_recommendations',
+                position: index,
+                strategy,
+                source
               }}
             />
           )
@@ -110,29 +125,14 @@ export function RecommendationsSection({
       </div>
       
       {hasMore && (
-        <div className="mt-6 text-center">
+        <div className="text-center mt-8">
           <button
-            onClick={async () => {
-              // 現在のデータ内で表示できる場合
-              if (displayCount + 9 <= allWorks.length) {
-                setDisplayCount(prev => prev + 9)
-              } else {
-                // 追加データが必要な場合
-                await loadMoreRecommendations()
-                setDisplayCount(prev => prev + 9)
-              }
-            }}
+            onClick={showMoreWorks}
             disabled={isLoading}
             className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? '読み込み中...' : 'もっと表示する'}
           </button>
-        </div>
-      )}
-      
-      {strategy === 'popular' && (
-        <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-          💡 作品にいいねやブックマークをすると、より個人的なおすすめを表示します
         </div>
       )}
     </section>

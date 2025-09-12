@@ -205,14 +205,36 @@ CREATE TABLE IF NOT EXISTS recommendation_cache (
 CREATE INDEX idx_recommendation_cache_user_id 
 ON recommendation_cache (user_id, expires_at DESC);
 
+-- 有効な推薦キャッシュ用インデックス（述語なしでシンプルに）
 CREATE INDEX idx_recommendation_cache_score 
-ON recommendation_cache (user_id, recommendation_score DESC) 
-WHERE expires_at > NOW();
+ON recommendation_cache (user_id, recommendation_score DESC, expires_at);
 
--- 期限切れレコード自動削除用インデックス
+-- 期限切れレコード自動削除用インデックス（述語なしでシンプルに）
 CREATE INDEX idx_recommendation_cache_expires 
-ON recommendation_cache (expires_at) 
-WHERE expires_at <= NOW();
+ON recommendation_cache (expires_at);
+
+-- 有効な推薦キャッシュを取得する関数
+CREATE OR REPLACE FUNCTION get_valid_recommendations(p_user_id UUID, p_limit INTEGER DEFAULT 20)
+RETURNS TABLE (
+  work_id UUID,
+  recommendation_score DECIMAL(5,2),
+  recommendation_reason TEXT,
+  strategy TEXT
+)
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT 
+    rc.work_id,
+    rc.recommendation_score,
+    rc.recommendation_reason,
+    rc.strategy
+  FROM recommendation_cache rc
+  WHERE rc.user_id = p_user_id 
+    AND rc.expires_at > NOW()
+  ORDER BY rc.recommendation_score DESC
+  LIMIT p_limit;
+$$;
 
 -- 統計情報更新関数
 CREATE OR REPLACE FUNCTION refresh_recommendation_cache()

@@ -1,6 +1,6 @@
 import { getAuthenticatedUser } from '@/lib/auth'
 import { ContinueReadingSuspense } from '@/features/home/components/ContinueReadingSuspense'
-import { RecommendationsSuspense } from '@/features/home/components/RecommendationsSuspense'
+import { PostgreSQLRecommendationsSuspense } from '@/features/home/components/PostgreSQLRecommendationsSuspense'
 import { NovelsSuspense } from '@/features/home/components/NovelsSuspense'
 import { EssaysSuspense } from '@/features/home/components/EssaysSuspense'
 import { UserTagsSuspense } from '@/features/home/components/UserTagsSuspense'
@@ -21,9 +21,9 @@ async function HomePage() {
         </Suspense>
       )}
       
-      {/* おすすめセクション - 全ユーザー対応 */}
+      {/* おすすめセクション - 全ユーザー対応（PostgreSQL推薦） */}
       <Suspense fallback={<RecommendationsSkeleton />}>
-        <RecommendationsSuspense userId={user?.id} />
+        <PostgreSQLRecommendationsSuspense userId={user?.id} />
       </Suspense>
       
       {/* 小説セクション */}

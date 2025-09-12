@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { getPostgreSQLRecommendations } from '../server/postgres-recommendations'
-import { RecommendationsSection } from '../sections/RecommendationsSection'
+import { PostgreSQLRecommendationsSection } from '../sections/PostgreSQLRecommendationsSection'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
 /**
@@ -66,43 +66,18 @@ async function PostgreSQLRecommendationsContent({ userId }: PostgreSQLRecommenda
     )
   }
 
-  // デバッグ情報を含むタイトル
-  const sectionTitle = process.env.NODE_ENV === 'development' 
-    ? `あなたへのおすすめ (${recommendationsResult.engine} - ${recommendationsResult.queryTime})`
-    : 'あなたへのおすすめ'
+  // タイトルを固定
+  const sectionTitle = 'あなたへのおすすめ'
 
   return (
     <div>
-      <RecommendationsSection
+      <PostgreSQLRecommendationsSection
         recommendations={recommendationsResult}
         userLikes={userData.userLikes}
         userBookmarks={userData.userBookmarks}
         userReadingProgress={userData.userReadingProgress}
         title={sectionTitle}
       />
-      
-      {/* デバッグ情報（開発環境のみ） */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-xs">
-          <details>
-            <summary className="cursor-pointer font-semibold">PostgreSQL推薦デバッグ情報</summary>
-            <pre className="mt-2 text-xs overflow-x-auto">
-              {JSON.stringify({
-                engine: recommendationsResult.engine,
-                strategy: recommendationsResult.strategy,
-                source: recommendationsResult.source,
-                total: recommendationsResult.total,
-                queryTime: recommendationsResult.queryTime,
-                firstThreeWorks: recommendationsResult.works.slice(0, 3).map(w => ({
-                  title: w.title,
-                  score: w.recommendation_score,
-                  reason: w.recommendation_reason
-                }))
-              }, null, 2)}
-            </pre>
-          </details>
-        </div>
-      )}
     </div>
   )
 }
