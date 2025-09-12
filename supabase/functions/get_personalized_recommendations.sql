@@ -110,7 +110,7 @@ BEGIN
         WHEN wcs.avg_display_duration >= 5000 THEN 0.5  -- 5秒以上表示で0.5点
         ELSE 0
       END as engagement_bonus
-    FROM work_ctr_stats wcs
+    FROM _internal.work_ctr_stats wcs
   ),
   
   -- ユーザーの嗜好分析（直近30日）
@@ -462,7 +462,7 @@ BEGIN
         WHEN wcs.avg_display_duration >= 5000 THEN 0.5
         ELSE 0
       END as engagement_bonus
-    FROM work_ctr_stats wcs
+    FROM _internal.work_ctr_stats wcs
   ),
   
   popular_works AS (

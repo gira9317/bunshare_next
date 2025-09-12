@@ -19,15 +19,20 @@ export interface PostgreSQLRecommendation {
   recommendation_score: number
   recommendation_reason: string
   created_at: string
+  // エンベディング関連フィールド
+  semantic_similarity?: number
+  embedding_match_type?: string
 }
 
 /**
- * PostgreSQL推薦システムから推薦を取得
+ * PostgreSQL推薦システムから推薦を取得（エンベディング版）
  */
 export async function getPostgreSQLRecommendations(
   userId?: string,
   limit = 20,
-  offset = 0
+  offset = 0,
+  useEmbeddings = false,  // エンベディング推薦を無効化
+  embeddingWeight = 0.0
 ): Promise<RecommendationResult | { error: string }> {
   try {
     const supabase = await createClient()
@@ -36,12 +41,24 @@ export async function getPostgreSQLRecommendations(
     const startTime = Date.now()
     
     // PostgreSQL推薦関数を呼び出し
+    // エンベディング使用可能チェックと関数選択
+    const functionName = useEmbeddings ? 'get_personalized_recommendations_with_embeddings' : 'get_personalized_recommendations'
+    
+    const rpcParams = useEmbeddings ? {
+      p_user_id: userId || null,
+      p_limit: limit,
+      p_offset: offset,
+      p_embedding_weight: embeddingWeight
+    } : {
+      p_user_id: userId || null,
+      p_limit: limit,
+      p_offset: offset
+    }
+    
+    console.log(`🔄 [DEBUG] ${functionName} 呼び出し - embedding_weight: ${useEmbeddings ? embeddingWeight : 'N/A'}`)
+    
     const { data: recommendations, error } = await supabase
-      .rpc('get_personalized_recommendations', {
-        p_user_id: userId || null,
-        p_limit: limit,
-        p_offset: offset
-      })
+      .rpc(functionName, rpcParams)
     
     const queryTime = Date.now() - startTime
     
@@ -56,12 +73,19 @@ export async function getPostgreSQLRecommendations(
     }
     
     
-    // 戦略を推測（最初の推薦理由から）
+    // 戦略を推測（エンベディング使用時は優先的にセマンティック戦略）
     const firstReason = recommendations[0]?.recommendation_reason || ''
+    const hasSemanticMatch = recommendations.some((rec: any) => rec.semantic_similarity > 0)
     let strategy: 'personalized' | 'adaptive' | 'popular'
     let source: string
     
-    if (firstReason.includes('フォロー') || firstReason.includes('類似') || firstReason.includes('好み')) {
+    if (useEmbeddings && hasSemanticMatch) {
+      strategy = 'personalized'
+      source = 'あなたの好みから (AI分析)'
+    } else if (firstReason.includes('セマンティック') || firstReason.includes('類似性')) {
+      strategy = 'personalized'
+      source = 'あなたの好みから (意味分析)'
+    } else if (firstReason.includes('フォロー') || firstReason.includes('類似') || firstReason.includes('好み')) {
       strategy = 'personalized'
       source = 'あなたの好みから'
     } else if (firstReason.includes('人気')) {
@@ -87,6 +111,9 @@ export async function getPostgreSQLRecommendations(
       comments: rec.comments,
       created_at: rec.created_at,
       recommendation_score: rec.recommendation_score,
+      // エンベディング関連データ
+      semantic_similarity: rec.semantic_similarity,
+      embedding_match_type: rec.embedding_match_type,
       recommendation_reason: rec.recommendation_reason,
       // フォールバック値
       trend_score: Math.round(rec.recommendation_score * 10),

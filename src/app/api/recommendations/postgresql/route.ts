@@ -8,10 +8,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = parseInt(searchParams.get('offset') || '0')
+    const useEmbeddings = searchParams.get('embeddings') === 'true' // デフォルトfalse
+    const embeddingWeight = parseFloat(searchParams.get('embedding_weight') || '0.0')
     
-    console.log(`🔄 [DEBUG] PostgreSQL推薦取得 - limit: ${limit}, offset: ${offset}`)
+    console.log(`🔄 [DEBUG] PostgreSQL推薦取得 - limit: ${limit}, offset: ${offset}, embeddings: ${useEmbeddings}, weight: ${embeddingWeight}`)
     
-    const result = await getPostgreSQLRecommendations(user?.id, limit, offset)
+    const result = await getPostgreSQLRecommendations(user?.id, limit, offset, useEmbeddings, embeddingWeight)
     
     if ('error' in result) {
       return NextResponse.json({ error: result.error }, { status: 500 })
@@ -33,12 +35,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser()
-    const { excludeWorkIds, offset = 0 } = await request.json()
+    const { excludeWorkIds, offset = 0, useEmbeddings = false, embeddingWeight = 0.0 } = await request.json()
     
-    console.log(`🔄 [DEBUG] PostgreSQL追加推薦取得 - offset: ${offset}, 除外: ${excludeWorkIds?.length || 0}件`)
+    console.log(`🔄 [DEBUG] PostgreSQL追加推薦取得 - offset: ${offset}, 除外: ${excludeWorkIds?.length || 0}件, embeddings: ${useEmbeddings}`)
     
     // 追加の推薦を取得（除外リストを考慮）
-    const result = await getPostgreSQLRecommendations(user?.id, 36, offset)
+    const result = await getPostgreSQLRecommendations(user?.id, 36, offset, useEmbeddings, embeddingWeight)
     
     if ('error' in result) {
       return NextResponse.json({ error: result.error }, { status: 500 })
