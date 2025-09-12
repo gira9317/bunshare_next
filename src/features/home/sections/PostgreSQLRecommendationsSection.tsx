@@ -100,7 +100,7 @@ export function PostgreSQLRecommendationsSection({
         <RecommendationSourceBadge source={source} strategy={strategy} />
       </div>
       
-      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
         {displayedWorks.map((work, index) => {
           const isLiked = userLikes.includes(work.work_id)
           const isBookmarked = userBookmarks.includes(work.work_id)

@@ -335,7 +335,7 @@ export function WorkCard({
             ) : null}
 
             <h3 className={cn(
-              'font-bold text-sm sm:text-base md:text-lg lg:text-base xl:text-sm leading-tight line-clamp-2',
+              'font-bold text-base sm:text-lg md:text-xl lg:text-lg xl:text-base leading-tight line-clamp-2',
               'transition-colors duration-300',
               displayImageUrl 
                 ? cn('text-white', !disableNavigation && 'group-hover:text-gray-100')
@@ -356,7 +356,7 @@ export function WorkCard({
 
           {/* Description */}
           <p className={cn(
-            'text-xs sm:text-sm leading-relaxed line-clamp-2 my-2',
+            'text-xs sm:text-sm leading-relaxed line-clamp-3 my-3',
             'transition-all duration-300',
             displayImageUrl 
               ? cn('text-gray-100', !disableNavigation && 'group-hover:text-white')
@@ -444,53 +444,6 @@ export function WorkCard({
               </div>
             </div>
             
-            {/* Debug Score Display */}
-            {(work.quality_score !== undefined || work.user_behavior_score !== undefined || work.recommendation_score !== undefined) && (
-              <div className="debug-scores mt-2 pt-2 border-t border-white/20 dark:border-gray-600/20 space-y-1">
-                <div className={cn(
-                  'text-[10px] font-mono space-y-0.5',
-                  displayImageUrl ? 'text-white/60' : 'text-gray-500 dark:text-gray-400'
-                )}>
-                  {/* メインスコア */}
-                  <div className="flex justify-between">
-                    <span>品質:</span>
-                    <span className="font-bold">{work.quality_score?.toFixed(1) || '?'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>行動:</span>
-                    <span className="font-bold">{work.user_behavior_score?.toFixed(1) || '?'}</span>
-                  </div>
-                  
-                  {/* ボーナス要素 */}
-                  <div className="flex gap-1 flex-wrap pt-0.5">
-                    {work.is_followed_author && <span className="px-1 bg-blue-500/20 rounded">フォロー+1</span>}
-                    {work.is_category_match && <span className="px-1 bg-green-500/20 rounded">カテゴリ+2</span>}
-                    {work.is_tag_match && <span className="px-1 bg-yellow-500/20 rounded">タグ+1.5</span>}
-                    {work.is_new_work && <span className="px-1 bg-purple-500/20 rounded">新作+1</span>}
-                  </div>
-                  
-                  {/* 統計情報 */}
-                  {(work.snapshot_views !== undefined || work.snapshot_likes !== undefined) && (
-                    <div className="text-[9px] opacity-70 pt-0.5">
-                      👁{work.snapshot_views || 0} ❤️{work.snapshot_likes || 0} 💬{work.snapshot_comments || 0}
-                    </div>
-                  )}
-                  
-                  {/* CTR情報 */}
-                  {work.ctr_stats && (
-                    <div className="text-[9px] opacity-70">
-                      CTR: {(work.ctr_stats.ctr_unique! * 100).toFixed(1)}% ({work.ctr_stats.impression_count}imp)
-                    </div>
-                  )}
-                  
-                  {/* 総合スコア */}
-                  <div className="flex justify-between border-t border-white/10 dark:border-gray-600/10 pt-0.5 mt-0.5">
-                    <span>総合:</span>
-                    <span className="font-bold text-purple-400 text-xs">{work.recommendation_score?.toFixed(2) || '?'}</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
         </div>
