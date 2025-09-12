@@ -9,14 +9,12 @@ interface CategorySelectProps {
 }
 
 const categories = [
-  { value: '小説', label: '小説', emoji: '📚' },
-  { value: '詩', label: '詩', emoji: '🎭' },
-  { value: 'エッセイ', label: 'エッセイ', emoji: '📝' },
-  { value: '評論', label: '評論', emoji: '💭' },
-  { value: '短歌', label: '短歌', emoji: '🌸' },
-  { value: '俳句', label: '俳句', emoji: '🍁' },
-  { value: '戯曲', label: '戯曲', emoji: '🎬' },
-  { value: 'その他', label: 'その他', emoji: '✨' },
+  { value: '小説', label: '小説' },
+  { value: '詩', label: '詩' },
+  { value: 'エッセイ', label: 'エッセイ' },
+  { value: '日記', label: '日記' },
+  { value: 'ラノベ', label: 'ラノベ' },
+  { value: 'ノンフィクション', label: 'ノンフィクション' },
 ]
 
 export function CategorySelect({ value, onChange, required = false }: CategorySelectProps) {
@@ -33,14 +31,13 @@ export function CategorySelect({ value, onChange, required = false }: CategorySe
             type="button"
             onClick={() => onChange(category.value)}
             className={cn(
-              "flex items-center justify-center gap-2 px-3 py-2 rounded-lg border transition-all",
+              "flex items-center justify-center px-4 py-2 rounded-lg border transition-all",
               "hover:scale-105 active:scale-95",
               value === category.value
                 ? "bg-purple-600 border-purple-600 text-white"
                 : "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400"
             )}
           >
-            <span className="text-lg">{category.emoji}</span>
             <span className="text-sm font-medium">{category.label}</span>
           </button>
         ))}

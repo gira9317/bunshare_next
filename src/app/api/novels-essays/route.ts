@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
     
     const works = await getWorksByCategoriesWithSort(
-      ['小説', 'エッセイ'], 
+      ['小説', '詩', 'エッセイ', '日記', 'ラノベ', 'ノンフィクション'], 
       sortBy as 'views' | 'likes' | 'comments' | 'created_at',
       limit,
       offset

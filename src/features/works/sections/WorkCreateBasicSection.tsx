@@ -53,8 +53,7 @@ export function WorkCreateBasicSection({ userSeries }: WorkCreateBasicSectionPro
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-        <span className="text-2xl">📝</span>
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
         基本情報
       </h2>
 

@@ -36,7 +36,10 @@ export function SearchFiltersSection({ filters }: SearchFiltersSectionProps) {
     { value: 'all', label: 'すべて' },
     { value: '小説', label: '小説' },
     { value: '詩', label: '詩' },
-    { value: 'エッセイ', label: 'エッセイ' }
+    { value: 'エッセイ', label: 'エッセイ' },
+    { value: '日記', label: '日記' },
+    { value: 'ラノベ', label: 'ラノベ' },
+    { value: 'ノンフィクション', label: 'ノンフィクション' }
   ];
 
   const sortOptions = [

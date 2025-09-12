@@ -9,15 +9,12 @@ interface CategoryChipsProps {
 
 const categories = [
   { id: 'all', label: 'すべて' },
-  { id: 'novel', label: '小説' },
-  { id: 'poem', label: '詩' },
-  { id: 'essay', label: 'エッセイ' },
-  { id: 'drama', label: 'ドラマ' },
-  { id: 'nonfiction', label: 'ノンフィクション' },
-  { id: 'fantasy', label: 'ファンタジー' },
-  { id: 'romance', label: 'ロマンス' },
-  { id: 'mystery', label: 'ミステリー' },
-  { id: 'sf', label: 'SF' },
+  { id: '小説', label: '小説' },
+  { id: '詩', label: '詩' },
+  { id: 'エッセイ', label: 'エッセイ' },
+  { id: '日記', label: '日記' },
+  { id: 'ラノベ', label: 'ラノベ' },
+  { id: 'ノンフィクション', label: 'ノンフィクション' },
 ]
 
 export function CategoryChips({ activeCategory, onCategoryChange }: CategoryChipsProps) {

@@ -16,16 +16,14 @@ export function WorkCreateSettingsSection() {
     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 space-y-6">
       {/* タグ */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-          <span className="text-2xl">🏷️</span>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           タグ
         </h2>
         <TagInput tags={tags} onChange={setTags} />
       </div>
 
       <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-          <span className="text-2xl">⚙️</span>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
           投稿設定
         </h2>
 

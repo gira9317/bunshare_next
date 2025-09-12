@@ -214,8 +214,7 @@ export function WorkCreatePreviewSection() {
       {/* プレビュー表示 */}
       {showPreview && (
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-4">
-            <span className="text-2xl">👀</span>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             プレビュー
           </h2>
           
