@@ -9,6 +9,45 @@ const userTagsSchema = z.object({
   offset: z.number().min(0).default(0)
 })
 
+// GETリクエスト対応（プリロード用）
+export async function GET(request: NextRequest) {
+  try {
+    const user = await getAuthenticatedUser()
+    const { searchParams } = new URL(request.url)
+    
+    const sortBy = searchParams.get('sortBy') || 'views_all'
+    const limit = parseInt(searchParams.get('limit') || '9')
+    const offset = parseInt(searchParams.get('offset') || '0')
+    
+    // バリデーション
+    const params = userTagsSchema.parse({ sortBy, limit, offset })
+    
+    // オフセットがある場合は追加データを取得
+    const actualLimit = offset > 0 ? limit + offset : limit
+    
+    const { isWarm, tagGroups } = await getCachedUserTagsRecommendations(
+      user?.id,
+      params.sortBy,
+      actualLimit
+    )
+    
+    // オフセット分をスキップ
+    const offsetTagGroups = offset > 0 ? tagGroups.slice(offset) : tagGroups
+    
+    return NextResponse.json({
+      tagGroups: offsetTagGroups,
+      isWarm,
+      hasMore: tagGroups.length >= actualLimit
+    })
+  } catch (error) {
+    console.error('ユーザータグAPI GET エラー:', error)
+    return NextResponse.json(
+      { error: 'タグデータの取得に失敗しました' },
+      { status: 500 }
+    )
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const user = await getAuthenticatedUser()

@@ -92,7 +92,7 @@ export async function SearchResultsSection({
                     }
                   }}
                   disableContinueDialog={true}
-                  impressionContext={{
+                  trackingContext={{
                     impressionType: 'search',
                     pageContext: 'search',
                     position: index + 1,

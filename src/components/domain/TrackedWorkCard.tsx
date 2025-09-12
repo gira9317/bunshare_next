@@ -11,7 +11,7 @@ interface TrackedWorkCardProps {
   hasReadingProgress?: boolean
   readingProgress?: number
   disableContinueDialog?: boolean
-  impressionContext: ImpressionContext
+  trackingContext: ImpressionContext
   impressionOptions?: {
     threshold?: number
     minDuration?: number
@@ -26,12 +26,12 @@ export function TrackedWorkCard({
   hasReadingProgress,
   readingProgress,
   disableContinueDialog,
-  impressionContext,
+  trackingContext,
   impressionOptions = {}
 }: TrackedWorkCardProps) {
   const { ref, isVisible } = useImpressionTracking(
     work.work_id,
-    impressionContext,
+    trackingContext,
     impressionOptions
   )
 

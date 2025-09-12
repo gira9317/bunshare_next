@@ -92,6 +92,17 @@ function recordImpression(
   intersectionRatio: number,
   displayDuration: number
 ) {
+  // context の存在チェック
+  if (!context || typeof context !== 'object') {
+    console.warn('Invalid impression context (not an object):', context)
+    return
+  }
+  
+  if (!context.impressionType || !context.pageContext) {
+    console.warn('Invalid impression context (missing properties):', context)
+    return
+  }
+
   const sessionId = getSessionId()
   const cacheKey = `${sessionId}_${workId}_${context.impressionType}_${context.pageContext}`
 
@@ -127,6 +138,7 @@ export function useImpressionTracking(
     enabled?: boolean // 追跡の有効/無効
   } = {}
 ) {
+
   const {
     threshold = 0.5, // 50%以上
     minDuration = 1000, // 1秒以上
@@ -140,7 +152,7 @@ export function useImpressionTracking(
 
   useEffect(() => {
     const element = elementRef.current
-    if (!element || !enabled) {
+    if (!element || !enabled || !context || typeof context !== 'object' || !context.impressionType || !context.pageContext) {
       return
     }
 

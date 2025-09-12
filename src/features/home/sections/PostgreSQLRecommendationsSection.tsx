@@ -114,10 +114,14 @@ export function PostgreSQLRecommendationsSection({
               isBookmarked={isBookmarked}
               readingProgress={readingProgress}
               trackingContext={{
-                section: 'postgresql_recommendations',
+                impressionType: 'recommendation',
+                pageContext: 'home',
                 position: index,
-                strategy,
-                source
+                additionalData: {
+                  strategy,
+                  source,
+                  section: 'postgresql_recommendations'
+                }
               }}
             />
           )
