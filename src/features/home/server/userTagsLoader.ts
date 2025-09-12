@@ -158,7 +158,6 @@ export const getUserTagsRecommendations = cache(async (
   sortBy: 'views_all' | 'views_month' | 'views_week' | 'views_day' | 'created_at' = 'views_all',
   limit = 9
 ): Promise<UserTagsResult> => {
-  console.log(`🏷️ [DEBUG] ユーザータグ推薦開始 - userId: ${userId}, sortBy: ${sortBy}`)
   
   if (!userId) {
     // 未認証ユーザー: 人気タグから作品を取得
@@ -183,7 +182,6 @@ export const getUserTagsRecommendations = cache(async (
   const totalActions = Object.values(behaviorData).reduce((sum, count) => sum + count, 0)
   const isWarm = totalActions >= 10
   
-  console.log(`📊 [DEBUG] ユーザー行動数: ${totalActions}, ウォームユーザー: ${isWarm}`)
   
   let targetTags: string[]
   
@@ -201,11 +199,9 @@ export const getUserTagsRecommendations = cache(async (
       } else if (data && data.preferred_tags && data.preferred_tags.length > 0) {
         // キャッシュから上位3つのタグを使用
         targetTags = data.preferred_tags.slice(0, 3)
-        console.log(`🎯 [DEBUG] キャッシュからユーザー好みタグ: ${targetTags.join(', ')}`)
       } else {
         // キャッシュにデータがない場合は人気タグを使用
         targetTags = await getPopularTags(3)
-        console.log(`🎯 [DEBUG] キャッシュデータなし、人気タグ使用: ${targetTags.join(', ')}`)
       }
     } catch (error) {
       console.error('ユーザー嗜好キャッシュ取得例外:', error)
@@ -214,7 +210,6 @@ export const getUserTagsRecommendations = cache(async (
   } else {
     // コールドユーザー: 人気タグを使用
     targetTags = await getPopularTags(3)
-    console.log(`🔥 [DEBUG] 人気タグ: ${targetTags.join(', ')}`)
   }
   
   // タグがない場合のフォールバック
@@ -245,7 +240,6 @@ export const getUserTagsRecommendations = cache(async (
     }
   }
   
-  console.log(`✅ [DEBUG] タググループ数: ${tagGroups.length}, 総作品数: ${Array.from(usedWorkIds).length}`)
   
   return {
     isWarm,

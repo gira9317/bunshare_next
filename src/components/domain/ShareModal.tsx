@@ -33,13 +33,11 @@ export function ShareModal({
   const shareText = `${title} by ${author}${description ? ` - ${description.slice(0, 100)}...` : ''}`
 
   useEffect(() => {
-    console.log('ShareModal マウント')
     setMounted(true)
     return () => setMounted(false)
   }, [])
 
   useEffect(() => {
-    console.log('ShareModal isOpen:', isOpen, 'mounted:', mounted)
   }, [isOpen, mounted])
 
   useEffect(() => {

@@ -8,8 +8,6 @@ interface ContinueReadingSuspenseProps {
 export async function ContinueReadingSuspense({ userId }: ContinueReadingSuspenseProps) {
   const continueReadingWorks = await getContinueReadingWorks(userId)
   
-  console.log('ContinueReadingSuspense - userId:', userId) // デバッグ用
-  console.log('ContinueReadingSuspense - continueReadingWorks:', continueReadingWorks) // デバッグ用
   
   if (continueReadingWorks.length === 0) {
     return null

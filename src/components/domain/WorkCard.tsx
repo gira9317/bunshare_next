@@ -22,7 +22,8 @@ export function WorkCard({
   onMove,
   availableFolders = [],
   disableNavigation = false,
-  disableContinueDialog = false
+  disableContinueDialog = false,
+  priority = false
 }: WorkCardProps) {
   
   const [liked, setLiked] = useState(isLiked)
@@ -299,6 +300,8 @@ export function WorkCard({
               src={displayImageUrl}
               alt={work.title}
               fill
+              priority={priority}
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 50vw, 33vw"
               className={cn(
                 "object-cover",
                 !disableNavigation && "transition-transform duration-700 group-hover:scale-110"

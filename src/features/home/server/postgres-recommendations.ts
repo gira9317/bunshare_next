@@ -32,7 +32,6 @@ export async function getPostgreSQLRecommendations(
   try {
     const supabase = await createClient()
     
-    console.log(`🐘 [PostgreSQL推薦] 開始 - userId: ${userId || 'ゲスト'}, limit: ${limit}`)
     
     const startTime = Date.now()
     
@@ -52,12 +51,10 @@ export async function getPostgreSQLRecommendations(
     }
     
     if (!recommendations || recommendations.length === 0) {
-      console.log('⚠️ PostgreSQL推薦結果なし')
       // フォールバック: 人気作品を取得
       return await getPopularWorksFallback()
     }
     
-    console.log(`✅ PostgreSQL推薦完了 - ${recommendations.length}件 (${queryTime}ms)`)
     
     // 戦略を推測（最初の推薦理由から）
     const firstReason = recommendations[0]?.recommendation_reason || ''

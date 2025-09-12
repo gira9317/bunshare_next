@@ -11,6 +11,7 @@ interface TrackedWorkCardProps {
   hasReadingProgress?: boolean
   readingProgress?: number
   disableContinueDialog?: boolean
+  priority?: boolean
   trackingContext: ImpressionContext
   impressionOptions?: {
     threshold?: number
@@ -26,6 +27,7 @@ export function TrackedWorkCard({
   hasReadingProgress,
   readingProgress,
   disableContinueDialog,
+  priority = false,
   trackingContext,
   impressionOptions = {}
 }: TrackedWorkCardProps) {
@@ -44,6 +46,7 @@ export function TrackedWorkCard({
         hasReadingProgress={hasReadingProgress}
         readingProgress={readingProgress}
         disableContinueDialog={disableContinueDialog}
+        priority={priority}
       />
     </div>
   )

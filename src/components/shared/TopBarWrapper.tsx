@@ -19,7 +19,6 @@ export function TopBarWrapper({ onMobileSearchOpen }: TopBarWrapperProps) {
     const loadUserData = async () => {
       try {
         setLoading(true)
-        console.log('TopBarWrapper: Loading user data...')
         
         // サーバーからユーザーデータをフェッチ
         const response = await fetch('/api/user/profile')

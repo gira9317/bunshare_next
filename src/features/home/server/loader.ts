@@ -17,7 +17,6 @@ const createPublicClient = () => {
  * ユーザーの行動データ統計を取得（cookiesエラー回避版）
  */
 export const getUserBehaviorData = cache(async (userId: string): Promise<UserBehaviorData> => {
-  console.log(`🔍 [DEBUG] ユーザー行動データ取得開始 - userId: ${userId}`)
   const supabase = await createClient()
   
   // 各行動の件数を並行取得
@@ -47,9 +46,7 @@ export const getUserBehaviorData = cache(async (userId: string): Promise<UserBeh
     follows_count: followsResult.count || 0
   }
 
-  console.log(`📊 [DEBUG] ユーザー行動統計:`, behaviorData)
   const totalActions = Object.values(behaviorData).reduce((sum, count) => sum + count, 0)
-  console.log(`📈 [DEBUG] 総行動数: ${totalActions}`)
 
   return behaviorData
 })
@@ -58,14 +55,12 @@ export const getUserBehaviorData = cache(async (userId: string): Promise<UserBeh
  * ユーザーがインタラクションした作品のカテゴリ・タグ分析（cookiesエラー回避版）
  */
 export const getUserPreferences = cache(async (userId: string) => {
-  console.log(`🎯 [DEBUG] ユーザー好み分析開始 - userId: ${userId}`)
   const supabase = await createClient()
   
   // 直近30日のユーザー行動から好みを分析
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  console.log(`📅 [DEBUG] 分析期間: ${thirtyDaysAgo.toISOString()} 〜 現在`)
 
   // 簡略化したクエリでユーザーが行動した作品を取得
   const [likesResult, bookmarksResult, commentsResult, viewsResult] = await Promise.all([
@@ -103,10 +98,8 @@ export const getUserPreferences = cache(async (userId: string) => {
 
   const workIds = new Set(Object.keys(workWeights))
 
-  console.log(`📚 [DEBUG] インタラクションした作品数: ${workIds.size}`)
 
   if (workIds.size === 0) {
-    console.log(`⚠️ [DEBUG] インタラクション作品なし`)
     return { categories: [], tags: [] }
   }
 
@@ -121,7 +114,6 @@ export const getUserPreferences = cache(async (userId: string) => {
     return { categories: [], tags: [] }
   }
 
-  console.log(`📊 [DEBUG] 作品詳細取得数: ${works?.length || 0}`)
 
   // カテゴリ・タグごとの重みを計算
   const categoryWeights: Record<string, number> = {}
@@ -152,8 +144,6 @@ export const getUserPreferences = cache(async (userId: string) => {
       .map(([tag, weight]) => ({ tag, weight }))
   }
 
-  console.log(`🏷️ [DEBUG] 好みカテゴリ:`, preferences.categories)
-  console.log(`🔖 [DEBUG] 好みタグ:`, preferences.tags)
 
   return preferences
 })
@@ -162,7 +152,6 @@ export const getUserPreferences = cache(async (userId: string) => {
  * フォロー中の作者の作品を取得
  */
 export const getFollowedAuthorsWorks = cache(async (userId: string, limit = 10) => {
-  console.log(`👥 [DEBUG] フォロー作者作品取得開始 - userId: ${userId}, limit: ${limit}`)
   const supabase = await createClient()
   
   // まずフォローしているユーザーIDを取得
@@ -177,15 +166,12 @@ export const getFollowedAuthorsWorks = cache(async (userId: string, limit = 10) 
     return []
   }
 
-  console.log(`👥 [DEBUG] フォロー中ユーザー数: ${followedUsers?.length || 0}`)
 
   if (!followedUsers?.length) {
-    console.log(`⚠️ [DEBUG] フォロー中のユーザーなし`)
     return []
   }
 
   const followedUserIds = followedUsers.map(f => f.followed_id)
-  console.log(`👥 [DEBUG] フォロー中ユーザーID:`, followedUserIds)
 
   // フォロー中の作者の作品を取得
   const { data: works, error } = await supabase
@@ -222,10 +208,8 @@ export const getFollowedAuthorsWorks = cache(async (userId: string, limit = 10) 
     return []
   }
 
-  console.log(`📚 [DEBUG] フォロー作者の作品数: ${works?.length || 0}`)
 
   if (!works?.length) {
-    console.log(`⚠️ [DEBUG] フォロー作者の作品なし`)
     return []
   }
 
@@ -239,7 +223,6 @@ export const getFollowedAuthorsWorks = cache(async (userId: string, limit = 10) 
     console.error('❌ ユーザー情報取得エラー:', userError)
   }
 
-  console.log(`👤 [DEBUG] 取得ユーザー情報数: ${users?.length || 0}`)
 
   const userMap = users?.reduce((acc, user) => {
     acc[user.id] = user
@@ -256,7 +239,6 @@ export const getFollowedAuthorsWorks = cache(async (userId: string, limit = 10) 
     comments: work.comments_count || 0
   }))
 
-  console.log(`✅ [DEBUG] フォロー作者作品 ${result.length} 件返却`)
   return result
 })
 
@@ -348,16 +330,6 @@ export const getPopularWorks = unstable_cache(
     return acc
   }, {} as { [key: string]: any }) || {}
 
-  console.log(`🔥 [DEBUG] 人気作品 ${works.length} 件取得`)
-  console.log(`🔥 [DEBUG] 人気作品サンプル:`, works.slice(0, 3).map(w => ({ 
-    id: w.work_id, 
-    title: w.title, 
-    views: w.views_count, 
-    likes: w.likes_count,
-    trend_score: w.trend_score,
-    is_published: w.is_published 
-  })))
-
   return works.map(work => ({
     ...work,
     author: userMap[work.user_id]?.username || '不明',
@@ -379,19 +351,8 @@ export const getPopularWorks = unstable_cache(
  * 新着優良作品を取得
  */
 export const getQualityNewWorks = async (limit = 10) => {
-  console.log(`🆕 [DEBUG] CTR統合新着作品取得開始 - limit: ${limit}`)
   const result = await getQualityNewWorksWithCTR(limit)
   
-  console.log(`🆕 [DEBUG] CTR統合新着作品 ${result.length} 件取得`)
-  console.log(`🆕 [DEBUG] 品質スコア統合サンプル:`, result.slice(0, 3).map(w => ({ 
-    id: w.work_id, 
-    title: w.title, 
-    views: w.views_count || w.views, 
-    likes: w.likes_count || w.likes,
-    quality_score: w.quality_score,
-    has_ctr: !!w.ctr_stats
-  })))
-
   return result
 }
 
@@ -399,7 +360,6 @@ export const getQualityNewWorks = async (limit = 10) => {
  * チャレンジ推薦用作品を取得（ユーザーの嗜好から離れた作品）
  */
 export const getChallengeWorks = cache(async (userId: string, userCategories: string[], userTags: string[], limit = 10) => {
-  console.log(`🎲 [DEBUG] チャレンジ作品取得開始 - userId: ${userId}`)
   const supabase = await createClient()
   
   // ユーザーが過去に行動した作品IDを取得（除外用）
@@ -415,7 +375,6 @@ export const getChallengeWorks = cache(async (userId: string, userCategories: st
     ...(viewsResult.data?.map(v => v.work_id) || [])
   ])
 
-  console.log(`🚫 [DEBUG] 除外作品数: ${interactedWorkIds.size}`)
 
   // チャレンジ作品の種類別取得
   const challengeWorks: any[] = []
@@ -439,7 +398,6 @@ export const getChallengeWorks = cache(async (userId: string, userCategories: st
 
     if (unexploredWorks?.length) {
       challengeWorks.push(...unexploredWorks)
-      console.log(`🌟 [DEBUG] 未経験カテゴリ作品: ${unexploredWorks.length} 件`)
     }
   }
 
@@ -471,7 +429,6 @@ export const getChallengeWorks = cache(async (userId: string, userCategories: st
 
     if (newAuthorWorks?.length) {
       challengeWorks.push(...newAuthorWorks)
-      console.log(`👤 [DEBUG] 新人作家作品: ${newAuthorWorks.length} 件`)
     }
   }
 
@@ -498,7 +455,6 @@ export const getChallengeWorks = cache(async (userId: string, userCategories: st
 
   if (trendingWorks?.length) {
     challengeWorks.push(...trendingWorks)
-    console.log(`📈 [DEBUG] 急上昇作品: ${trendingWorks.length} 件`)
   }
 
   // 重複を除去
@@ -524,6 +480,5 @@ export const getChallengeWorks = cache(async (userId: string, userCategories: st
     author_username: userMap[work.user_id]?.username
   }))
 
-  console.log(`🎲 [DEBUG] チャレンジ作品最終: ${result.length} 件`)
   return result
 })

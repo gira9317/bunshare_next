@@ -113,6 +113,7 @@ export function PostgreSQLRecommendationsSection({
               isLiked={isLiked}
               isBookmarked={isBookmarked}
               readingProgress={readingProgress}
+              priority={index < 3}
               trackingContext={{
                 impressionType: 'recommendation',
                 pageContext: 'home',

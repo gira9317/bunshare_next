@@ -28,7 +28,6 @@ export function PreloadedDataProvider({ children, user }: PreloadedDataProviderP
 
   useEffect(() => {
     const loadPreloadedData = async () => {
-      console.log('🚀 [DEBUG] プリロードデータ取得開始')
       
       // プリロード対象のエンドポイント
       const endpoints = [
@@ -89,14 +88,12 @@ export function PreloadedDataProvider({ children, user }: PreloadedDataProviderP
                 break
             }
             
-            console.log(`✅ [DEBUG] プリロードデータ取得成功: ${url}`)
           } else {
             console.warn(`❌ [DEBUG] プリロードデータ取得失敗: ${endpoints[index]}`, result.reason)
           }
         })
 
         setPreloadedData(newData)
-        console.log('🎉 [DEBUG] プリロードデータ統合完了')
         
       } catch (error) {
         console.error('プリロードデータ取得エラー:', error)

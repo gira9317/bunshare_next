@@ -58,6 +58,7 @@ export interface WorkCardProps {
   availableFolders?: Array<{ folder_key: string; folder_name: string }>
   disableNavigation?: boolean
   disableContinueDialog?: boolean
+  priority?: boolean
 }
 
 export interface CategoryChipProps {
