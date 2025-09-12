@@ -29,7 +29,7 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         <main className={cn(
           'px-3 sm:px-4 lg:px-6 xl:px-8',
           'py-4 sm:py-6',
-          'pb-20 sm:pb-24 md:pb-6',
+          'pb-6',
           'max-w-4xl lg:max-w-6xl xl:max-w-7xl mx-auto',
           'min-h-[calc(100vh-theme(spacing.16))]'
         )}>
@@ -38,6 +38,9 @@ export function ClientLayout({ children }: ClientLayoutProps) {
         
         {/* フッター */}
         <SiteFooter />
+        
+        {/* スマホ専用フッタースペーサー */}
+        <div className="h-20 md:hidden" />
       </div>
       
       {/* モバイルボトムナビ */}

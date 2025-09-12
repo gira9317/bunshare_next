@@ -92,7 +92,7 @@ export function EssaysSection({
     return (
       <section className="py-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
             エッセイ
           </h2>
           <SortSelect
@@ -129,7 +129,7 @@ export function EssaysSection({
         </div>
       )}
       
-      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
         {currentWorks.map((work) => {
           const readingProgress = userReadingProgress[work.work_id]
           return (

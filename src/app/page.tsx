@@ -421,6 +421,9 @@ export default async function LandingPage() {
           </div>
         </div>
       </footer>
+      
+      {/* スマホ専用フッタースペーサー */}
+      <div className="h-20 md:hidden" />
     </div>
   )
 }
