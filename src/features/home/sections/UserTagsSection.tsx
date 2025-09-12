@@ -185,7 +185,7 @@ export function UserTagsSection({
     return null // セクションを非表示
   }
 
-  const sectionTitle = isWarm ? "あなたの好みから" : "人気のタグから"
+  const sectionTitle = isWarm ? "あなたの好み" : "人気のタグから"
   const allWorks = currentTagGroups.flatMap(group => group.works)
   const displayedGroups = showMore ? currentTagGroups : currentTagGroups.slice(0, 3)
 

@@ -188,63 +188,29 @@ export const getUserTagsRecommendations = cache(async (
   let targetTags: string[]
   
   if (isWarm) {
-    // ウォームユーザー: 個人の好みタグを使用（キャッシュを回避）
+    // ウォームユーザー: user_preferences_cache から好みタグを取得
     const supabase = await createClient()
     
-    // 直近30日のユーザー行動から好みを分析
-    const thirtyDaysAgo = new Date()
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-    const [likesResult, bookmarksResult, commentsResult, viewsResult] = await Promise.all([
-      supabase.from('likes').select('work_id').eq('user_id', userId).gte('liked_at', thirtyDaysAgo.toISOString()),
-      supabase.from('bookmarks').select('work_id').eq('user_id', userId).gte('bookmarked_at', thirtyDaysAgo.toISOString()),
-      supabase.from('reviews').select('work_id').eq('user_id', userId).gte('created_at', thirtyDaysAgo.toISOString()),
-      supabase.from('views_log').select('work_id').eq('user_id', userId).gte('viewed_at', thirtyDaysAgo.toISOString())
-    ])
-
-    // 作品IDを重み付きで集計
-    const workWeights: Record<string, number> = {}
-    
-    likesResult.data?.forEach(l => workWeights[l.work_id] = (workWeights[l.work_id] || 0) + 10)
-    bookmarksResult.data?.forEach(b => workWeights[b.work_id] = (workWeights[b.work_id] || 0) + 15)
-    commentsResult.data?.forEach(c => workWeights[c.work_id] = (workWeights[c.work_id] || 0) + 8)
-    
-    const viewCounts: Record<string, number> = {}
-    viewsResult.data?.forEach(v => {
-      viewCounts[v.work_id] = (viewCounts[v.work_id] || 0) + 1
-    })
-    
-    Object.entries(viewCounts).forEach(([workId, count]) => {
-      const baseWeight = 3
-      const repeatBonus = Math.min(count - 1, 3) * 2
-      workWeights[workId] = (workWeights[workId] || 0) + baseWeight + repeatBonus
-    })
-
-    const workIds = Array.from(new Set(Object.keys(workWeights)))
-
-    if (workIds.length > 0) {
-      const { data: works } = await supabase
-        .from('works')
-        .select('work_id, tags')
-        .in('work_id', workIds)
-
-      const tagWeights: Record<string, number> = {}
-      works?.forEach(work => {
-        const weight = workWeights[work.work_id] || 1
-        work.tags?.forEach((tag: string) => {
-          tagWeights[tag] = (tagWeights[tag] || 0) + weight
-        })
-      })
-
-      targetTags = Object.entries(tagWeights)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 3)
-        .map(([tag]) => tag)
-    } else {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_user_preferences_cache', { p_user_id: userId })
+      
+      if (error) {
+        console.error('ユーザー嗜好キャッシュ取得エラー:', error)
+        targetTags = await getPopularTags(3)
+      } else if (data && data.preferred_tags && data.preferred_tags.length > 0) {
+        // キャッシュから上位3つのタグを使用
+        targetTags = data.preferred_tags.slice(0, 3)
+        console.log(`🎯 [DEBUG] キャッシュからユーザー好みタグ: ${targetTags.join(', ')}`)
+      } else {
+        // キャッシュにデータがない場合は人気タグを使用
+        targetTags = await getPopularTags(3)
+        console.log(`🎯 [DEBUG] キャッシュデータなし、人気タグ使用: ${targetTags.join(', ')}`)
+      }
+    } catch (error) {
+      console.error('ユーザー嗜好キャッシュ取得例外:', error)
       targetTags = await getPopularTags(3)
     }
-    
-    console.log(`🎯 [DEBUG] ユーザー好みタグ: ${targetTags.join(', ')}`)
   } else {
     // コールドユーザー: 人気タグを使用
     targetTags = await getPopularTags(3)

@@ -36,18 +36,47 @@ async function getUserInteractionData(userId: string) {
   }
 }
 
+/**
+ * ユーザーの嗜好タグを取得
+ */
+async function getUserPreferences(userId: string) {
+  try {
+    const supabase = await createClient()
+    
+    const { data, error } = await supabase
+      .rpc('get_user_preferences_cache', { p_user_id: userId })
+    
+    if (error) {
+      console.error('ユーザー嗜好取得エラー:', error)
+      return { categories: [], tags: [] }
+    }
+    
+    return {
+      categories: data?.preferred_categories || [],
+      tags: data?.preferred_tags || []
+    }
+  } catch (error) {
+    console.error('ユーザー嗜好取得例外:', error)
+    return { categories: [], tags: [] }
+  }
+}
+
 interface PostgreSQLRecommendationsSuspenseProps {
   userId?: string
 }
 
 async function PostgreSQLRecommendationsContent({ userId }: PostgreSQLRecommendationsSuspenseProps) {
   // PostgreSQL推薦システムから取得
-  const [recommendationsResult, userData] = await Promise.all([
+  const [recommendationsResult, userData, userPreferences] = await Promise.all([
     getPostgreSQLRecommendations(userId, 20),
     userId ? getUserInteractionData(userId) : Promise.resolve({
       userLikes: [],
       userBookmarks: [],
       userReadingProgress: {}
+    }),
+    userId ? getUserPreferences(userId) : Promise.resolve({
+      categories: [],
+      tags: []
     })
   ])
   
@@ -66,8 +95,23 @@ async function PostgreSQLRecommendationsContent({ userId }: PostgreSQLRecommenda
     )
   }
 
-  // タイトルを固定
-  const sectionTitle = 'あなたへのおすすめ'
+  // 動的タイトル生成
+  const generateTitle = () => {
+    const { categories, tags } = userPreferences
+    
+    if (!userId) return 'あなたへのおすすめ'
+    
+    const hasCategories = categories && categories.length > 0
+    const hasTags = tags && tags.length > 0
+    
+    if (hasCategories || hasTags) {
+      return 'あなたの好み'
+    }
+    
+    return 'あなたへのおすすめ'
+  }
+
+  const sectionTitle = generateTitle()
 
   return (
     <div>
