@@ -1,0 +1,143 @@
+publicスキーマ テーブル役割一覧
+
+  👤 ユーザー関連
+
+  users - ユーザーマスタ
+
+  - 基本情報: email, username, bio, avatar_img_url
+  - 設定: role, public_profile, follow_approval
+  - 通知設定: like_notification, comment_notification, email_notification
+
+  follows - フォロー関係
+
+  - 関係管理: follower_id ↔ followed_id の関係
+  - 承認システム: フォロー承認待ち状態の管理
+
+  user_preferences - ユーザー嗜好設定
+
+  - 推薦用: ユーザーの好みデータ（カテゴリ、タグ等）
+
+  📚 作品関連
+
+  works - 作品マスタ
+
+  - 基本データ: title, content, category, tags, description
+  - メタデータ: views, likes, comments の集計値
+  - 公開設定: is_published, scheduled_at（予約投稿）
+  - AI分析: ai_analysis_data, content_quality_score
+  - シリーズ: series_id, episode_number
+
+  series - シリーズ管理
+
+  - シリーズ情報: title, description, cover_image_url
+  - 設定: is_completed, episode_count
+
+  reviews - コメント・レビュー
+
+  - コメントデータ: content, rating
+  - 階層構造: parent_comment_id（返信機能）
+
+  💖 インタラクション
+
+  likes - いいね
+
+  - 関係: user_id ↔ work_id, liked_at
+
+  bookmarks - ブックマーク
+
+  - 関係: user_id ↔ work_id
+  - フォルダ管理: folder_id, order, memo
+
+  bookmark_folders - ブックマークフォルダ
+
+  - フォルダ: folder_name, is_private, order
+
+  shares - シェア
+
+  - 共有履歴: user_id, work_id, shared_at
+
+  📖 読書機能
+
+  reading_progress - 読書進捗
+
+  - 進捗管理: progress_percentage, last_read_position
+  - 完読管理: completed_at
+
+  reading_bookmarks - しおり
+
+  - しおり: bookmark_position, chapter, memo
+  - 複数しおり対応
+
+  🔔 通知システム
+
+  notifications - 通知
+
+  - 通知データ: type, title, message, action_url
+  - 状態管理: is_read, created_at
+
+  📊 ログ・分析
+
+  views_log - 閲覧ログ
+
+  - 閲覧履歴: user_id, work_id, viewed_at
+  - 重複排除: 同一ユーザー・作品の制御
+
+  impressions_log - 表示ログ
+
+  - 表示履歴: 作品カード表示の追跡
+
+  🤖 AI・機械学習
+
+  work_embeddings_v2 - ベクトル埋め込み
+
+  - セマンティック検索: title_embedding, content_embedding
+  - 類似度計算用
+
+  work_content_chunks_v2 - コンテンツチャンク
+
+  - 長文分割: content_chunk, chunk_index
+  - 埋め込み処理用
+
+  embedding_processing_logs_v2 - 埋め込み処理ログ
+
+  - 処理履歴: status, cost_tracking
+
+  embedding_cost_tracking - AI処理コスト
+
+  - コスト管理: token_count, cost_usd
+
+  🛠️ システム管理
+
+  backgrounds - 背景画像
+
+  - UI素材: background_url, generation_index
+
+  contact_messages - お問い合わせ
+
+  - サポート: name, email, message, status
+
+  cron_execution_logs - Cron実行ログ
+
+  - バッチ処理: job_name, status, duration_ms
+
+  🗑️ レガシー・未使用
+
+  batch_mappings - バッチマッピング
+
+  - 過去のAI生成: batch_id, custom_id, author_id
+  - 現在は未使用
+
+  batch_processing_logs - バッチログ
+
+  - 過去のバッチ処理ログ
+  - 現在は未使用
+
+  ---
+  特徴:
+  - ソーシャル機能が充実（フォロー、いいね、ブックマーク）
+  - AI機能が本格的（埋め込み、分析、コスト管理）
+  - 読書体験に特化（進捗、しおり、続きから）
+  - 推薦システムのための豊富なデータ収集
+  - v2テーブルで機能改善の痕跡
+
+  合計: 23テーブル（うち2つは使用停止候補）
