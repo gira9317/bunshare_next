@@ -29,14 +29,28 @@ export function WorkDetailHeaderSection({
   const handleLike = async () => {
     if (isLiking) return
     
+    console.log('🔍 [いいねボタンクリック]', {
+      work_id: work.work_id,
+      現在の状態_isLiked: isLiked,
+      初期状態_initialIsLiked: initialIsLiked,
+      操作: isLiked ? '削除予定' : '追加予定'
+    })
+    
     setIsLiking(true)
     setIsLiked(!isLiked)
     
+    console.log('📡 [Server Action呼び出し中...]')
     const result = await toggleLikeAction(work.work_id)
+    console.log('📡 [Server Action結果]', result)
     
     if (result.error) {
       setIsLiked(isLiked)
-      console.error('いいねエラー:', result.error)
+      console.error('❌ いいねエラー:', result.error)
+    } else {
+      console.log('✅ いいね処理成功:', {
+        新しい状態: result.liked ? 'いいね済み' : 'いいね解除',
+        work_id: work.work_id
+      })
     }
     
     setIsLiking(false)

@@ -50,12 +50,20 @@ export default async function WorkDetailPage({ params }: PageProps) {
   
   if (user) {
     // いいね状態をチェック
-    const { data: likeData } = await supabase
+    const { data: likeData, error: likeError } = await supabase
       .from('likes')
       .select('id')
       .eq('user_id', user.id)
       .eq('work_id', id)
       .single()
+    
+    console.log('🔍 [初期いいね状態チェック]', {
+      work_id: id,
+      user_id: user.id,
+      likeData,
+      likeError,
+      isLiked: !!likeData
+    })
     
     isLiked = !!likeData
     

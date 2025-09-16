@@ -11,29 +11,53 @@ export async function toggleLikeAction(workId: string) {
   const supabase = await createClient()
   
   // ユーザー認証確認
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  
+  if (authError) {
+    console.error('Auth error:', authError)
+    return { error: '認証エラーが発生しました' }
+  }
+  
   if (!user) {
     return { error: 'ログインが必要です' }
   }
 
   try {
     // 既存のいいねを確認
-    const { data: existingLike } = await supabase
+    const { data: existingLike, error: selectError } = await supabase
       .from('likes')
       .select('id')
       .eq('work_id', workId)
       .eq('user_id', user.id)
       .single()
 
+    if (selectError && selectError.code !== 'PGRST116') {
+      console.error('Select error:', {
+        message: selectError.message,
+        details: selectError.details,
+        hint: selectError.hint,
+        code: selectError.code
+      })
+      throw selectError
+    }
+
     if (existingLike) {
       // いいねを削除
-      const { error } = await supabase
+      const { error: deleteError } = await supabase
         .from('likes')
         .delete()
         .eq('work_id', workId)
         .eq('user_id', user.id)
 
-      if (error) throw error
+      if (deleteError) {
+        console.error('Delete error:', {
+          message: deleteError.message,
+          details: deleteError.details,
+          hint: deleteError.hint,
+          code: deleteError.code
+        })
+        throw deleteError
+      }
 
       // キャッシュを無効化
       revalidateTag(`work:${workId}`)
@@ -42,14 +66,22 @@ export async function toggleLikeAction(workId: string) {
       return { success: true, liked: false }
     } else {
       // いいねを追加
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('likes')
         .insert({
           work_id: workId,
           user_id: user.id
         })
 
-      if (error) throw error
+      if (insertError) {
+        console.error('Insert error:', {
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint,
+          code: insertError.code
+        })
+        throw insertError
+      }
 
       // キャッシュを無効化
       revalidateTag(`work:${workId}`)
@@ -58,7 +90,7 @@ export async function toggleLikeAction(workId: string) {
       return { success: true, liked: true }
     }
   } catch (error) {
-    console.error('いいねエラー:', error)
+    console.error('いいねエラー詳細:', error)
     return { error: 'いいねの処理に失敗しました' }
   }
 }

@@ -56,7 +56,7 @@ export async function GET() {
       author: userMap[work.user_id]?.username || '不明',
       author_username: userMap[work.user_id]?.username,
       views: work.views_count || 0,
-      likes: work.likes_count || 0,
+      likes: work.likes || 0,
       comments: work.comments_count || 0
     })) || []
 

@@ -54,7 +54,7 @@ export const getWorks = cache(async (limit = 10, offset = 0) => {
     series_cover_image_url: work.series?.cover_image_url || null,
     // 新旧両方の形式をサポート
     views: work.views_count || work.views || 0,
-    likes: work.likes_count || work.likes || 0,
+    likes: work.likes || 0,
     comments: work.comments_count || work.comments || 0
   })) as Work[]
 })
@@ -93,7 +93,7 @@ export const getWorksByCategory = cache(async (category: string, limit = 10, off
     series_cover_image_url: work.series?.cover_image_url || null,
     // 新旧両方の形式をサポート
     views: work.views_count || work.views || 0,
-    likes: work.likes_count || work.likes || 0,
+    likes: work.likes || 0,
     comments: work.comments_count || work.comments || 0
   })) as Work[]
 })
@@ -179,7 +179,7 @@ export const getWorksByCategoriesWithSort = cache(async (
     series_cover_image_url: work.series?.cover_image_url || null,
     // 新旧両方の形式をサポート
     views: work.views_count || work.views || 0,
-    likes: work.likes_count || work.likes || 0,
+    likes: work.likes || 0,
     comments: work.comments_count || work.comments || 0
   })) as Work[]
 })
@@ -360,7 +360,7 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
     series_cover_image_url: data.series?.cover_image_url || null,
     // 新旧両方の形式をサポート
     views: data.views_count || data.views || 0,
-    likes: data.likes_count || data.likes || 0,
+    likes: data.likes || 0,
     comments: data.comments_count || data.comments || 0
   } as Work
 })

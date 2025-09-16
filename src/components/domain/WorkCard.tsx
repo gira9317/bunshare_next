@@ -36,7 +36,7 @@ export function WorkCard({
   
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 })
   const [currentViews, setCurrentViews] = useState(work.views_count || work.views || 0)
-  const [currentLikes, setCurrentLikes] = useState(work.likes_count || work.likes || 0)
+  const [currentLikes, setCurrentLikes] = useState(work.likes || 0)
   const [currentComments, setCurrentComments] = useState(work.comments_count || work.comments || 0)
   const [savedReadingProgress, setSavedReadingProgress] = useState<{ percentage: number; position: number } | null>(null)
   const moreMenuButtonRef = useRef<HTMLButtonElement>(null)
@@ -54,23 +54,40 @@ export function WorkCard({
     e.preventDefault()
     e.stopPropagation()
     
+    console.log('🔍 [WorkCard いいねクリック]', {
+      work_id: work.work_id,
+      title: work.title,
+      現在の状態_liked: liked,
+      初期状態_isLiked: isLiked,
+      現在のカウント: currentLikes,
+      操作: liked ? '削除予定' : '追加予定'
+    })
+    
     // 楽観的UI更新（即座に反映）
     const newLikedState = !liked
     setLiked(newLikedState)
     setCurrentLikes(prev => newLikedState ? prev + 1 : prev - 1)
     
     // 認証チェック & サーバー更新
+    console.log('📡 [WorkCard Server Action呼び出し中...]')
     const result = await requireAuthAsync(async () => {
       return await toggleLikeAction(work.work_id)
     })
+    console.log('📡 [WorkCard Server Action結果]', result)
     
     // エラー時は元に戻す
     if (result.error) {
       setLiked(liked)
-      setCurrentLikes(work.likes_count || work.likes || 0) // 元の値に戻す
+      setCurrentLikes(work.likes || 0) // 元の値に戻す
       if (result.error !== 'ログインが必要です') {
-        console.error(result.error)
+        console.error('❌ WorkCard いいねエラー:', result.error)
       }
+    } else {
+      console.log('✅ WorkCard いいね処理成功:', {
+        新しい状態: result.liked ? 'いいね済み' : 'いいね解除',
+        work_id: work.work_id,
+        新しいカウント: currentLikes
+      })
     }
   }
 
