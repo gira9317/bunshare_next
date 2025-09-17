@@ -13,7 +13,7 @@ export async function executeSearch(formData: FormData) {
 
   // 検索結果ページにリダイレクト
   const searchParams = new URLSearchParams({ q: query.trim() });
-  redirect(`/search?${searchParams.toString()}`);
+  redirect(`/app/search?${searchParams.toString()}`);
 }
 
 export async function updateSearchFilters(
@@ -42,7 +42,7 @@ export async function updateSearchFilters(
       searchParams.set('page', page.toString());
     }
 
-    redirect(`/search?${searchParams.toString()}`);
+    redirect(`/app/search?${searchParams.toString()}`);
   } catch (error) {
     console.error('Filter update error:', error);
     return { error: 'フィルターの更新に失敗しました' };

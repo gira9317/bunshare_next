@@ -74,7 +74,7 @@ export function MobileSearchModal({ isOpen, onClose }: MobileSearchModalProps) {
     const finalQuery = searchTerm || query;
     if (finalQuery.trim()) {
       saveToHistory(finalQuery.trim());
-      window.location.href = `/search?q=${encodeURIComponent(finalQuery)}`;
+      window.location.href = `/app/search?q=${encodeURIComponent(finalQuery)}`;
     }
   };
 

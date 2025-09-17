@@ -28,7 +28,7 @@ export function SearchFiltersSection({ filters }: SearchFiltersSectionProps) {
     newParams.delete('page');
 
     startTransition(() => {
-      router.push(`/search?${newParams.toString()}`);
+      router.push(`/app/search?${newParams.toString()}`);
     });
   };
 

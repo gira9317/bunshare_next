@@ -22,7 +22,7 @@ export function TrendTagChip({ tag, size = 'md', className = '' }: TrendTagChipP
 
   return (
     <Link
-      href={`/search?q=${encodeURIComponent(tag.tag)}&type=works`}
+      href={`/app/search?q=${encodeURIComponent(tag.tag)}&type=works`}
       className={cn(
         "trend-tag-chip group inline-flex items-center justify-between gap-3",
         "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",

@@ -50,7 +50,7 @@ export function SearchInput({
     e.preventDefault();
     if (query.trim()) {
       setShowSuggestionsPanel(false);
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+      router.push(`/app/search?q=${encodeURIComponent(query.trim())}`);
     }
   };
 
@@ -62,7 +62,7 @@ export function SearchInput({
   const handleSuggestionSelect = (suggestion: string) => {
     setQuery(suggestion);
     setShowSuggestionsPanel(false);
-    router.push(`/search?q=${encodeURIComponent(suggestion)}`);
+    router.push(`/app/search?q=${encodeURIComponent(suggestion)}`);
   };
 
   return (
