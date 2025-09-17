@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeScript } from '@/components/shared/ThemeScript'
 import { ClientProviders } from '@/components/shared/ClientProviders'
+import { NavigationProgress } from '@/components/shared/NavigationProgress'
 import { getAuthenticatedUser } from '@/lib/auth'
 import "./globals.css";
 
@@ -40,6 +41,7 @@ export default async function RootLayout({
         )}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased h-full`}>
+        <NavigationProgress />
         <ClientProviders user={user}>
           {children}
         </ClientProviders>

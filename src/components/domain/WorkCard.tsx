@@ -8,6 +8,7 @@ import type { WorkCardProps } from '@/features/works/types'
 import { toggleLikeAction, incrementViewAction, getReadingProgressAction } from '@/features/works/server/actions'
 import { useRequireAuth } from '@/features/auth/hooks/useRequireAuth'
 import { useTapFeedback } from '@/hooks/useTapFeedback'
+import { navigationLoader } from '@/lib/navigation'
 import { ShareModal } from './ShareModal'
 import { BookmarkModal } from './BookmarkModal'
 import { ContinueReadingDialog } from '@/features/works/leaf/ContinueReadingDialog'
@@ -248,6 +249,9 @@ export function WorkCard({
         const isInteractive = target.closest('.interactive-button, .clickable')
         
         if (!isButton && !isInteractive && !disableNavigation) {
+          // ローディングバーを即座に開始
+          navigationLoader.start()
+          
           // 楽観的UI更新で閲覧数をすぐに+1
           setCurrentViews(prev => prev + 1)
           
