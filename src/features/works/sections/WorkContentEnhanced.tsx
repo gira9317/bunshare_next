@@ -8,6 +8,7 @@ import { getReadingBookmarkAction } from '../server/actions'
 import { BookmarkFloatingButton } from '../leaf/BookmarkFloatingButton'
 import { TextSelectionPopup } from '../leaf/TextSelectionPopup'
 import { useReadingProgress } from '@/hooks/useReadingProgress'
+import { ProgressiveWrapper } from '@/components/shared/ProgressiveWrapper'
 
 interface SeriesWork {
   work_id: string
@@ -15,22 +16,27 @@ interface SeriesWork {
   episode_number?: number
 }
 
-interface WorkDetailContentSectionProps {
+interface WorkContentEnhancedProps {
   work: Work
   readingProgress: number
   seriesWorks?: SeriesWork[]
   userId?: string
 }
 
-export function WorkDetailContentSection({ 
+/**
+ * 拡張コンテンツ - 機能豊富版
+ * シリーズナビ、フォント設定、しおり、進捗管理など
+ */
+export function WorkContentEnhanced({ 
   work, 
   readingProgress: initialProgress,
   seriesWorks = [],
   userId
-}: WorkDetailContentSectionProps) {
+}: WorkContentEnhancedProps) {
   const [fontSize, setFontSize] = useState('text-base')
   const contentRef = useRef<HTMLDivElement>(null)
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
+  const [showEnhancements, setShowEnhancements] = useState(false)
 
   // 通知を表示するヘルパー関数
   const showNotification = (message: string, type: 'success' | 'error' | 'info') => {
@@ -47,10 +53,19 @@ export function WorkDetailContentSection({
     scrollThreshold: 5 // 5%の変化で保存（頻度削減）
   })
 
-
-  // URLパラメータから継続読書の処理を行う（遅延実行で初期表示を高速化）
+  // 段階的に機能を有効化（初期表示を高速化）
   useEffect(() => {
-    // 初期表示を妨げないよう2秒後に実行
+    const timer = setTimeout(() => {
+      setShowEnhancements(true)
+    }, 1000) // 1秒後に拡張機能を有効化
+    
+    return () => clearTimeout(timer)
+  }, [])
+
+  // URLパラメータから継続読書の処理を行う（遅延実行）
+  useEffect(() => {
+    if (!showEnhancements) return
+
     const timer = setTimeout(() => {
       const urlParams = new URLSearchParams(window.location.search)
       const shouldContinue = urlParams.get('continue') === 'true'
@@ -59,8 +74,6 @@ export function WorkDetailContentSection({
 
       if (shouldContinue && position) {
         const targetPosition = parseInt(position)
-        
-        // さらに少し遅らせてからスクロール（レンダリング完了後）
         setTimeout(() => {
           scrollToPosition(targetPosition)
           showNotification('前回の続きから読み始めます', 'info')
@@ -77,14 +90,14 @@ export function WorkDetailContentSection({
         url.searchParams.delete('restart')
         window.history.replaceState({}, '', url.toString())
       }
-    }, 2000) // 2秒後に実行
+    }, 500)
 
     return () => clearTimeout(timer)
-  }, [scrollToPosition, showNotification])
+  }, [scrollToPosition, showNotification, showEnhancements])
 
-  // しおり自動復帰機能
+  // しおり自動復帰機能（段階的読み込み）
   useEffect(() => {
-    if (!userId) return
+    if (!userId || !showEnhancements) return
 
     const checkBookmarkAutoReturn = async () => {
       try {
@@ -109,17 +122,14 @@ export function WorkDetailContentSection({
       }
     }
 
-    // 初期表示を優先し、3秒後に実行
-    const timer = setTimeout(checkBookmarkAutoReturn, 3000)
+    const timer = setTimeout(checkBookmarkAutoReturn, 1500)
     return () => clearTimeout(timer)
-  }, [work.work_id, userId])
+  }, [work.work_id, userId, showEnhancements])
 
   // シリーズナビゲーション
   const currentEpisodeIndex = seriesWorks.findIndex(w => w.work_id === work.work_id)
   const prevEpisode = currentEpisodeIndex > 0 ? seriesWorks[currentEpisodeIndex - 1] : null
   const nextEpisode = currentEpisodeIndex < seriesWorks.length - 1 ? seriesWorks[currentEpisodeIndex + 1] : null
-
-  // 読書進捗はuseReadingProgressフックで自動処理されるため、ここでは不要
 
   // フォントサイズ設定
   const fontSizes = [
@@ -131,8 +141,8 @@ export function WorkDetailContentSection({
 
   return (
     <div className="space-y-6">
-      {/* シリーズナビゲーション */}
-      {seriesWorks.length > 0 && (
+      {/* シリーズナビゲーション - 段階的表示 */}
+      {showEnhancements && seriesWorks.length > 0 && (
         <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
           <div className="flex items-center gap-2">
             {prevEpisode ? (
@@ -168,29 +178,30 @@ export function WorkDetailContentSection({
         </div>
       )}
 
-
-      {/* フォントサイズ設定 */}
-      <div className="flex items-center justify-end gap-2">
-        <span className="text-sm text-gray-600 dark:text-gray-400">文字サイズ:</span>
-        <div className="flex gap-1">
-          {fontSizes.map(size => (
-            <button
-              key={size.value}
-              onClick={() => setFontSize(size.value)}
-              className={cn(
-                "px-3 py-1 text-sm rounded-md transition-colors",
-                fontSize === size.value
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-              )}
-            >
-              {size.label}
-            </button>
-          ))}
+      {/* フォントサイズ設定 - 段階的表示 */}
+      {showEnhancements && (
+        <div className="flex items-center justify-end gap-2">
+          <span className="text-sm text-gray-600 dark:text-gray-400">文字サイズ:</span>
+          <div className="flex gap-1">
+            {fontSizes.map(size => (
+              <button
+                key={size.value}
+                onClick={() => setFontSize(size.value)}
+                className={cn(
+                  "px-3 py-1 text-sm rounded-md transition-colors",
+                  fontSize === size.value
+                    ? "bg-purple-600 text-white"
+                    : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                )}
+              >
+                {size.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* 本文 */}
+      {/* 本文 - 動的フォントサイズ適用 */}
       <div
         ref={contentRef}
         className="prose prose-gray dark:prose-invert max-w-none work-content-container"
@@ -199,7 +210,7 @@ export function WorkDetailContentSection({
           id="main-content-text"
           className={cn(
             "whitespace-pre-wrap leading-relaxed work-content",
-            fontSize,
+            showEnhancements ? fontSize : 'text-base',
             "text-gray-800 dark:text-gray-200",
           )}
           dangerouslySetInnerHTML={{ 
@@ -208,21 +219,32 @@ export function WorkDetailContentSection({
         />
       </div>
 
+      {/* 🔄 段階的ハイドレーション: 重い機能を遅延読み込み */}
+      <ProgressiveWrapper
+        config={{
+          delayMs: 3000, // 3秒後に有効化
+          enableOnInteraction: true // ユーザー操作で即座に有効化
+        }}
+        fallback={null}
+      >
+        {showEnhancements && (
+          <>
+            <BookmarkFloatingButton
+              workId={work.work_id}
+              isLoggedIn={!!userId}
+              onNotification={showNotification}
+            />
 
-      {/* しおり機能 */}
-      <BookmarkFloatingButton
-        workId={work.work_id}
-        isLoggedIn={!!userId}
-        onNotification={showNotification}
-      />
+            <TextSelectionPopup
+              workId={work.work_id}
+              isLoggedIn={!!userId}
+              onNotification={showNotification}
+            />
+          </>
+        )}
+      </ProgressiveWrapper>
 
-      <TextSelectionPopup
-        workId={work.work_id}
-        isLoggedIn={!!userId}
-        onNotification={showNotification}
-      />
-
-      {/* 通知 */}
+      {/* 通知 - 常に有効（軽量） */}
       {notification && (
         <div
           className={cn(

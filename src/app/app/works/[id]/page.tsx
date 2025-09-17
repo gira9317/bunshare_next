@@ -1,9 +1,9 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getWorkById, getUserWorkInteractions } from '@/features/works/server/loader'
-import { WorkDetailHeaderSection } from '@/features/works/sections/WorkDetailHeaderSection'
-import { WorkDetailContentSection } from '@/features/works/sections/WorkDetailContentSection'
-import { WorkDetailActionsSection } from '@/features/works/sections/WorkDetailActionsSection'
+import { getWorkById, getWorkMetadata } from '@/features/works/server/loader'
+import { WorkBasicInfo } from '@/features/works/sections/WorkBasicInfo'
+import { WorkContentWithProgress } from '@/features/works/sections/WorkContentWithProgress'
+import { WorkUserActions } from '@/features/works/sections/WorkUserActions'
 import { WorkDetailCommentsSection } from '@/features/works/sections/WorkDetailCommentsSection'
 import { createClient } from '@/lib/supabase/server'
 import { Suspense } from 'react'
@@ -21,7 +21,8 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { id } = await params
-    const work = await getWorkById(id)
+    // 軽量なメタデータ専用クエリを使用
+    const work = await getWorkMetadata(id)
     
     if (!work) {
       return {
@@ -29,13 +30,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       }
     }
 
-    const author = work.users?.username || work.author || ''
     return {
-      title: `${work.title} - ${author} | Bunshare`,
-      description: work.description || `${author}による「${work.title}」を読む`,
+      title: `${work.title} - ${work.author} | Bunshare`,
+      description: work.description || `${work.author}による「${work.title}」を読む`,
       openGraph: {
         title: work.title,
-        description: work.description || `${author}による作品`,
+        description: work.description || `${work.author}による作品`,
         images: work.image_url ? [work.image_url] : [],
       },
     }
@@ -47,64 +47,71 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function WorkDetailPage({ params }: PageProps) {
-  const supabase = await createClient()
   const { id } = await params
   
-  // 作品データとユーザー情報を並列取得
-  const [work, { data: { user } }] = await Promise.all([
+  // 🚀 最重要データのみ並列取得（段階的レンダリングのため）
+  const [work, userAuth] = await Promise.all([
     getWorkById(id),
-    supabase.auth.getUser()
+    createClient().then(supabase => supabase.auth.getUser())
   ])
   
   if (!work) {
     notFound()
   }
 
-  // ユーザー相互作用状態を取得（シリーズ情報は作品データに含まれている）
-  const userInteractions = await getUserWorkInteractions(user?.id || '', id)
-  
-  // PostgreSQL関数から取得したシリーズ情報を使用
-  // フォールバックの場合は別途取得
-  const seriesWorks = work.series_works || (
-    work.series_id ? await supabase
-      .from('works')
-      .select('work_id, title, episode_number')
-      .eq('series_id', work.series_id)
-      .order('episode_number', { ascending: true })
-      .then(({ data }) => data || [])
-    : []
-  )
-
-  const { isLiked, isBookmarked, readingProgress } = userInteractions
+  const user = userAuth.data?.user
+  const seriesWorks = work.series_works || []
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-      {/* ヘッダーセクション - 基本情報を即座表示 */}
-      <WorkDetailHeaderSection
-        work={work}
-        isLiked={isLiked}
-        isBookmarked={isBookmarked}
-      />
+      {/* 🏃‍♂️ 最優先: 基本情報を即座表示（ユーザー依存なし） */}
+      <WorkBasicInfo work={work} />
 
-      {/* コンテンツセクション - メインコンテンツ */}
-      <WorkDetailContentSection
-        work={work}
-        readingProgress={readingProgress}
-        seriesWorks={seriesWorks}
-        userId={user?.id}
-      />
-
-      {/* アクションセクション - ユーザー操作系は段階的読み込み */}
-      <Suspense fallback={<div className="h-16 bg-gray-100 rounded animate-pulse" />}>
-        <WorkDetailActionsSection
+      {/* 🚀 高優先度: コンテンツ+進捗（ユーザー依存、Suspenseでラップ） */}
+      <Suspense fallback={
+        <div className="space-y-6">
+          <div className="h-40 bg-gray-200 rounded animate-pulse" />
+          <div className="h-96 bg-gray-200 rounded animate-pulse" />
+        </div>
+      }>
+        <WorkContentWithProgress
           work={work}
-          isLiked={isLiked}
-          isBookmarked={isBookmarked}
+          seriesWorks={seriesWorks}
+          userId={user?.id}
         />
       </Suspense>
 
-      {/* コメントセクション - 段階的読み込み */}
-      <Suspense fallback={<LoadingSpinner text="コメントを読み込み中..." />}>
+      {/* ⚡ 中優先度: ユーザー操作系（段階的読み込み） */}
+      <Suspense fallback={
+        <div className="flex gap-4 p-4">
+          <div className="h-10 w-20 bg-gray-200 rounded animate-pulse" />
+          <div className="h-10 w-24 bg-gray-200 rounded animate-pulse" />
+          <div className="h-10 w-16 bg-gray-200 rounded animate-pulse" />
+        </div>
+      }>
+        <WorkUserActions
+          work={work}
+          userId={user?.id}
+        />
+      </Suspense>
+
+      {/* 💬 低優先度: コメントセクション（最後に読み込み） */}
+      <Suspense fallback={
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-6 w-6 bg-gray-200 rounded animate-pulse" />
+            <div className="h-6 w-20 bg-gray-200 rounded animate-pulse" />
+          </div>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="p-4 border rounded-lg space-y-2">
+                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                <div className="h-16 w-full bg-gray-200 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      }>
         <WorkDetailCommentsSection
           workId={work.work_id}
           userId={user?.id}

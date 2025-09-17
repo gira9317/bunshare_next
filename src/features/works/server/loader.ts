@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { cache } from 'react'
 import { unstable_cache } from 'next/cache'
+import { CACHE_CONFIG } from '@/lib/cache-strategy'
 import type { Work } from '../types'
 
 export const getWorks = cache(async (limit = 10, offset = 0) => {
@@ -428,8 +429,8 @@ const createCachedWorkData = (workId: string) => unstable_cache(
   },
   [`work-data-${workId}`],
   {
-    revalidate: 1800, // 30分
-    tags: [`work-${workId}`]
+    revalidate: CACHE_CONFIG.WORK_BASIC.ttl, // 1時間（基本作品情報）
+    tags: [...CACHE_CONFIG.WORK_BASIC.tags, `work-${workId}`]
   }
 )
 
@@ -484,8 +485,9 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
   } as Work
 })
 
-// ユーザーの作品との相互作用状態を統合取得（PostgreSQL関数版）
-export const getUserWorkInteractions = cache(async (userId: string, workId: string) => {
+// ユーザーの作品との相互作用状態を統合取得（短期キャッシュ）
+export const getUserWorkInteractions = unstable_cache(
+  async (userId: string, workId: string) => {
   if (!userId) {
     return {
       isLiked: false,
@@ -543,4 +545,60 @@ export const getUserWorkInteractions = cache(async (userId: string, workId: stri
     isBookmarked: result.is_bookmarked || false,
     readingProgress: result.reading_progress || 0
   }
-})
+  },
+  ['user-interactions'],
+  {
+    revalidate: CACHE_CONFIG.USER_INTERACTIONS.ttl, // 5分キャッシュ
+    tags: CACHE_CONFIG.USER_INTERACTIONS.tags,
+  }
+)
+
+// メタデータ生成用の軽量作品データ取得（超長期キャッシュ）
+export const getWorkMetadata = unstable_cache(
+  async (workId: string) => {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+      .from('works')
+      .select(`
+        work_id,
+        title,
+        description,
+        image_url,
+        is_published,
+        scheduled_at,
+        users (
+          username
+        )
+      `)
+      .eq('work_id', workId)
+      .single()
+
+    if (error || !data) {
+      return null
+    }
+
+    // 予約投稿の自動公開判定（メタデータ用）
+    const now = new Date()
+    const scheduledAt = data.scheduled_at ? new Date(data.scheduled_at) : null
+    const shouldBePublished = data.is_published || 
+      (scheduledAt && now >= scheduledAt)
+
+    if (!shouldBePublished) {
+      return null
+    }
+
+    return {
+      work_id: data.work_id,
+      title: data.title,
+      description: data.description,
+      image_url: data.image_url,
+      author: data.users?.username || 'Unknown'
+    }
+  },
+  ['work-metadata'],
+  {
+    revalidate: CACHE_CONFIG.WORK_METADATA.ttl, // 2時間キャッシュ
+    tags: CACHE_CONFIG.WORK_METADATA.tags,
+  }
+)
