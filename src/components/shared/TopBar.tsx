@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import { useTapFeedback } from '@/hooks/useTapFeedback'
 import { UserIconDropdownSection } from '@/features/users_icon'
 import { NotificationPanelSection } from '@/features/notifications'
 import type { UserProfile } from '@/features/users_icon/types'
@@ -23,6 +24,11 @@ export function TopBar({
   onMobileSearchOpen
 }: TopBarProps) {
   const [searchQuery, setSearchQuery] = useState('')
+
+  // タップフィードバック
+  const logoTapFeedback = useTapFeedback({ scaleAmount: 0.97 })
+  const searchButtonTapFeedback = useTapFeedback({ scaleAmount: 0.95 })
+  const mobileSearchButtonTapFeedback = useTapFeedback({ scaleAmount: 0.95 })
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,7 +55,11 @@ export function TopBar({
       )}>
         {/* モバイル・タブレット用ロゴ */}
         <div className="flex items-center gap-2 md:hidden">
-          <Link href="/app" className="flex items-center gap-2 group active:scale-95 transition-transform">
+          <Link 
+            href="/app" 
+            {...logoTapFeedback.tapProps}
+            className="flex items-center gap-2 group transition-transform"
+          >
             <Image
               src="/images/logo/Bunshare_logo.png"
               alt="Bunshare"
@@ -112,12 +122,13 @@ export function TopBar({
               />
               <button
                 type="submit"
+                {...searchButtonTapFeedback.tapProps}
                 className={cn(
                   'mx-2 px-3 lg:px-4 py-1 lg:py-1.5 rounded-full',
                   'bg-gradient-to-r from-purple-600 to-blue-600 text-white',
                   'hover:from-purple-700 hover:to-blue-700',
                   'font-medium text-xs lg:text-sm transition-all',
-                  'hover:scale-105 active:scale-95'
+                  'hover:scale-105'
                 )}
               >
                 検索
@@ -132,11 +143,12 @@ export function TopBar({
           {/* モバイル検索ボタン */}
           <button
             onClick={handleMobileSearch}
+            {...mobileSearchButtonTapFeedback.tapProps}
             className={cn(
               'p-1.5 sm:p-2 rounded-lg md:hidden',
               'bg-gray-100/80 dark:bg-gray-800/80',
               'hover:bg-gray-200 dark:hover:bg-gray-700',
-              'active:scale-95 transition-all duration-200'
+              'transition-all duration-200'
             )}
             title="検索"
           >

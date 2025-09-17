@@ -3,9 +3,11 @@ import type { Work } from '@/features/works/types'
 
 interface ContinueReadingSectionProps {
   works: Work[]
+  userLikes?: string[]
+  userBookmarks?: string[]
 }
 
-export function ContinueReadingSection({ works }: ContinueReadingSectionProps) {
+export function ContinueReadingSection({ works, userLikes = [], userBookmarks = [] }: ContinueReadingSectionProps) {
   
   if (works.length === 0) {
     return null
@@ -24,6 +26,8 @@ export function ContinueReadingSection({ works }: ContinueReadingSectionProps) {
             <WorkCard
               key={work.work_id}
               work={work}
+              isLiked={userLikes.includes(work.work_id)}
+              isBookmarked={userBookmarks.includes(work.work_id)}
               hasReadingProgress={true}
               readingProgress={work.readingProgress || 0}
               disableContinueDialog={false}

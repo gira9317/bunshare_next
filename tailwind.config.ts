@@ -35,6 +35,8 @@ export default {
         "fade-in": "fadeIn 0.2s ease-in-out",
         "slide-up": "slideUp 0.3s ease-in-out",
         "slide-down": "slideDown 0.3s ease-in-out",
+        "tap-bounce": "tapBounce 0.12s ease-out",
+        "tap-scale": "tapScale 0.12s ease-out",
       },
       keyframes: {
         fadeIn: {
@@ -48,6 +50,15 @@ export default {
         slideDown: {
           "0%": { transform: "translateY(-4px)", opacity: "0" },
           "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        tapBounce: {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(0.95)" },
+          "100%": { transform: "scale(1)" },
+        },
+        tapScale: {
+          "0%": { transform: "scale(1)", filter: "brightness(1)" },
+          "100%": { transform: "scale(0.95)", filter: "brightness(0.9)" },
         },
       },
       maxWidth: {
@@ -83,6 +94,25 @@ export default {
           backgroundColor: 'rgba(26, 26, 26, 0.8)',
           '&:hover': {
             backgroundColor: 'rgba(36, 36, 36, 0.8)',
+          }
+        },
+        '.tap-feedback': {
+          transition: 'transform 0.12s ease-out, filter 0.12s ease-out',
+          willChange: 'transform, filter',
+          transformOrigin: 'center',
+          transformGpu: 'true',
+          '&:active': {
+            transform: 'scale(0.95)',
+            filter: 'brightness(0.9)',
+          }
+        },
+        '.tap-feedback-light': {
+          transition: 'transform 0.12s ease-out, filter 0.12s ease-out',
+          willChange: 'transform, filter',
+          transformOrigin: 'center',
+          '&:active': {
+            transform: 'scale(0.98)',
+            filter: 'brightness(0.95)',
           }
         }
       })

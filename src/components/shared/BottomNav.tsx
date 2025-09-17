@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { 
-    href: '/', 
+    href: '/app', 
     label: 'ホーム',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">

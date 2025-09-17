@@ -275,7 +275,7 @@ function DraggableWorkCard({ work, isManagementMode, onRemove, onMove, available
 }
 
 // Tab content components
-export function DashboardTabContent({ user, publishedWorks }: { user: UserWithStats; publishedWorks: Work[] }) {
+export function DashboardTabContent({ user, publishedWorks, userLikes = [], userBookmarks = [] }: { user: UserWithStats; publishedWorks: Work[]; userLikes?: string[]; userBookmarks?: string[] }) {
   return (
     <div className="space-y-4">
       {publishedWorks.length > 0 ? (
@@ -284,6 +284,8 @@ export function DashboardTabContent({ user, publishedWorks }: { user: UserWithSt
             <WorkCard
               key={work.work_id}
               work={work}
+              isLiked={userLikes.includes(work.work_id)}
+              isBookmarked={userBookmarks.includes(work.work_id)}
               disableContinueDialog={true}
             />
           ))}
@@ -297,7 +299,7 @@ export function DashboardTabContent({ user, publishedWorks }: { user: UserWithSt
   )
 }
 
-export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }: { user: UserWithStats; publishedWorks: Work[]; draftWorks: Work[]; userSeries?: Series[] }) {
+export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, userLikes = [], userBookmarks = [] }: { user: UserWithStats; publishedWorks: Work[]; draftWorks: Work[]; userSeries?: Series[]; userLikes?: string[]; userBookmarks?: string[] }) {
   const [activeWorksTab, setActiveWorksTab] = useState('published')
   const [showSeriesList, setShowSeriesList] = useState(true)
   const [selectedSeries, setSelectedSeries] = useState<string | null>(null)
@@ -477,6 +479,8 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }
               <WorkCard
                 key={work.work_id}
                 work={work}
+                isLiked={userLikes.includes(work.work_id)}
+                isBookmarked={userBookmarks.includes(work.work_id)}
                 disableContinueDialog={true}
               />
             ))}
@@ -527,6 +531,8 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries }
             <WorkCard
               key={work.work_id}
               work={work}
+              isLiked={userLikes.includes(work.work_id)}
+              isBookmarked={userBookmarks.includes(work.work_id)}
               disableContinueDialog={true}
             />
           ))}
@@ -736,9 +742,9 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
   }
 
   const libraryTabOptions = [
-    { id: 'liked', label: 'いいねした作品', icon: <Heart className="w-4 h-4" />, count: likedWorks.length },
+    { id: 'liked', label: 'いいね', icon: <Heart className="w-4 h-4" />, count: likedWorks.length },
     { id: 'bookmarked', label: 'ブックマーク', icon: <Bookmark className="w-4 h-4" />, count: bookmarkedWorks.length },
-    { id: 'history', label: '閲覧履歴', icon: <BookOpen className="w-4 h-4" />, count: 0 }
+    { id: 'history', label: '履歴', icon: <BookOpen className="w-4 h-4" />, count: 0 }
   ]
 
   const renderBookmarkFolders = () => {

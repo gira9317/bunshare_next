@@ -184,28 +184,39 @@ export const getWorksByCategoriesWithSort = cache(async (
   })) as Work[]
 })
 
-export const getUserLikesAndBookmarks = cache(async (userId: string, workIds: string[]) => {
+export const getUserLikesAndBookmarks = cache(async (userId: string, workIds?: string[]) => {
   const supabase = await createClient()
   
+  const likesQuery = supabase
+    .from('likes')
+    .select('work_id')
+    .eq('user_id', userId)
+  
+  const bookmarksQuery = supabase
+    .from('bookmarks')
+    .select('work_id')
+    .eq('user_id', userId)
+  
+  // workIdsが指定されている場合は絞り込む
+  if (workIds && workIds.length > 0) {
+    likesQuery.in('work_id', workIds)
+    bookmarksQuery.in('work_id', workIds)
+  }
+  
   const [likesResult, bookmarksResult] = await Promise.all([
-    supabase
-      .from('likes')
-      .select('work_id')
-      .eq('user_id', userId)
-      .in('work_id', workIds),
-    supabase
-      .from('bookmarks')
-      .select('work_id')
-      .eq('user_id', userId)
-      .in('work_id', workIds)
+    likesQuery,
+    bookmarksQuery
   ])
 
-  const likedWorkIds = likesResult.data?.map(like => like.work_id) || []
-  const bookmarkedWorkIds = bookmarksResult.data?.map(bookmark => bookmark.work_id) || []
+  const userLikes = likesResult.data?.map(like => like.work_id) || []
+  const userBookmarks = bookmarksResult.data?.map(bookmark => bookmark.work_id) || []
 
   return {
-    likedWorkIds,
-    bookmarkedWorkIds
+    userLikes,
+    userBookmarks,
+    // 互換性のため古い名前も残す
+    likedWorkIds: userLikes,
+    bookmarkedWorkIds: userBookmarks
   }
 })
 

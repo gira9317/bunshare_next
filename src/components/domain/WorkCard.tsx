@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import type { WorkCardProps } from '@/features/works/types'
 import { toggleLikeAction, incrementViewAction, getReadingProgressAction } from '@/features/works/server/actions'
 import { useRequireAuth } from '@/features/auth/hooks/useRequireAuth'
+import { useTapFeedback } from '@/hooks/useTapFeedback'
 import { ShareModal } from './ShareModal'
 import { BookmarkModal } from './BookmarkModal'
 import { ContinueReadingDialog } from '@/features/works/leaf/ContinueReadingDialog'
@@ -44,6 +45,18 @@ export function WorkCard({
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
   const { requireAuthAsync } = useRequireAuth()
+
+  // タップフィードバック
+  const cardTapFeedback = useTapFeedback({ disabled: disableNavigation })
+  const likeButtonTapFeedback = useTapFeedback({ scaleAmount: 0.9 })
+  const menuButtonTapFeedback = useTapFeedback({ scaleAmount: 0.9 })
+  const dropdownItemTapFeedback = useTapFeedback({ scaleAmount: 0.98, duration: 80 })
+
+  // ドロップダウンアイテム用のタップフィードバック付きprops
+  const getDropdownItemProps = (onClick: (e: React.MouseEvent) => void) => ({
+    ...dropdownItemTapFeedback.tapProps,
+    onClick
+  })
 
   // 表示する画像URLを決定
   const displayImageUrl = work.use_series_image && work.series_cover_image_url 
@@ -226,7 +239,9 @@ export function WorkCard({
 
   return (
     <>
-      <div onClick={(e) => {
+      <div 
+        {...cardTapFeedback.tapProps}
+        onClick={(e) => {
         // インタラクティブ要素以外がクリックされた場合のみナビゲーション
         const target = e.target as HTMLElement
         const isButton = target.tagName === 'BUTTON' || target.closest('button')
@@ -443,11 +458,20 @@ export function WorkCard({
 
                 {/* More Menu Button Only */}
                 <button 
-                  ref={moreMenuButtonRef}
+                  ref={(el) => {
+                    moreMenuButtonRef.current = el
+                    // タップフィードバックのrefも設定
+                    if (menuButtonTapFeedback.tapProps.ref && typeof menuButtonTapFeedback.tapProps.ref === 'function') {
+                      menuButtonTapFeedback.tapProps.ref(el)
+                    } else if (menuButtonTapFeedback.tapProps.ref && 'current' in menuButtonTapFeedback.tapProps.ref) {
+                      menuButtonTapFeedback.tapProps.ref.current = el
+                    }
+                  }}
+                  {...(({ ref, ...rest }) => rest)(menuButtonTapFeedback.tapProps)}
                   onClick={handleMoreMenu}
                   className={cn(
                     'more-menu-btn interactive-button p-1 rounded transition-all duration-300',
-                    'hover:bg-black/10 active:scale-95',
+                    'hover:bg-black/10',
                     displayImageUrl ? 'text-white/80' : 'text-gray-500'
                   )}
                   title="その他のオプション"
@@ -504,7 +528,7 @@ export function WorkCard({
             <>
               {/* Management Mode Menu */}
               <button
-                onClick={handleRemove}
+                {...getDropdownItemProps(handleRemove)}
                 className={cn(
                   'dropdown-item w-full px-3 py-2 text-sm text-left',
                   'flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20',
@@ -527,7 +551,7 @@ export function WorkCard({
                   {availableFolders.map((folder) => (
                     <button
                       key={folder.folder_key}
-                      onClick={(e) => handleMoveToFolder(e, folder.folder_key)}
+                      {...getDropdownItemProps((e) => handleMoveToFolder(e, folder.folder_key))}
                       className={cn(
                         'dropdown-item w-full px-3 py-2 text-sm text-left',
                         'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
@@ -551,9 +575,9 @@ export function WorkCard({
             <>
               {/* Normal Mode Menu */}
               <button
-                onClick={(e) => {
+                {...getDropdownItemProps((e) => {
                   handleBookmark(e)
-                }}
+                })}
                 className={cn(
                   'dropdown-item w-full px-3 py-2 text-sm text-left',
                   'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
@@ -568,9 +592,9 @@ export function WorkCard({
               </button>
               
               <button
-                onClick={(e) => {
+                {...getDropdownItemProps((e) => {
                   handleShare(e)
-                }}
+                })}
                 className={cn(
                   'dropdown-item w-full px-3 py-2 text-sm text-left',
                   'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',

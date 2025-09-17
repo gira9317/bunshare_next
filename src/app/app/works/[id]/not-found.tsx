@@ -20,7 +20,7 @@ export default function WorkNotFound() {
         
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
-            href="/"
+            href="/app"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />

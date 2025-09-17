@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { useTapFeedback } from '@/hooks/useTapFeedback';
 
 export interface TabItem<T = string> {
   id: T;
@@ -95,9 +96,9 @@ export function AnimatedTabs<T = string>({
   }, [activeIndex, variant]);
 
   const sizeClasses = {
-    sm: 'text-sm py-2 px-3',
-    md: 'text-sm py-3 px-4',
-    lg: 'text-base py-3 px-6'
+    sm: 'text-xs sm:text-sm py-2 px-2 sm:px-3',
+    md: 'text-xs sm:text-sm py-2 sm:py-3 px-2 sm:px-4',
+    lg: 'text-sm sm:text-base py-3 px-3 sm:px-6'
   };
 
   const containerClasses = cn(
@@ -146,12 +147,12 @@ export function AnimatedTabs<T = string>({
   };
 
   return (
-    <div className={containerClasses}>
+    <div className={cn(containerClasses, scrollable && 'max-w-full overflow-hidden')}>
       <div
         ref={containerRef}
         className={cn(
           'flex',
-          scrollable && 'overflow-x-auto scrollbar-hide',
+          scrollable && 'overflow-x-auto scrollbar-hide max-w-full',
           variant === 'underline' && 'space-x-0',
           variant === 'pill' && 'space-x-1',
           variant === 'card' && 'space-x-0'
@@ -159,26 +160,39 @@ export function AnimatedTabs<T = string>({
       >
         {tabs.map((tab, index) => {
           const isActive = tab.id === activeTab;
+          const tapFeedback = useTapFeedback({ 
+            scaleAmount: 0.96,
+            duration: 100
+          })
           
           return (
             <button
               key={String(tab.id)}
-              ref={el => tabRefs.current[index] = el}
+              ref={el => {
+                tabRefs.current[index] = el
+                // タップフィードバックのrefとtabRefsを両方設定
+                if (tapFeedback.tapProps.ref && typeof tapFeedback.tapProps.ref === 'function') {
+                  tapFeedback.tapProps.ref(el)
+                } else if (tapFeedback.tapProps.ref && 'current' in tapFeedback.tapProps.ref) {
+                  tapFeedback.tapProps.ref.current = el
+                }
+              }}
+              {...(({ ref, ...rest }) => rest)(tapFeedback.tapProps)}
               onClick={() => handleTabClick(tab, index)}
               className={tabClasses(isActive)}
             >
               {tab.icon && (
                 <span className={cn(
-                  'transition-transform duration-300',
+                  'transition-transform duration-300 flex-shrink-0',
                   isActive && variant === 'pill' && 'scale-110'
                 )}>
                   {tab.icon}
                 </span>
               )}
-              <span>{tab.label}</span>
+              <span className="truncate sm:truncate-none">{tab.label}</span>
               {showCounts && tab.count !== undefined && tab.count > 0 && (
                 <span className={cn(
-                  'px-2 py-0.5 rounded-full text-xs transition-all duration-300',
+                  'px-1.5 sm:px-2 py-0.5 rounded-full text-xs transition-all duration-300 flex-shrink-0',
                   isActive
                     ? variant === 'pill'
                       ? 'bg-white/20 text-white'
