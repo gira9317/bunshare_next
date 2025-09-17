@@ -7,6 +7,9 @@ import {
 } from '@/features/users'
 import { ProfileSuspense } from '@/features/users/sections/ProfileSuspense'
 
+// 動的レンダリングを強制（認証とクッキーを使用するため）
+export const dynamic = 'force-dynamic'
+
 export default async function ProfilePage({
   searchParams
 }: {

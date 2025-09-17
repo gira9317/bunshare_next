@@ -5,7 +5,6 @@ import type { Work } from '../types'
 export const getWorks = cache(async (limit = 10, offset = 0) => {
   const supabase = await createClient()
   
-  console.log('Getting works list...')
   
   const { data, error } = await supabase
     .from('works')
@@ -44,7 +43,6 @@ export const getWorks = cache(async (limit = 10, offset = 0) => {
     return []
   }
 
-  console.log('Works retrieved:', data?.length || 0, 'works')
 
   return data.map((work: any) => ({
     ...work,
@@ -293,7 +291,6 @@ export const getContinueReadingWorks = cache(async (userId: string) => {
 export const getUserReadingHistory = cache(async (userId: string, limit = 6, offset = 0) => {
   const supabase = await createClient()
   
-  console.log('Getting reading history...', { userId, limit, offset })
   
   const { data, error } = await supabase
     .from('reading_progress')
@@ -342,7 +339,6 @@ export const getUserReadingHistory = cache(async (userId: string, limit = 6, off
     return []
   }
 
-  console.log('Reading history retrieved:', data?.length || 0, 'works')
 
   return data.map((item: any) => ({
     ...item.works,
@@ -363,26 +359,27 @@ export const getUserReadingHistory = cache(async (userId: string, limit = 6, off
 
 export const getWorkById = cache(async (workId: string): Promise<Work | null> => {
   const supabase = await createClient()
-  
-  console.log('Getting work by ID:', workId)
-  
-  // まず、テーブル全体の状況を確認
-  try {
-    const { data: allWorks, error: countError } = await supabase
-      .from('works')
-      .select('work_id, title')
-      .limit(5)
-    
-    console.log('Available works in database:', allWorks?.map(w => ({ id: w.work_id, title: w.title })))
-    console.log('Count error if any:', countError)
-  } catch (e) {
-    console.log('Error checking works table:', e)
-  }
 
   const { data, error } = await supabase
     .from('works')
     .select(`
-      *,
+      work_id,
+      title,
+      content,
+      description,
+      category,
+      tags,
+      views_count,
+      likes_count,
+      comments_count,
+      is_published,
+      scheduled_at,
+      created_at,
+      updated_at,
+      series_id,
+      episode_number,
+      image_url,
+      use_series_image,
       users (
         username
       ),
@@ -395,14 +392,10 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
     .eq('work_id', workId)
     .single()
 
-  console.log('Query result:', { data: !!data, error, errorCode: error?.code, errorMessage: error?.message })
-
   if (error || !data) {
-    console.error('作品詳細取得エラー:', { workId, error, errorDetails: JSON.stringify(error, null, 2) })
+    console.error('作品詳細取得エラー:', { workId, error })
     return null
   }
-
-  console.log('Work data retrieved:', { title: data.title, author: data.users?.username })
 
   // 予約投稿の自動公開判定（すべて日本時間で統一）
   const now = new Date() // 日本時間（サーバーが日本時間設定）

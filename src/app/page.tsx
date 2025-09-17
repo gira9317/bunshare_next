@@ -3,6 +3,9 @@ import { ArrowRight, BookOpen, Users, TrendingUp, Sparkles, Heart, MessageCircle
 import { getLandingWorks } from '@/lib/landing-works'
 import { FloatingWorkCards } from '@/components/landing/FloatingWorkCards'
 
+// 動的レンダリングを強制（クッキーを使用するため）
+export const dynamic = 'force-dynamic'
+
 export default async function LandingPage() {
   const landingWorks = await getLandingWorks()
   return (

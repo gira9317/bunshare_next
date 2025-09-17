@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   description: 'あなたの創造性を世界とシェアしましょう',
 }
 
+// 動的レンダリングを強制（Supabaseクライアントでクッキーを使用するため）
+export const dynamic = 'force-dynamic'
+
 export default async function WorkCreatePage() {
   const supabase = await createClient()
   

@@ -11,6 +11,9 @@ import { UserWorksSuspense } from '@/features/users/components/UserWorksSuspense
 import { FollowStatusSuspense } from '@/features/users/components/FollowStatusSuspense'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 
+// 動的レンダリングを強制（認証とクッキーを使用するため）
+export const dynamic = 'force-dynamic'
+
 interface ProfilePageProps {
   params: Promise<{
     id: string

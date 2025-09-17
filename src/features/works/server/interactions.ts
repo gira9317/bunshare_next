@@ -1480,7 +1480,9 @@ export async function getMoreReadingHistoryAction(userId: string, limit = 6, off
   }
 
   try {
-    console.log('Getting more reading history...', { userId, limit, offset })
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Getting more reading history...', { userId, limit, offset })
+    }
     
     const { data, error } = await supabase
       .from('reading_progress')
@@ -1526,7 +1528,9 @@ export async function getMoreReadingHistoryAction(userId: string, limit = 6, off
 
     if (error) throw error
 
-    console.log('More reading history retrieved:', data?.length || 0, 'works')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('More reading history retrieved:', data?.length || 0, 'works')
+    }
 
     const works = data.map((item: any) => ({
       ...item.works,

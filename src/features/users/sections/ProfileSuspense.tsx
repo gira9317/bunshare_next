@@ -26,14 +26,15 @@ interface ProfileSuspenseProps {
 
 // 作品データをSuspense境界で遅延読み込み
 async function WorksDataLoader({ user, currentUserId, userSeries, defaultTab }: ProfileSuspenseProps) {
-  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks, readingHistory, likesAndBookmarks] = await Promise.all([
-    getUserPublishedWorks(user.id, 12),
-    getUserDraftWorks(user.id),
-    getUserLikedWorks(user.id),
-    getUserBookmarkedWorks(user.id),
-    getUserReadingHistory(user.id, 6, 0), // 初期6件の閲覧履歴を取得
-    getUserLikesAndBookmarks(currentUserId) // 現在のユーザーのいいね状態を取得
-  ])
+  try {
+    const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks, readingHistory, likesAndBookmarks] = await Promise.all([
+      getUserPublishedWorks(user.id, 12),
+      getUserDraftWorks(user.id),
+      getUserLikedWorks(user.id),
+      getUserBookmarkedWorks(user.id),
+      getUserReadingHistory(user.id, 6, 0).catch(() => []), // エラー時は空配列を返す
+      getUserLikesAndBookmarks(currentUserId) // 現在のユーザーのいいね状態を取得
+    ])
   
   const { userLikes, userBookmarks } = likesAndBookmarks
 
@@ -64,14 +65,63 @@ async function WorksDataLoader({ user, currentUserId, userSeries, defaultTab }: 
     }
   ]
 
-  return (
-    <ProfileTabsSection
-      user={user}
-      currentUserId={currentUserId}
-      tabs={tabs}
-      defaultTab={defaultTab || "dashboard"}
-    />
-  )
+    return (
+      <ProfileTabsSection
+        user={user}
+        currentUserId={currentUserId}
+        tabs={tabs}
+        defaultTab={defaultTab || "dashboard"}
+      />
+    )
+  } catch (error) {
+    console.error('WorksDataLoader エラー:', error)
+    // エラー時は閲覧履歴なしでフォールバック
+    const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks, likesAndBookmarks] = await Promise.all([
+      getUserPublishedWorks(user.id, 12),
+      getUserDraftWorks(user.id),
+      getUserLikedWorks(user.id),
+      getUserBookmarkedWorks(user.id),
+      getUserLikesAndBookmarks(currentUserId)
+    ])
+    
+    const { userLikes, userBookmarks } = likesAndBookmarks
+
+    const tabs = [
+      {
+        id: 'dashboard',
+        label: '投稿作品一覧', 
+        icon: <FileText className="w-5 h-5" />,
+        content: <DashboardTabContent user={user} publishedWorks={publishedWorks} userLikes={userLikes} userBookmarks={userBookmarks} />
+      },
+      {
+        id: 'works',
+        label: '作品管理',
+        icon: <PenTool className="w-5 h-5" />,
+        content: <WorksTabContent user={user} publishedWorks={publishedWorks} draftWorks={draftWorks} userSeries={userSeries} userLikes={userLikes} userBookmarks={userBookmarks} />
+      },
+      {
+        id: 'library', 
+        label: 'ライブラリ',
+        icon: <Library className="w-5 h-5" />,
+        content: <LibraryTabContent user={user} likedWorks={likedWorks} bookmarkedWorks={bookmarkedWorks} readingHistory={[]} />
+      },
+      {
+        id: 'settings',
+        label: '設定',
+        icon: <Settings className="w-5 h-5" />,
+        content: <SettingsTabContent user={user} currentUserId={currentUserId} />
+      }
+    ]
+
+    return (
+      <ProfileTabsSection
+        user={user}
+        currentUserId={currentUserId}
+        tabs={tabs}
+        defaultTab={defaultTab || "dashboard"}
+      />
+    )
+  }
 }
 
 // スケルトン UI

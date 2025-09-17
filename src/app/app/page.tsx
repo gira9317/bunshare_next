@@ -7,6 +7,9 @@ import { UserTagsSuspense } from '@/features/home/components/UserTagsSuspense'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { Suspense } from 'react'
 
+// 動的レンダリングを強制（認証とクッキーを使用するため）
+export const dynamic = 'force-dynamic'
+
 async function HomePage() {
   // 認証確認のみをサーバーサイドで実行
   const user = await getAuthenticatedUser()
