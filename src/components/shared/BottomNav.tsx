@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useTapFeedback } from '@/hooks/useTapFeedback'
 
 const navItems = [
   { 
@@ -49,6 +50,12 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname()
 
+  // 各ナビアイテム用のタップフィードバック（Hooksはトップレベルで呼び出す）
+  const tapFeedbacks = navItems.map(() => useTapFeedback({ 
+    scaleAmount: 0.92,
+    duration: 120
+  }))
+
   return (
     <nav className={cn(
       'fixed bottom-0 left-0 right-0 z-50 md:hidden',
@@ -70,17 +77,20 @@ export function BottomNav() {
 
         {navItems.map((item, index) => {
           const isActive = pathname === item.href
+          const tapFeedback = tapFeedbacks[index]
           
           return (
             <Link
               key={item.href}
               href={item.href}
+              {...tapFeedback.tapProps}
               className={cn(
                 'flex flex-col items-center justify-center',
                 'gap-0.5 sm:gap-1',
                 'px-2 sm:px-3 py-2 sm:py-2.5',
                 'rounded-xl sm:rounded-2xl',
                 'flex-1 min-w-0 max-w-20 sm:max-w-24',
+                'transition-colors duration-200',
                 isActive
                   ? 'text-purple-600 dark:text-purple-400'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-700/30'
