@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import type { Work } from '../types'
 
 export const getWorks = cache(async (limit = 10, offset = 0) => {
@@ -357,43 +358,86 @@ export const getUserReadingHistory = cache(async (userId: string, limit = 6, off
   })) as Work[]
 })
 
+// 基本作品データのキャッシュ関数を生成（PostgreSQL関数版）
+const createCachedWorkData = (workId: string) => unstable_cache(
+  async () => {
+    const supabase = await createClient()
+
+    // 最適化されたPostgreSQL関数を使用
+    const { data, error } = await supabase.rpc('get_work_with_series_info', {
+      p_work_id: workId
+    })
+
+    if (error || !data || data.length === 0) {
+      console.warn('PostgreSQL関数が利用できません。フォールバックを使用:', error?.message)
+      
+      // フォールバック: 従来のクエリ
+      const fallbackResult = await supabase
+        .from('works')
+        .select(`
+          work_id,
+          title,
+          content,
+          description,
+          category,
+          tags,
+          views_count,
+          likes_count,
+          comments_count,
+          is_published,
+          scheduled_at,
+          created_at,
+          updated_at,
+          series_id,
+          episode_number,
+          image_url,
+          use_series_image,
+          users (
+            username
+          ),
+          series (
+            id,
+            title,
+            cover_image_url
+          )
+        `)
+        .eq('work_id', workId)
+        .single()
+      
+      if (fallbackResult.error || !fallbackResult.data) {
+        console.error('作品詳細取得エラー:', { workId, error: fallbackResult.error })
+        return null
+      }
+      
+      return fallbackResult.data
+    }
+
+    // PostgreSQL関数の結果を従来の形式に変換
+    const workData = data[0]
+    return {
+      ...workData,
+      users: { username: workData.author_username },
+      series: workData.series_id ? {
+        id: workData.series_id,
+        title: workData.series_title,
+        cover_image_url: workData.series_cover_url
+      } : null,
+      // シリーズ作品情報を追加
+      series_works: workData.series_works || []
+    }
+  },
+  [`work-data-${workId}`],
+  {
+    revalidate: 1800, // 30分
+    tags: [`work-${workId}`]
+  }
+)
+
 export const getWorkById = cache(async (workId: string): Promise<Work | null> => {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase
-    .from('works')
-    .select(`
-      work_id,
-      title,
-      content,
-      description,
-      category,
-      tags,
-      views_count,
-      likes_count,
-      comments_count,
-      is_published,
-      scheduled_at,
-      created_at,
-      updated_at,
-      series_id,
-      episode_number,
-      image_url,
-      use_series_image,
-      users (
-        username
-      ),
-      series (
-        id,
-        title,
-        cover_image_url
-      )
-    `)
-    .eq('work_id', workId)
-    .single()
-
-  if (error || !data) {
-    console.error('作品詳細取得エラー:', { workId, error })
+  const getCachedWorkData = createCachedWorkData(workId)
+  const data = await getCachedWorkData()
+  
+  if (!data) {
     return null
   }
 
@@ -438,4 +482,65 @@ export const getWorkById = cache(async (workId: string): Promise<Work | null> =>
     likes: data.likes || 0,
     comments: data.comments_count || data.comments || 0
   } as Work
+})
+
+// ユーザーの作品との相互作用状態を統合取得（PostgreSQL関数版）
+export const getUserWorkInteractions = cache(async (userId: string, workId: string) => {
+  if (!userId) {
+    return {
+      isLiked: false,
+      isBookmarked: false,
+      readingProgress: 0
+    }
+  }
+
+  const supabase = await createClient()
+  
+  // 最適化されたPostgreSQL関数を使用（単一クエリ）
+  const { data, error } = await supabase.rpc('get_user_work_interactions', {
+    p_user_id: userId,
+    p_work_id: workId
+  })
+
+  if (error || !data || data.length === 0) {
+    console.warn('PostgreSQL関数が利用できません。フォールバックを使用:', error?.message)
+    
+    // フォールバック: 並列クエリ実行
+    const [likeResult, bookmarkResult, progressResult] = await Promise.all([
+      supabase
+        .from('likes')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('work_id', workId)
+        .maybeSingle(),
+      
+      supabase
+        .from('bookmarks')  
+        .select('id')
+        .eq('user_id', userId)
+        .eq('work_id', workId)
+        .maybeSingle(),
+      
+      supabase
+        .from('reading_progress')
+        .select('progress_percentage')
+        .eq('user_id', userId)
+        .eq('work_id', workId)
+        .maybeSingle()
+    ])
+
+    return {
+      isLiked: !!likeResult.data,
+      isBookmarked: !!bookmarkResult.data,
+      readingProgress: progressResult.data?.progress_percentage || 0
+    }
+  }
+
+  // PostgreSQL関数の結果を使用
+  const result = data[0]
+  return {
+    isLiked: result.is_liked || false,
+    isBookmarked: result.is_bookmarked || false,
+    readingProgress: result.reading_progress || 0
+  }
 })
