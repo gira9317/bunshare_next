@@ -1462,3 +1462,91 @@ export async function recordShareAction(
     return { error: 'シェア記録に失敗しました' }
   }
 }
+
+/**
+ * 閲覧履歴を追加で取得（ページネーション用）
+ */
+export async function getMoreReadingHistoryAction(userId: string, limit = 6, offset = 0) {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'ログインが必要です' }
+  }
+
+  // 自分の履歴のみ取得可能
+  if (user.id !== userId) {
+    return { error: '権限がありません' }
+  }
+
+  try {
+    console.log('Getting more reading history...', { userId, limit, offset })
+    
+    const { data, error } = await supabase
+      .from('reading_progress')
+      .select(`
+        work_id,
+        progress_percentage,
+        last_read_position,
+        last_read_at,
+        first_read_at,
+        works!inner (
+          work_id,
+          title,
+          category,
+          views,
+          views_count,
+          likes,
+          likes_count,
+          comments,
+          comments_count,
+          created_at,
+          tags,
+          description,
+          image_url,
+          series_id,
+          episode_number,
+          use_series_image,
+          is_published,
+          users (
+            username
+          ),
+          series (
+            id,
+            title,
+            cover_image_url
+          )
+        )
+      `)
+      .eq('user_id', userId)
+      .gte('progress_percentage', 1) // 1%以上読んだ作品のみ
+      .eq('works.is_published', true) // 公開されている作品のみ
+      .order('last_read_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (error) throw error
+
+    console.log('More reading history retrieved:', data?.length || 0, 'works')
+
+    const works = data.map((item: any) => ({
+      ...item.works,
+      author: item.works.users?.username || 'Unknown',
+      author_username: item.works.users?.username || 'Unknown',
+      series_title: item.works.series?.title || null,
+      series_cover_image_url: item.works.series?.cover_image_url || null,
+      readingProgress: Math.round(item.progress_percentage),
+      readingPosition: item.last_read_position,
+      lastReadAt: item.last_read_at,
+      firstReadAt: item.first_read_at,
+      // 新旧両方の形式をサポート
+      views: item.works.views_count || item.works.views || 0,
+      likes: item.works.likes || 0,
+      comments: item.works.comments_count || item.works.comments || 0
+    }))
+
+    return { success: true, works }
+  } catch (error) {
+    console.error('閲覧履歴追加取得エラー:', error)
+    return { error: '閲覧履歴の取得に失敗しました' }
+  }
+}

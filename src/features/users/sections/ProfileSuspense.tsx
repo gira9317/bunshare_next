@@ -14,7 +14,7 @@ import {
   getUserLikedWorks,
   getUserBookmarkedWorks
 } from '../server/loader'
-import { getUserLikesAndBookmarks } from '@/features/works/server/loader'
+import { getUserLikesAndBookmarks, getUserReadingHistory } from '@/features/works/server/loader'
 import type { Series } from '../schemas'
 
 interface ProfileSuspenseProps {
@@ -26,11 +26,12 @@ interface ProfileSuspenseProps {
 
 // 作品データをSuspense境界で遅延読み込み
 async function WorksDataLoader({ user, currentUserId, userSeries, defaultTab }: ProfileSuspenseProps) {
-  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks, likesAndBookmarks] = await Promise.all([
+  const [publishedWorks, draftWorks, likedWorks, bookmarkedWorks, readingHistory, likesAndBookmarks] = await Promise.all([
     getUserPublishedWorks(user.id, 12),
     getUserDraftWorks(user.id),
     getUserLikedWorks(user.id),
     getUserBookmarkedWorks(user.id),
+    getUserReadingHistory(user.id, 6, 0), // 初期6件の閲覧履歴を取得
     getUserLikesAndBookmarks(currentUserId) // 現在のユーザーのいいね状態を取得
   ])
   
@@ -53,7 +54,7 @@ async function WorksDataLoader({ user, currentUserId, userSeries, defaultTab }: 
       id: 'library', 
       label: 'ライブラリ',
       icon: <Library className="w-5 h-5" />,
-      content: <LibraryTabContent user={user} likedWorks={likedWorks} bookmarkedWorks={bookmarkedWorks} />
+      content: <LibraryTabContent user={user} likedWorks={likedWorks} bookmarkedWorks={bookmarkedWorks} readingHistory={readingHistory} />
     },
     {
       id: 'settings',

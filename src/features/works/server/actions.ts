@@ -24,7 +24,9 @@ export {
   saveReadingBookmarkAction,
   deleteReadingBookmarkAction,
   // Views
-  incrementViewAction
+  incrementViewAction,
+  // Reading history
+  getMoreReadingHistoryAction
 } from './interactions'
 
 export {

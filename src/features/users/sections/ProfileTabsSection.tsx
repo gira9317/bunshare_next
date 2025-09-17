@@ -29,7 +29,7 @@ import type { Work } from '@/features/works/types'
 import { SeriesCard } from '../components/SeriesCard'
 import { BookmarkFolderCard } from '../components/BookmarkFolderCard'
 import { BookmarkFolderManager } from '../leaf/BookmarkFolderManager'
-import { getBookmarkFoldersAction, getBookmarksByFolderAction, updateBookmarkOrderAction, removeBookmarkFromFolderAction, moveBookmarkToFolderAction, getSeriesWorksAction, removeWorkFromSeriesAction, updateSeriesWorkOrderAction } from '@/features/works/server/actions'
+import { getBookmarkFoldersAction, getBookmarksByFolderAction, updateBookmarkOrderAction, removeBookmarkFromFolderAction, moveBookmarkToFolderAction, getSeriesWorksAction, removeWorkFromSeriesAction, updateSeriesWorkOrderAction, getMoreReadingHistoryAction } from '@/features/works/server/actions'
 import { Folder, ArrowLeft, Settings, Lock, MoreVertical, ChevronLeft, Bookmark, Edit3, Trash2, Move, GripVertical, FileText, PenTool, Heart, Clock, Sparkles, Library, Cog, BookOpen, Calendar, Shield, Wrench, Mail, Key, ChevronRight } from 'lucide-react'
 import { PrivacySettingsCard } from '../leaf/PrivacySettingsCard'
 import { NotificationSettingsCard } from '../leaf/NotificationSettingsCard'
@@ -608,7 +608,7 @@ interface BookmarkFolder {
   last_updated?: string
 }
 
-export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user: UserWithStats; likedWorks: Work[]; bookmarkedWorks: Work[] }) {
+export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHistory: initialReadingHistory = [] }: { user: UserWithStats; likedWorks: Work[]; bookmarkedWorks: Work[]; readingHistory?: Work[] }) {
   const [activeLibraryTab, setActiveLibraryTab] = useState('liked')
   const [selectedFolder, setSelectedFolder] = useState<string>('all')
   const [showFolderManager, setShowFolderManager] = useState(false)
@@ -618,6 +618,42 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
   const [showFolderList, setShowFolderList] = useState(true)
   const [loading, setLoading] = useState(false)
   const [isManagementMode, setIsManagementMode] = useState(false)
+  
+  // 閲覧履歴関連のstate
+  const [readingHistory, setReadingHistory] = useState<Work[]>(initialReadingHistory)
+  const [historyPage, setHistoryPage] = useState(0)
+  const [loadingMoreHistory, setLoadingMoreHistory] = useState(false)
+  const [hasMoreHistory, setHasMoreHistory] = useState(initialReadingHistory.length === 6)
+
+  // もっと表示するボタンの処理
+  const loadMoreHistory = async () => {
+    if (loadingMoreHistory || !hasMoreHistory) return
+    
+    setLoadingMoreHistory(true)
+    try {
+      const nextPage = historyPage + 1
+      const offset = nextPage * 6
+      const result = await getMoreReadingHistoryAction(user.id, 6, offset)
+      
+      if (result.success && result.works && result.works.length > 0) {
+        setReadingHistory(prev => [...prev, ...result.works])
+        setHistoryPage(nextPage)
+        // 6件未満の場合は最後のページ
+        if (result.works.length < 6) {
+          setHasMoreHistory(false)
+        }
+      } else {
+        setHasMoreHistory(false)
+        if (result.error) {
+          console.error('閲覧履歴の追加読み込みエラー:', result.error)
+        }
+      }
+    } catch (error) {
+      console.error('閲覧履歴の追加読み込みエラー:', error)
+    } finally {
+      setLoadingMoreHistory(false)
+    }
+  }
 
   // Drag and Drop sensors
   const sensors = useSensors(
@@ -744,7 +780,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
   const libraryTabOptions = [
     { id: 'liked', label: 'いいね', icon: <Heart className="w-4 h-4" />, count: likedWorks.length },
     { id: 'bookmarked', label: 'ブックマーク', icon: <Bookmark className="w-4 h-4" />, count: bookmarkedWorks.length },
-    { id: 'history', label: '履歴', icon: <BookOpen className="w-4 h-4" />, count: 0 }
+    { id: 'history', label: '履歴', icon: <BookOpen className="w-4 h-4" />, count: readingHistory.length }
   ]
 
   const renderBookmarkFolders = () => {
@@ -978,15 +1014,67 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks }: { user:
         return renderFolderWorks()
       }
     } else if (activeLibraryTab === 'history') {
-      // For reading history, we would need a separate query
-      works = []
+      // 閲覧履歴の表示
+      if (readingHistory.length === 0) {
+        return (
+          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            閲覧履歴がありません
+          </div>
+        )
+      }
+
+      return (
+        <div className="space-y-6">
+          <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+            {readingHistory.map((work) => (
+              <WorkCard
+                key={work.work_id}
+                work={work}
+                isLiked={false}
+                isBookmarked={false}
+                hasReadingProgress={true}
+                readingProgress={work.readingProgress || 0}
+                disableContinueDialog={false}
+              />
+            ))}
+          </div>
+          
+          {/* もっと表示するボタン */}
+          {hasMoreHistory && (
+            <div className="flex justify-center">
+              <button
+                onClick={loadMoreHistory}
+                disabled={loadingMoreHistory}
+                className={cn(
+                  'px-6 py-3 rounded-lg font-medium transition-all',
+                  'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+                  'hover:bg-purple-200 dark:hover:bg-purple-900/50',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  'flex items-center gap-2'
+                )}
+              >
+                {loadingMoreHistory ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin" />
+                    読み込み中...
+                  </>
+                ) : (
+                  <>
+                    <ChevronRight className="w-4 h-4" />
+                    もっと表示する
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
+      )
     }
 
     if (works.length === 0) {
       return (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
           {activeLibraryTab === 'liked' && 'いいねした作品がありません'}
-          {activeLibraryTab === 'history' && '閲覧履歴がありません'}
         </div>
       )
     }

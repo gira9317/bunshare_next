@@ -367,7 +367,7 @@ export function WorkCard({
             ) : null}
 
             <h3 className={cn(
-              'font-bold text-base sm:text-lg md:text-xl lg:text-lg xl:text-base leading-tight line-clamp-2',
+              'font-bold text-base sm:text-lg md:text-xl lg:text-lg xl:text-base leading-tight line-clamp-1',
               'transition-colors duration-300',
               displayImageUrl 
                 ? cn('text-white', !disableNavigation && 'group-hover:text-gray-100')
