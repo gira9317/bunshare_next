@@ -71,8 +71,8 @@ export function TagInput({ tags, onChange, maxTags = 10 }: TagInputProps) {
     <div className="space-y-3">
       <div className={cn(
         "flex flex-wrap gap-2 p-3 rounded-lg border",
-        "bg-white dark:bg-gray-900",
-        "border-gray-300 dark:border-gray-600",
+        "bg-white",
+        "border-gray-300",
         "focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-500/20",
         "transition-all"
       )}>
@@ -82,8 +82,8 @@ export function TagInput({ tags, onChange, maxTags = 10 }: TagInputProps) {
             key={index}
             className={cn(
               "inline-flex items-center gap-1 px-3 py-1 rounded-full",
-              "bg-purple-100 dark:bg-purple-900/30",
-              "text-purple-700 dark:text-purple-300",
+              "bg-purple-100",
+              "text-purple-700",
               "text-sm font-medium"
             )}
           >
@@ -92,7 +92,7 @@ export function TagInput({ tags, onChange, maxTags = 10 }: TagInputProps) {
             <button
               type="button"
               onClick={() => removeTag(index)}
-              className="ml-1 hover:text-purple-900 dark:hover:text-purple-100"
+              className="ml-1 hovertext-purple-100"
             >
               <X className="w-3 h-3" />
             </button>
@@ -109,8 +109,8 @@ export function TagInput({ tags, onChange, maxTags = 10 }: TagInputProps) {
             className={cn(
               "flex-1 min-w-[120px] px-2 py-1",
               "bg-transparent outline-none",
-              "text-gray-900 dark:text-white",
-              "placeholder-gray-500 dark:placeholder-gray-400"
+              "text-gray-900",
+              "placeholder-gray-500"
             )}
             placeholder={tags.length === 0 ? "タグを入力してEnter" : ""}
           />
@@ -126,7 +126,7 @@ export function TagInput({ tags, onChange, maxTags = 10 }: TagInputProps) {
       <input type="hidden" name="tags" value={tags.join(',')} />
 
       {/* ヒント */}
-      <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex justify-between items-center text-xs text-gray-500">
         <span>
           {tags.length}/{maxTags} 個のタグ
         </span>
@@ -138,7 +138,7 @@ export function TagInput({ tags, onChange, maxTags = 10 }: TagInputProps) {
       {/* 人気のタグ（サジェスト） */}
       {tags.length < maxTags && (
         <div className="space-y-2">
-          <p className="text-xs font-medium text-gray-700 dark:text-gray-300">
+          <p className="text-xs font-medium text-gray-700">
             人気のタグ:
           </p>
           <div className="flex flex-wrap gap-2">
@@ -150,8 +150,8 @@ export function TagInput({ tags, onChange, maxTags = 10 }: TagInputProps) {
                 disabled={tags.includes(tag)}
                 className={cn(
                   "px-2 py-1 rounded text-xs",
-                  "border border-gray-300 dark:border-gray-600",
-                  "hover:bg-gray-100 dark:hover:bg-gray-700",
+                  "border border-gray-300",
+                  "hover:bg-gray-50",
                   "transition-colors",
                   tags.includes(tag) && "opacity-50 cursor-not-allowed"
                 )}

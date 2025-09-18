@@ -255,17 +255,17 @@ export function RichTextEditor({
       {/* ツールバー */}
       <div className={cn(
         "flex items-center gap-1 p-2 rounded-lg border",
-        "bg-gray-50 dark:bg-gray-900",
-        "border-gray-300 dark:border-gray-600",
+        "bg-gray-50",
+        "border-gray-300",
         isFocused && "border-purple-500 ring-2 ring-purple-500/20"
       )}>
         <button
           type="button"
           onClick={() => formatText('bold')}
           className={cn(
-            "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700",
+            "p-2 rounded hover:bg-gray-50",
             "transition-colors",
-            "text-gray-700 dark:text-gray-300"
+            "text-gray-700"
           )}
           title="太字"
         >
@@ -276,9 +276,9 @@ export function RichTextEditor({
           type="button"
           onClick={() => formatText('italic')}
           className={cn(
-            "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700",
+            "p-2 rounded hover:bg-gray-50",
             "transition-colors",
-            "text-gray-700 dark:text-gray-300"
+            "text-gray-700"
           )}
           title="斜体"
         >
@@ -289,31 +289,31 @@ export function RichTextEditor({
           type="button"
           onClick={() => formatText('underline')}
           className={cn(
-            "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700",
+            "p-2 rounded hover:bg-gray-50",
             "transition-colors",
-            "text-gray-700 dark:text-gray-300"
+            "text-gray-700"
           )}
           title="下線"
         >
           <Underline className="w-4 h-4" />
         </button>
         
-        <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1" />
+        <div className="w-px h-6 bg-gray-300 mx-1" />
         
         <button
           type="button"
           onClick={() => formatText('insertUnorderedList')}
           className={cn(
-            "p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700",
+            "p-2 rounded hover:bg-gray-50",
             "transition-colors",
-            "text-gray-700 dark:text-gray-300"
+            "text-gray-700"
           )}
           title="箇条書き"
         >
           •
         </button>
         
-        <div className="ml-auto flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <div className="ml-auto flex items-center gap-2 text-xs text-gray-500">
           <span>
             {textLength.toLocaleString()} / {maxLength.toLocaleString()}
           </span>
@@ -334,14 +334,14 @@ export function RichTextEditor({
         onTouchMove={handleTouchEnd}
         className={cn(
           "w-full min-h-[400px] px-4 py-3 rounded-lg border",
-          "bg-white dark:bg-gray-900",
-          "border-gray-300 dark:border-gray-600",
-          "text-gray-900 dark:text-white",
+          "bg-white",
+          "border-gray-300",
+          "text-gray-900",
           "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent",
           "transition-colors",
           "font-serif text-lg leading-relaxed",
           "prose prose-sm max-w-none",
-          "[&_.placeholder]:text-gray-500 [&_.placeholder]:dark:text-gray-400",
+          "[&_.placeholder]:text-gray-500 [&_.placeholder]text-gray-400",
           "[&_.placeholder]:pointer-events-none [&_.placeholder]:select-none"
         )}
         style={{ 
@@ -354,10 +354,10 @@ export function RichTextEditor({
       {/* ヒント */}
       <div className="flex items-start gap-2">
         <div className="flex-1 space-y-1">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500">
             ヒント: テキストを選択して右クリック（スマホは長押し）すると校正機能が使えます
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500">
             リッチテキスト形式で保存されます
           </p>
         </div>

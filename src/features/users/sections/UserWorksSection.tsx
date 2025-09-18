@@ -21,13 +21,13 @@ export function UserWorksSection({
 }: UserWorksSectionProps) {
   if (works.length === 0 && !isLoading) {
     return (
-      <div className={cn('bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8', className)}>
+      <div className={cn('bg-white border border-gray-200 rounded-xl p-8', className)}>
         <div className="text-center">
           <div className="text-4xl mb-4">📝</div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
             まだ作品がありません
           </h3>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             このユーザーはまだ作品を投稿していません。
           </p>
         </div>
@@ -39,10 +39,10 @@ export function UserWorksSection({
     <div className={cn('space-y-6', className)}>
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-xl font-bold text-gray-900">
           作品一覧
         </h2>
-        <span className="text-sm text-gray-600 dark:text-gray-400">
+        <span className="text-sm text-gray-600">
           {works.length}作品
         </span>
       </div>
@@ -90,7 +90,7 @@ export function UserWorksSection({
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="animate-pulse bg-gray-100 dark:bg-gray-700 rounded-xl h-48"
+              className="animate-pulse bg-gray-100 rounded-xl h-48"
             />
           ))}
         </div>

@@ -59,23 +59,23 @@ export function WorkCreateDraftSection({ drafts }: WorkCreateDraftSectionProps) 
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* ヘッダー */}
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className={cn(
           "w-full p-6 flex items-center justify-between",
-          "hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+          "hover:bg-gray-750 transition-colors"
         )}
       >
         <div className="flex items-center gap-3">
           <FileText className="w-6 h-6 text-blue-600" />
           <div className="text-left">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-semibold text-gray-900">
               下書きから読み込み
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-gray-500">
               {drafts.length}件の下書きがあります
             </p>
           </div>
@@ -89,7 +89,7 @@ export function WorkCreateDraftSection({ drafts }: WorkCreateDraftSectionProps) 
 
       {/* 下書き一覧 */}
       {isExpanded && (
-        <div className="border-t border-gray-200 dark:border-gray-700">
+        <div className="border-t border-gray-200">
           <div className="p-6 pt-0">
             <div className="space-y-3 max-h-60 overflow-y-auto">
               {drafts.map((draft) => (
@@ -100,30 +100,30 @@ export function WorkCreateDraftSection({ drafts }: WorkCreateDraftSectionProps) 
                     "p-4 rounded-lg border cursor-pointer transition-all",
                     "hover:shadow-md hover:scale-[1.01]",
                     selectedDraft?.work_id === draft.work_id
-                      ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                      : "border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-200 bg-gray-50"
                   )}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-gray-900 dark:text-white truncate">
+                      <h3 className="font-medium text-gray-900 truncate">
                         {draft.title || '無題の作品'}
                       </h3>
                       {draft.description && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
                           {draft.description}
                         </p>
                       )}
                       <div className="flex items-center gap-4 mt-2">
-                        <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
                           <Clock className="w-3 h-3" />
                           {formatDistanceToNow(draft.updated_at)}
                         </div>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-gray-500">
                           {draft.category}
                         </span>
                         {draft.tags && draft.tags.length > 0 && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-gray-500">
                             {draft.tags.length}個のタグ
                           </span>
                         )}
@@ -135,8 +135,8 @@ export function WorkCreateDraftSection({ drafts }: WorkCreateDraftSectionProps) 
             </div>
             
             {selectedDraft && (
-              <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
                   ✅ 「{selectedDraft.title || '無題の作品'}」を読み込みました。
                   フォームを編集して再投稿できます。
                 </p>

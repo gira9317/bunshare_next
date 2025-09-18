@@ -5,7 +5,7 @@ import { useState, useEffect, ReactNode } from 'react'
 type Theme = 'light' | 'dark' | 'system'
 
 export function useDarkMode() {
-  const [theme, setTheme] = useState<Theme>('system')
+  const [theme, setTheme] = useState<Theme>('light')
   const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -20,14 +20,17 @@ export function useDarkMode() {
       setTheme(savedTheme)
       applyTheme(savedTheme)
     } else {
-      applyTheme('system')
+      // デフォルトはライトテーマ（ブラウザ設定無視）
+      setTheme('light')
+      applyTheme('light')
     }
 
-    // システムテーマの変更を監視
+    // システムテーマの変更を監視（systemモード時のみ）
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleSystemThemeChange = () => {
       const currentTheme = localStorage.getItem('theme') as Theme | null
-      if (currentTheme === 'system' || !currentTheme) {
+      // ユーザーが明示的に'system'を選択した場合のみ連動
+      if (currentTheme === 'system') {
         console.log('System theme changed, reapplying...')
         applyTheme('system')
       }

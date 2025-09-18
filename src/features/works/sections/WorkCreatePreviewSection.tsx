@@ -213,13 +213,13 @@ export function WorkCreatePreviewSection() {
     <div className="space-y-6">
       {/* プレビュー表示 */}
       {showPreview && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white rounded-xl p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
             プレビュー
           </h2>
           
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          <div className="bg-gray-50 rounded-lg p-4">
+            <p className="text-sm text-gray-600 mb-4">
               作品カードは以下のように表示されます
             </p>
             
@@ -231,7 +231,7 @@ export function WorkCreatePreviewSection() {
       )}
 
       {/* アクションボタン */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6">
+      <div className="bg-white rounded-xl p-6">
         <div className="flex flex-col sm:flex-row gap-3">
           {/* プレビューボタン */}
           <button
@@ -240,7 +240,7 @@ export function WorkCreatePreviewSection() {
             className={cn(
               "flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg",
               "border border-purple-600 text-purple-600",
-              "hover:bg-purple-50 dark:hover:bg-purple-900/20",
+              "hover:bg-purple-900/20",
               "transition-all hover:scale-105 active:scale-95",
               "font-medium"
             )}
@@ -256,7 +256,7 @@ export function WorkCreatePreviewSection() {
             disabled={isSubmitting}
             className={cn(
               "flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-lg",
-              "bg-gray-600 hover:bg-gray-700",
+              "bg-gray-600 hover:bg-gray-50",
               "text-white font-medium",
               "transition-all hover:scale-105 active:scale-95",
               "disabled:opacity-50 disabled:cursor-not-allowed"
@@ -294,8 +294,8 @@ export function WorkCreatePreviewSection() {
         </div>
 
         {/* 注意事項 */}
-        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-          <p className="text-xs text-yellow-800 dark:text-yellow-200">
+        <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
+          <p className="text-xs text-yellow-800">
             ⚠️ 投稿前に内容をよく確認してください。一度公開した作品は削除できますが、読者の記憶からは消えません。
           </p>
         </div>

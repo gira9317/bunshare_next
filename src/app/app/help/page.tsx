@@ -3,14 +3,14 @@ import Link from 'next/link'
 
 export default function HelpPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* ヘッダー */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             ヘルプセンター
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             Bunshareの使い方やよくある質問をご覧いただけます
           </p>
         </div>
@@ -18,43 +18,43 @@ export default function HelpPage() {
         {/* クイックアクセス */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
           <Link href="/app/works/create" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-all">
+            <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-purple-400 transition-all">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                    <Book className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Book className="w-5 h-5 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <h3 className="font-semibold text-gray-900">
                       作品を投稿する
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-600">
                       新しい作品を作成・公開
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" />
+                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-purple-400 transition-colors" />
               </div>
             </div>
           </Link>
 
           <Link href="/app/trends" className="group">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-all">
+            <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-purple-400 transition-all">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                    <MessageCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <MessageCircle className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                    <h3 className="font-semibold text-gray-900">
                       トレンドを見る
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-600">
                       人気の作品を探す
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-400 transition-colors" />
               </div>
             </div>
           </Link>
@@ -62,17 +62,17 @@ export default function HelpPage() {
 
         {/* よくある質問 */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             よくある質問
           </h2>
           <div className="space-y-4">
-            <details className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <span className="font-medium text-gray-900 dark:text-white">
+            <details className="bg-white rounded-lg border border-gray-200">
+              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50/50 transition-colors">
+                <span className="font-medium text-gray-900">
                   作品を投稿するにはどうすればよいですか？
                 </span>
               </summary>
-              <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
+              <div className="px-6 pb-4 text-gray-600">
                 <ol className="list-decimal list-inside space-y-2">
                   <li>ログイン後、サイドバーもしくはボトムバーから作品を投稿ボタンをクリック</li>
                   <li>タイトル、カテゴリー、本文を入力</li>
@@ -82,13 +82,13 @@ export default function HelpPage() {
               </div>
             </details>
 
-            <details className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <span className="font-medium text-gray-900 dark:text-white">
+            <details className="bg-white rounded-lg border border-gray-200">
+              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50/50 transition-colors">
+                <span className="font-medium text-gray-900">
                   ブックマークとはなんですか？
                 </span>
               </summary>
-              <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
+              <div className="px-6 pb-4 text-gray-600">
                 ブックマークは、後で読みたい作品を保存する機能です。
                 作品カードの「...」メニューからブックマークできます。
                 ブックマークした作品は、プロフィールページの「ライブラリ」タブから確認できます。
@@ -96,26 +96,26 @@ export default function HelpPage() {
               </div>
             </details>
 
-            <details className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <span className="font-medium text-gray-900 dark:text-white">
+            <details className="bg-white rounded-lg border border-gray-200">
+              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50/50 transition-colors">
+                <span className="font-medium text-gray-900">
                   シリーズ機能の使い方を教えてください
                 </span>
               </summary>
-              <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
+              <div className="px-6 pb-4 text-gray-600">
                 シリーズ機能を使うと、複数の作品を連続したストーリーとして管理できます。
                 作品投稿時に「シリーズに追加」を選択し、新規シリーズを作成するか既存のシリーズを選択してください。
                 読者はシリーズ単位で作品を追いかけることができます。
               </div>
             </details>
 
-            <details className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <span className="font-medium text-gray-900 dark:text-white">
+            <details className="bg-white rounded-lg border border-gray-200">
+              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50/50 transition-colors">
+                <span className="font-medium text-gray-900">
                   プライバシー設定はどこから変更できますか？
                 </span>
               </summary>
-              <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
+              <div className="px-6 pb-4 text-gray-600">
                 プロフィールページの「設定」タブから、以下の設定を変更できます：
                 <ul className="list-disc list-inside mt-2 space-y-1">
                   <li>プロフィールの公開/非公開</li>
@@ -126,13 +126,13 @@ export default function HelpPage() {
               </div>
             </details>
 
-            <details className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                <span className="font-medium text-gray-900 dark:text-white">
+            <details className="bg-white rounded-lg border border-gray-200">
+              <summary className="px-6 py-4 cursor-pointer hover:bg-gray-50/50 transition-colors">
+                <span className="font-medium text-gray-900">
                   作品の削除はできますか？
                 </span>
               </summary>
-              <div className="px-6 pb-4 text-gray-600 dark:text-gray-400">
+              <div className="px-6 pb-4 text-gray-600">
                 はい、自分の作品は削除できます。
                 プロフィールページの「作品管理」タブから、削除したい作品の「編集」ボタンをクリックし、
                 編集画面の最下部にある「作品を削除」ボタンから削除できます。
@@ -144,53 +144,53 @@ export default function HelpPage() {
 
         {/* 使い方ガイド */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             使い方ガイド
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-3">
                 初めての方へ
               </h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-start gap-2">
-                  <span className="text-purple-600 dark:text-purple-400">•</span>
+                  <span className="text-purple-600">•</span>
                   <span>アカウントを作成してログイン</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-purple-600 dark:text-purple-400">•</span>
+                  <span className="text-purple-600">•</span>
                   <span>プロフィールを設定</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-purple-600 dark:text-purple-400">•</span>
+                  <span className="text-purple-600">•</span>
                   <span>興味のある作品を探して読む</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-purple-600 dark:text-purple-400">•</span>
+                  <span className="text-purple-600">•</span>
                   <span>気に入った作品にいいねやコメント</span>
                 </li>
               </ul>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
+            <div className="bg-white rounded-lg p-6 border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-3">
                 作品を投稿する
               </h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+              <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600 dark:text-blue-400">•</span>
+                  <span className="text-blue-600">•</span>
                   <span>サイドバーまたはボトムバーから投稿画面へ</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600 dark:text-blue-400">•</span>
+                  <span className="text-blue-600">•</span>
                   <span>下書き保存で後から編集可能</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600 dark:text-blue-400">•</span>
+                  <span className="text-blue-600">•</span>
                   <span>タグを追加して見つけやすく</span>
                 </li>
                 <li className="flex items-start gap-2">
-                  <span className="text-blue-600 dark:text-blue-400">•</span>
+                  <span className="text-blue-600">•</span>
                   <span>シリーズ機能で連載も可能</span>
                 </li>
               </ul>
@@ -200,13 +200,13 @@ export default function HelpPage() {
 
         {/* お問い合わせ */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             お問い合わせ
           </h2>
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded-lg p-6 border border-gray-200">
             <div className="flex items-center gap-3 mb-4">
-              <Mail className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              <span className="text-gray-900 dark:text-white">
+              <Mail className="w-5 h-5 text-gray-600" />
+              <span className="text-gray-900">
                 ご不明な点がございましたら、お気軽にお問い合わせください
               </span>
             </div>
@@ -222,34 +222,34 @@ export default function HelpPage() {
 
         {/* 利用規約・プライバシーポリシー */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
             規約・ポリシー
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link href="/terms" className="group">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-all">
+              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-gray-600 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <Shield className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium text-gray-900">
                       利用規約
                     </span>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-gray-300" />
                 </div>
               </div>
             </Link>
 
             <Link href="/privacy" className="group">
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 transition-all">
+              <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-gray-600 transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <span className="font-medium text-gray-900 dark:text-white">
+                    <Shield className="w-5 h-5 text-gray-600" />
+                    <span className="font-medium text-gray-900">
                       プライバシーポリシー
                     </span>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-gray-300" />
                 </div>
               </div>
             </Link>

@@ -17,26 +17,26 @@ export function TrendTagChip({ tag, size = 'md', className = '' }: TrendTagChipP
   };
 
   const growthColor = tag.growth_rate > 0 
-    ? 'text-green-600 dark:text-green-400'
-    : 'text-gray-500 dark:text-gray-400';
+    ? 'text-green-600'
+    : 'text-gray-500';
 
   return (
     <Link
       href={`/app/search?q=${encodeURIComponent(tag.tag)}&type=works`}
       className={cn(
         "trend-tag-chip group inline-flex items-center justify-between gap-3",
-        "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700",
-        "rounded-lg hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600",
+        "bg-white border border-gray-200",
+        "rounded-lg hover:shadow-md hover:border-blue-600",
         "transition-all duration-200",
         sizeClasses[size],
         className
       )}
     >
       <div className="flex-1 min-w-0">
-        <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
+        <div className="font-medium text-gray-900 truncate">
           #{tag.tag}
         </div>
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-gray-500">
           {tag.count.toLocaleString()} 投稿
         </div>
       </div>

@@ -133,12 +133,12 @@ export function WorkDetailContentSection({
     <div className="space-y-6">
       {/* シリーズナビゲーション */}
       {seriesWorks.length > 0 && (
-        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div className="flex items-center gap-2">
             {prevEpisode ? (
               <a
                 href={`/app/works/${prevEpisode.work_id}`}
-                className="flex items-center gap-1 text-sm text-purple-600 dark:text-purple-400 hover:underline"
+                className="flex items-center gap-1 text-sm text-purple-600 hover:underline"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>前話: {prevEpisode.title}</span>
@@ -148,7 +148,7 @@ export function WorkDetailContentSection({
             )}
           </div>
           
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          <span className="text-sm font-semibold text-gray-700">
             第{work.episode_number || 1}話
           </span>
           
@@ -156,7 +156,7 @@ export function WorkDetailContentSection({
             {nextEpisode ? (
               <a
                 href={`/app/works/${nextEpisode.work_id}`}
-                className="flex items-center gap-1 text-sm text-purple-600 dark:text-purple-400 hover:underline"
+                className="flex items-center gap-1 text-sm text-purple-600 hover:underline"
               >
                 <span>次話: {nextEpisode.title}</span>
                 <ChevronRight className="w-4 h-4" />
@@ -171,7 +171,7 @@ export function WorkDetailContentSection({
 
       {/* フォントサイズ設定 */}
       <div className="flex items-center justify-end gap-2">
-        <span className="text-sm text-gray-600 dark:text-gray-400">文字サイズ:</span>
+        <span className="text-sm text-gray-600">文字サイズ:</span>
         <div className="flex gap-1">
           {fontSizes.map(size => (
             <button
@@ -181,7 +181,7 @@ export function WorkDetailContentSection({
                 "px-3 py-1 text-sm rounded-md transition-colors",
                 fontSize === size.value
                   ? "bg-purple-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-50"
               )}
             >
               {size.label}
@@ -193,14 +193,14 @@ export function WorkDetailContentSection({
       {/* 本文 */}
       <div
         ref={contentRef}
-        className="prose prose-gray dark:prose-invert max-w-none work-content-container"
+        className="prose prose-gray max-w-none work-content-container"
       >
         <div 
           id="main-content-text"
           className={cn(
             "whitespace-pre-wrap leading-relaxed work-content",
             fontSize,
-            "text-gray-800 dark:text-gray-200",
+            "text-gray-800",
           )}
           dangerouslySetInnerHTML={{ 
             __html: work.content?.replace(/\n/g, '<br />') || '' 

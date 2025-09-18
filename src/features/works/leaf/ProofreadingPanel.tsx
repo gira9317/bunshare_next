@@ -88,40 +88,40 @@ export function ProofreadingPanel({
   return (
     <div className={cn(
       "fixed right-0 top-0 h-full w-96 z-50",
-      "bg-white dark:bg-gray-800",
-      "border-l border-gray-200 dark:border-gray-700",
+      "bg-white",
+      "border-l border-gray-200",
       "shadow-xl",
       "transform transition-transform duration-300 ease-in-out",
       isOpen ? "translate-x-0" : "translate-x-full"
     )}>
       {/* ヘッダー */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <h3 className="text-lg font-semibold text-gray-900">
           AI 校正
         </h3>
         <button
           onClick={handleClose}
-          className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+          className="p-1 rounded-lg hover:bg-gray-50 transition-colors"
         >
-          <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+          <X className="w-5 h-5 text-gray-500" />
         </button>
       </div>
 
       {/* コンテンツ */}
       <div className="flex flex-col h-[calc(100%-73px)]">
         {/* 選択されたテキスト表示 */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div className="p-4 border-b border-gray-200">
+          <p className="text-sm font-medium text-gray-700 mb-2">
             選択されたテキスト
           </p>
-          <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-lg text-sm text-gray-900 dark:text-white max-h-32 overflow-y-auto">
+          <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-900 max-h-32 overflow-y-auto">
             {selectedText}
           </div>
         </div>
 
         {/* プロンプト入力 */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <div className="p-4 border-b border-gray-200">
+          <p className="text-sm font-medium text-gray-700 mb-2">
             修正の指示
           </p>
           <div className="space-y-2">
@@ -131,10 +131,10 @@ export function ProofreadingPanel({
               placeholder="例: 敬語を丁寧語に統一してください"
               className={cn(
                 "w-full h-24 px-3 py-2 rounded-lg border resize-none",
-                "bg-white dark:bg-gray-900",
-                "border-gray-300 dark:border-gray-600",
-                "text-gray-900 dark:text-white",
-                "placeholder-gray-500 dark:placeholder-gray-400",
+                "bg-white",
+                "border-gray-300",
+                "text-gray-900",
+                "placeholder-gray-500",
                 "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               )}
               disabled={isLoading}
@@ -162,8 +162,8 @@ export function ProofreadingPanel({
         {/* 結果表示 */}
         <div className="flex-1 p-4 overflow-y-auto">
           {error && (
-            <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg mb-4">
-              <p className="text-sm text-red-700 dark:text-red-300">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
+              <p className="text-sm text-red-700">
                 {error}
               </p>
             </div>
@@ -172,20 +172,20 @@ export function ProofreadingPanel({
           {result && (
             <div className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <p className="text-sm font-medium text-gray-700 mb-2">
                   修正案
                 </p>
-                <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-gray-900 dark:text-white">
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-gray-900">
                   {result.revisedText}
                 </div>
               </div>
 
               {result.explanation && (
                 <div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <p className="text-sm font-medium text-gray-700 mb-2">
                     修正理由
                   </p>
-                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700">
                     {result.explanation}
                   </div>
                 </div>
@@ -208,7 +208,7 @@ export function ProofreadingPanel({
                   className={cn(
                     "flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg",
                     "bg-gray-600 text-white font-medium",
-                    "hover:bg-gray-700 transition-colors"
+                    "hover:bg-gray-50 transition-colors"
                   )}
                 >
                   <RotateCcw className="w-4 h-4" />

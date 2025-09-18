@@ -221,7 +221,7 @@ export function BookmarkModal({
       {/* Modal */}
       <div 
         className={cn(
-          'relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl',
+          'relative bg-white rounded-xl shadow-2xl',
           'w-full max-w-md mx-4 p-6',
           'animate-in slide-in-from-bottom-4 duration-300'
         )}
@@ -232,23 +232,23 @@ export function BookmarkModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h2 className="text-xl font-bold text-gray-900">
             保存先を選択
           </h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <X size={20} className="text-gray-500" />
           </button>
         </div>
 
         {/* Work Info */}
-        <div className="mb-6 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-          <h3 className="font-medium text-gray-900 dark:text-white line-clamp-1">
+        <div className="mb-6 p-3 bg-gray-50 rounded-lg">
+          <h3 className="font-medium text-gray-900 line-clamp-1">
             {title}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-600">
             by {author}
           </p>
         </div>
@@ -256,7 +256,7 @@ export function BookmarkModal({
         {/* Folders List */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label className="block text-sm font-medium text-gray-700">
               フォルダを選択
             </label>
             <button
@@ -279,7 +279,7 @@ export function BookmarkModal({
               {/* システムフォルダ */}
               {folders.filter(folder => folder.is_system).length > 0 && (
                 <div>
-                  <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">
+                  <h4 className="text-xs font-medium text-gray-500 mb-2 px-1">
                     システムフォルダ
                   </h4>
                   <div className="space-y-1">
@@ -291,8 +291,8 @@ export function BookmarkModal({
                           className={cn(
                             'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
                             isSelected
-                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                              : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                              ? 'border-purple-500 bg-purple-50'
+                              : 'border-gray-200 hover:bg-gray-50'
                           )}
                           onClick={(e) => {
                             e.preventDefault()
@@ -306,13 +306,13 @@ export function BookmarkModal({
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 pointer-events-none"
                           />
                           <Folder size={16} className="text-gray-500" />
-                          <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
+                          <span className="flex-1 text-sm text-gray-700">
                             {folder.folder_name}
                           </span>
                           <button
                             onClick={(e) => handlePrivateToggle(folder, e)}
                             className={cn(
-                              "p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+                              "p-1 rounded hover:bg-gray-600 transition-colors",
                               folder.is_system ? "cursor-not-allowed opacity-50" : "cursor-pointer"
                             )}
                             title={folder.is_system ? "システムフォルダは設定を変更できません" : (folder.is_private ? "プライベート設定を解除" : "プライベート設定にする")}
@@ -333,7 +333,7 @@ export function BookmarkModal({
               {/* カスタムフォルダ */}
               {folders.filter(folder => !folder.is_system).length > 0 && (
                 <div>
-                  <h4 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">
+                  <h4 className="text-xs font-medium text-gray-500 mb-2 px-1">
                     カスタムフォルダ
                   </h4>
                   <div className="space-y-1">
@@ -345,8 +345,8 @@ export function BookmarkModal({
                           className={cn(
                             'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors',
                             isSelected
-                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-                              : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700'
+                              ? 'border-purple-500 bg-purple-50'
+                              : 'border-gray-200 hover:bg-gray-50'
                           )}
                           onClick={(e) => {
                             e.preventDefault()
@@ -360,12 +360,12 @@ export function BookmarkModal({
                             className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 pointer-events-none"
                           />
                           <Folder size={16} className="text-gray-500" />
-                          <span className="flex-1 text-sm text-gray-700 dark:text-gray-300">
+                          <span className="flex-1 text-sm text-gray-700">
                             {folder.folder_name}
                           </span>
                           <button
                             onClick={(e) => handlePrivateToggle(folder, e)}
-                            className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
+                            className="p-1 rounded hover:bg-gray-600 transition-colors cursor-pointer"
                             title={folder.is_private ? "プライベート設定を解除" : "プライベート設定にする"}
                           >
                             {folder.is_private ? (
@@ -395,14 +395,14 @@ export function BookmarkModal({
 
         {/* Create New Folder Form */}
         {showCreateForm && (
-          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg">
             <div className="space-y-3">
               <input
                 type="text"
                 value={newFolderName}
                 onChange={(e) => setNewFolderName(e.target.value)}
                 placeholder="フォルダ名を入力"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               />
               <label className="flex items-center gap-2">
                 <input
@@ -411,14 +411,14 @@ export function BookmarkModal({
                   onChange={(e) => setIsPrivate(e.target.checked)}
                   className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">
+                <span className="text-sm text-gray-700">
                   プライベートフォルダにする
                 </span>
               </label>
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowCreateForm(false)}
-                  className="flex-1 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                  className="flex-1 px-3 py-2 text-sm text-gray-600 hovertext-gray-200"
                 >
                   キャンセル
                 </button>
@@ -436,7 +436,7 @@ export function BookmarkModal({
 
         {/* Memo Input */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
             メモ（任意）
           </label>
           <textarea
@@ -445,7 +445,7 @@ export function BookmarkModal({
             placeholder="ブックマークにメモを追加..."
             rows={3}
             maxLength={500}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-sm"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-sm"
           />
           <div className="text-right text-xs text-gray-500 mt-1">
             {memo.length}/500
@@ -456,7 +456,7 @@ export function BookmarkModal({
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-3 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="flex-1 px-4 py-3 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             キャンセル
           </button>
@@ -467,7 +467,7 @@ export function BookmarkModal({
               'flex-1 px-4 py-3 font-medium rounded-lg transition-colors',
               hasChanges() && dataLoaded
                 ? 'bg-purple-500 hover:bg-purple-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             )}
           >
             {loading ? '保存中...' : !dataLoaded ? '読み込み中...' : '保存'}

@@ -103,9 +103,9 @@ export function AnimatedTabs<T = string>({
 
   const containerClasses = cn(
     'relative',
-    variant === 'underline' && 'border-b border-gray-200 dark:border-gray-700',
-    variant === 'pill' && 'p-1 bg-gray-100 dark:bg-gray-800 rounded-xl',
-    variant === 'card' && 'border-b border-gray-200 dark:border-gray-700',
+    variant === 'underline' && 'border-b border-gray-200',
+    variant === 'pill' && 'p-1 bg-gray-100 rounded-xl',
+    variant === 'card' && 'border-b border-gray-200',
     className
   );
 
@@ -119,22 +119,22 @@ export function AnimatedTabs<T = string>({
     variant === 'underline' && cn(
       'border-b-2 transition-colors',
       isActive
-        ? 'text-blue-600 dark:text-blue-400 border-transparent'
-        : 'text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-gray-100'
+        ? 'text-blue-600 border-transparent'
+        : 'text-gray-600 border-transparent hovertext-gray-100'
     ),
     
     variant === 'pill' && cn(
       'rounded-lg transition-all duration-300',
       isActive
         ? 'text-white bg-blue-600 shadow-md transform scale-105'
-        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700'
+        : 'text-gray-600 hovertext-gray-100 hover:bg-gray-50'
     ),
     
     variant === 'card' && cn(
       'border-b-2 transition-all duration-300',
       isActive
-        ? 'text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400 bg-blue-50 dark:bg-blue-950/20'
-        : 'text-gray-600 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800/50'
+        ? 'text-blue-600 border-blue-600 bg-blue-50'
+        : 'text-gray-600 border-transparent hovertext-gray-100 hover:bg-gray-800/50'
     ),
     
     // Scrollable styles
@@ -196,8 +196,8 @@ export function AnimatedTabs<T = string>({
                   isActive
                     ? variant === 'pill'
                       ? 'bg-white/20 text-white'
-                      : 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                      : 'bg-blue-100 text-blue-600'
+                    : 'bg-gray-200 text-gray-600'
                 )}>
                   {tab.count}
                 </span>
@@ -210,7 +210,7 @@ export function AnimatedTabs<T = string>({
       {/* Animated underline indicator */}
       {variant === 'underline' && (
         <div
-          className="absolute bottom-0 h-0.5 bg-blue-600 dark:bg-blue-400 transition-all duration-300 ease-out"
+          className="absolute bottom-0 h-0.5 bg-blue-600 transition-all duration-300 ease-out"
           style={{
             width: indicatorStyle.width,
             transform: `translateX(${indicatorStyle.left}px)`

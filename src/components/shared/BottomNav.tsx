@@ -59,14 +59,19 @@ export function BottomNav() {
   return (
     <nav className={cn(
       'fixed bottom-0 left-0 right-0 z-50 md:hidden',
-      'bg-white/95 dark:bg-gray-800/95 backdrop-blur-md',
-      'border-t border-gray-200/50 dark:border-gray-700/50',
+      'backdrop-blur-md',
       'shadow-lg shadow-black/5',
       // セーフエリア対応
       'pb-safe',
       // モーダル表示時は非表示
       '[body.modal-open_&]:hidden'
-    )}>
+    )}
+    style={{
+      backgroundColor: 'var(--bg-primary)',
+      borderTopColor: 'var(--border-primary)',
+      borderTopWidth: '1px',
+      opacity: '0.95'
+    }}>
       <div 
         className={cn(
           'relative flex items-center justify-around',
@@ -92,8 +97,8 @@ export function BottomNav() {
                 'flex-1 min-w-0 max-w-20 sm:max-w-24',
                 'transition-colors duration-200',
                 isActive
-                  ? 'text-purple-600 dark:text-purple-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-700/30'
+                  ? 'text-purple-600'
+                  : 'text-gray-500 hovertext-gray-300 hover:bg-gray-50/30'
               )}
             >
               <span className="w-5 h-5 sm:w-6 sm:h-6">

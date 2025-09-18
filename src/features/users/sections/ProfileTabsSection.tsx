@@ -129,10 +129,10 @@ export function ProfileTabsSection({
       {/* Tab Content */}
       <div className="min-h-[400px] relative">
         {isLoading && (
-          <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 z-10 flex items-center justify-center">
+          <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center">
             <div className="relative">
-              <div className="w-10 h-10 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
-              <div className="absolute top-0 left-0 w-10 h-10 border-4 border-purple-600 dark:border-purple-400 rounded-full border-t-transparent animate-spin"></div>
+              <div className="w-10 h-10 border-4 border-gray-200 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-10 h-10 border-4 border-purple-600 rounded-full border-t-transparent animate-spin"></div>
             </div>
           </div>
         )}
@@ -180,7 +180,7 @@ function DraggableSeriesWorkCard({
         <button
           {...attributes}
           {...listeners}
-          className="p-1 bg-gray-900/80 text-white rounded hover:bg-gray-700/80 transition-colors"
+          className="p-1 bg-gray-900/80 text-white rounded hover:bg-gray-50/80 transition-colors"
         >
           <GripVertical className="w-4 h-4" />
         </button>
@@ -230,8 +230,8 @@ function DraggableWorkCard({ work, isManagementMode, onRemove, onMove, available
       style={style}
       className={cn(
         'relative transition-transform duration-200',
-        isManagementMode && 'ring-2 ring-blue-200 dark:ring-blue-800 rounded-lg bg-blue-50/30 dark:bg-blue-950/30',
-        isDragging && 'z-50 opacity-75 scale-105 rotate-2 shadow-2xl ring-4 ring-blue-300 dark:ring-blue-600'
+        isManagementMode && 'ring-2 ring-blue-200 rounded-lg bg-blue-50/30',
+        isDragging && 'z-50 opacity-75 scale-105 rotate-2 shadow-2xl ring-4 ring-blue-300'
       )}
     >
       {/* Management Mode Overlay - ボタンを個別に配置 */}
@@ -239,11 +239,11 @@ function DraggableWorkCard({ work, isManagementMode, onRemove, onMove, available
         <>
           {/* Drag Handle */}
           <div 
-            className="absolute top-2 left-2 z-20 flex items-center justify-center w-10 h-10 bg-white/95 dark:bg-gray-800/95 rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-600/50 cursor-grab active:cursor-grabbing hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+            className="absolute top-2 left-2 z-20 flex items-center justify-center w-10 h-10 bg-white/95 rounded-xl shadow-lg border border-gray-200/50 cursor-grab active:cursor-grabbing hover:bg-blue-900/30 transition-colors"
             {...attributes} 
             {...listeners}
           >
-            <GripVertical className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <GripVertical className="w-5 h-5 text-gray-600" />
           </div>
           
           {/* Delete Button */}
@@ -291,7 +291,7 @@ export function DashboardTabContent({ user, publishedWorks, userLikes = [], user
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           まだ投稿された作品がありません
         </div>
       )}
@@ -378,24 +378,24 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
       return (
         <div className="space-y-6">
           {/* Series Info Header */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                    <Library className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Library className="w-5 h-5 text-purple-600" />
                   </div>
                   <div>
-                    <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    <h1 className="text-xl font-bold text-gray-900">
                       {selectedSeriesData?.title || 'シリーズ'}
                     </h1>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <p className="text-sm text-gray-600">
                       作品数: {selectedSeriesData?.works_count || 0}話
                     </p>
                   </div>
                 </div>
                 {selectedSeriesData?.description && (
-                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                  <p className="text-sm text-gray-700 mb-3">
                     {selectedSeriesData.description}
                   </p>
                 )}
@@ -403,7 +403,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
             </div>
           </div>
           
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             このシリーズには作品がありません
           </div>
         </div>
@@ -413,24 +413,24 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
     return (
       <div className="space-y-6">
         {/* Series Info Header */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+        <div className="bg-white rounded-xl p-6 border border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                  <Library className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Library className="w-5 h-5 text-purple-600" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  <h1 className="text-xl font-bold text-gray-900">
                     {selectedSeriesData?.title || 'シリーズ'}
                   </h1>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-600">
                     作品数: {seriesWorks.length}話 • 最終更新: {new Date().toLocaleDateString('ja-JP')}
                   </p>
                 </div>
               </div>
               {selectedSeriesData?.description && (
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                <p className="text-sm text-gray-700 mb-3">
                   {selectedSeriesData.description}
                 </p>
               )}
@@ -442,7 +442,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
                 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
                 isSeriesManagementMode
                   ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
-                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-blue-500 dark:hover:border-blue-400'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-600 hover:border-blue-400'
               )}
             >
               <Edit3 className="w-4 h-4" />
@@ -500,7 +500,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
       // Show series list
       if (!userSeries || userSeries.length === 0) {
         return (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             まだシリーズがありません
           </div>
         )
@@ -520,7 +520,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
       // Show published works
       if (publishedWorks.length === 0) {
         return (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             まだ投稿された作品がありません
           </div>
         )
@@ -541,7 +541,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
     } else if (activeWorksTab === 'scheduled') {
       // For scheduled works, we would need a separate query
       return (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           予約投稿された作品がありません
         </div>
       )
@@ -561,12 +561,12 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
                 setSelectedSeries(null)
                 setIsSeriesManagementMode(false)
               }}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hovertext-gray-200 transition-colors"
             >
               <ArrowLeft size={16} />
               シリーズ一覧に戻る
             </button>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            <h2 className="text-xl font-bold text-gray-900">
               📚 {userSeries?.find(s => s.id === selectedSeries)?.title || 'シリーズ'}
             </h2>
           </div>
@@ -788,14 +788,14 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
       return (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mr-3"></div>
-          <span className="text-gray-600 dark:text-gray-400">読み込み中...</span>
+          <span className="text-gray-600">読み込み中...</span>
         </div>
       )
     }
 
     if (bookmarkFolders.length === 0) {
       return (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           <Folder size={48} className="mx-auto mb-4 text-gray-400" />
           <p className="text-lg mb-2">フォルダがありません</p>
           <p className="text-sm">「フォルダ管理」からフォルダを作成してください</p>
@@ -848,7 +848,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
       return (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mr-3"></div>
-          <span className="text-gray-600 dark:text-gray-400">作品を読み込み中...</span>
+          <span className="text-gray-600">作品を読み込み中...</span>
         </div>
       )
     }
@@ -859,7 +859,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
           {/* YouTube-style folder info bar */}
           {renderFolderInfoBar()}
           
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             このフォルダにはブックマークされた作品がありません
           </div>
         </div>
@@ -918,10 +918,10 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
     if (!folder) return null
 
     return (
-      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-6">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Thumbnail */}
-          <div className="relative w-full sm:w-48 h-32 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-600 flex-shrink-0">
+          <div className="relative w-full sm:w-48 h-32 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
             {folder.thumbnail_url ? (
               <img
                 src={folder.thumbnail_url}
@@ -940,10 +940,10 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
           
           {/* Info */}
           <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
               {folder.folder_name}
             </h2>
-            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300 mb-3">
+            <div className="flex items-center gap-4 text-sm text-gray-600 mb-3">
               <span>{folder.work_count || folderWorks.length} 作品</span>
               <span>•</span>
               <span>ブックマークフォルダ</span>
@@ -959,10 +959,10 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
             </div>
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                <p className="text-gray-700 text-sm leading-relaxed">
                   {isManagementMode ? (
                     <>
-                      <span className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-medium">
+                      <span className="inline-flex items-center gap-2 text-blue-600 font-medium">
                         <GripVertical className="w-4 h-4" />
                         管理モード: ドラッグで並び替え、削除ボタンで作品を削除できます
                       </span>
@@ -974,7 +974,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
                   )}
                 </p>
                 {folder.last_updated && selectedFolder !== 'all' && !isManagementMode && (
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                  <p className="text-xs text-gray-500 mt-2">
                     最終更新: {new Date(folder.last_updated).toLocaleString('ja-JP')}
                   </p>
                 )}
@@ -987,7 +987,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
                     'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
                     isManagementMode
                       ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
-                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-blue-500 dark:hover:border-blue-400'
+                      : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-600 hover:border-blue-400'
                   )}
                 >
                   <Edit3 className="w-4 h-4" />
@@ -1017,7 +1017,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
       // 閲覧履歴の表示
       if (readingHistory.length === 0) {
         return (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             閲覧履歴がありません
           </div>
         )
@@ -1047,8 +1047,8 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
                 disabled={loadingMoreHistory}
                 className={cn(
                   'px-6 py-3 rounded-lg font-medium transition-all',
-                  'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
-                  'hover:bg-purple-200 dark:hover:bg-purple-900/50',
+                  'bg-purple-100 text-purple-700',
+                  'hover:bg-purple-900/50',
                   'disabled:opacity-50 disabled:cursor-not-allowed',
                   'flex items-center gap-2'
                 )}
@@ -1073,7 +1073,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
 
     if (works.length === 0) {
       return (
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           {activeLibraryTab === 'liked' && 'いいねした作品がありません'}
         </div>
       )
@@ -1105,14 +1105,14 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
                 setFolderWorks([])
                 setSelectedFolder('all')
               }}
-              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hovertext-gray-200 transition-colors"
             >
               <ArrowLeft size={16} />
               フォルダ一覧に戻る
             </button>
           )}
           {activeLibraryTab === 'bookmarked' && !showFolderList && (
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            <h2 className="text-xl font-bold text-gray-900">
               📁 {selectedFolder === 'all' ? 'すべてのブックマーク' : 
                    bookmarkFolders.find(f => f.folder_key === selectedFolder)?.folder_name || 'フォルダ'}
             </h2>
@@ -1121,7 +1121,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
       </div>
 
       {/* Sub-tabs with AnimatedTabs */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="border-b border-gray-200">
         <div className="flex items-center justify-between">
           <UnderlineTabs
             tabs={libraryTabOptions}
@@ -1167,7 +1167,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
 
       {/* Folder Management Panel */}
       {showFolderManager && activeLibraryTab === 'bookmarked' && (
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
+        <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
           <BookmarkFolderManager
             userId={user.id}
             onFolderSelect={(folderKey) => {
@@ -1189,7 +1189,7 @@ export function SettingsTabContent({ user, currentUserId }: { user: UserWithStat
 
   if (!isOwnProfile) {
     return (
-      <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+      <div className="text-center py-12 text-gray-500">
         設定は自分のプロフィールでのみ表示されます
       </div>
     )

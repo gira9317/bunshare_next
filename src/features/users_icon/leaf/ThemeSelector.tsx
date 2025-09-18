@@ -19,7 +19,7 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
     return (
       <div className={cn(
         'flex items-center gap-3 px-4 py-2.5 w-full text-left',
-        'text-sm text-gray-700 dark:text-gray-200',
+        'text-sm text-gray-700',
         className
       )}>
         <span className="w-5 h-5 flex items-center justify-center">
@@ -30,7 +30,7 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
           </svg>
         </span>
         <span className="font-medium flex-1">テーマ</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">読み込み中...</span>
+        <span className="text-xs text-gray-500">読み込み中...</span>
       </div>
     )
   }
@@ -41,8 +41,8 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'flex items-center gap-3 px-4 py-2.5 w-full text-left',
-          'text-sm text-gray-700 dark:text-gray-200',
-          'hover:bg-gray-100 dark:hover:bg-gray-700',
+          'text-sm text-gray-700',
+          'hover:bg-gray-50',
           'transition-colors duration-150'
         )}
       >
@@ -66,7 +66,7 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
           )}
         </span>
         <span className="font-medium flex-1">テーマ</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-xs text-gray-500">
           {currentTheme?.label}
         </span>
         <svg 
@@ -89,7 +89,7 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
       </button>
       
       {isOpen && (
-        <div className="ml-4 border-l border-gray-200 dark:border-gray-700">
+        <div className="ml-4 border-l border-gray-200">
           {themes.map(({ key, label, icon }) => {
           const getIconElement = (iconKey: string) => {
             switch(iconKey) {
@@ -136,10 +136,10 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
               }}
               className={cn(
                 'flex items-center gap-3 px-4 py-2 w-full text-left',
-                'text-sm text-gray-600 dark:text-gray-300',
-                'hover:bg-gray-50 dark:hover:bg-gray-800',
+                'text-sm text-gray-600',
+                'hover:bg-gray-800',
                 'transition-colors duration-150',
-                theme === key && 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                theme === key && 'bg-blue-50 text-blue-600'
               )}
             >
               <span className="w-5 h-5 flex items-center justify-center">{getIconElement(icon)}</span>
@@ -150,7 +150,7 @@ export function ThemeSelector({ className }: ThemeSelectorProps) {
                   height="16" 
                   viewBox="0 0 24 24" 
                   fill="none" 
-                  className="text-blue-600 dark:text-blue-400 ml-auto"
+                  className="text-blue-600 ml-auto"
                 >
                   <path 
                     d="M20 6 9 17l-5-5" 

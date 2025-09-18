@@ -34,9 +34,9 @@ export function NotificationItem({
       onClick={handleClick}
       className={cn(
         'flex gap-3 px-4 py-3',
-        'hover:bg-gray-50 dark:hover:bg-gray-800',
+        'hover:bg-gray-800',
         'cursor-pointer transition-colors',
-        !notification.is_read && 'bg-blue-50/50 dark:bg-blue-900/10',
+        !notification.is_read && 'bg-blue-50/50',
         className
       )}
     >
@@ -46,12 +46,12 @@ export function NotificationItem({
       
       <div className="flex-1 min-w-0">
         <p className={cn(
-          'text-sm text-gray-900 dark:text-gray-100',
+          'text-sm text-gray-900',
           !notification.is_read && 'font-semibold'
         )}>
           {notification.message}
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p className="text-xs text-gray-500 mt-1">
           {timeAgo}
         </p>
       </div>

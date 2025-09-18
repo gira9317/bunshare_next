@@ -45,14 +45,14 @@ export function SettingToggle({
         <label 
           htmlFor={id}
           className={cn(
-            'text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer',
+            'text-sm font-medium text-gray-900 cursor-pointer',
             disabled && 'cursor-not-allowed'
           )}
         >
           {label}
         </label>
         {description && (
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             {description}
           </p>
         )}
@@ -66,8 +66,8 @@ export function SettingToggle({
         disabled={disabled || isLoading}
         onClick={handleToggle}
         className={cn(
-          'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800',
-          checked ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700',
+          'relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focusring-offset-gray-800',
+          checked ? 'bg-blue-600' : 'bg-gray-200',
           (disabled || isLoading) && 'cursor-not-allowed opacity-50'
         )}
       >

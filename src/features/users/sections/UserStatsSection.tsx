@@ -21,20 +21,20 @@ interface StatCardProps {
 
 function StatCard({ icon: Icon, label, value, trend }: StatCardProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+          <div className="p-2 bg-blue-50 rounded-lg">
+            <Icon className="w-5 h-5 text-blue-600" />
           </div>
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          <span className="text-sm font-medium text-gray-600">
             {label}
           </span>
         </div>
       </div>
       
       <div className="space-y-1">
-        <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <div className="text-2xl font-bold text-gray-900">
           {value.toLocaleString()}
         </div>
         
@@ -42,8 +42,8 @@ function StatCard({ icon: Icon, label, value, trend }: StatCardProps) {
           <div className={cn(
             'flex items-center gap-1 text-sm',
             trend.isPositive 
-              ? 'text-green-600 dark:text-green-400' 
-              : 'text-red-600 dark:text-red-400'
+              ? 'text-green-600' 
+              : 'text-red-600'
           )}>
             <svg className={cn(
               'w-4 h-4',
@@ -108,7 +108,7 @@ export function UserStatsSection({ stats, className }: UserStatsSectionProps) {
 
   return (
     <div className={cn('space-y-6', className)}>
-      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+      <h2 className="text-xl font-bold text-gray-900">
         統計情報
       </h2>
       

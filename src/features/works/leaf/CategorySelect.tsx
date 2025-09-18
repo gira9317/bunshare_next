@@ -20,7 +20,7 @@ const categories = [
 export function CategorySelect({ value, onChange, required = false }: CategorySelectProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label className="block text-sm font-medium text-gray-700">
         カテゴリ {required && <span className="text-red-500">*</span>}
       </label>
       
@@ -35,7 +35,7 @@ export function CategorySelect({ value, onChange, required = false }: CategorySe
               "hover:scale-105 active:scale-95",
               value === category.value
                 ? "bg-purple-600 border-purple-600 text-white"
-                : "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400"
+                : "bg-white border-gray-300 text-gray-700 hover:border-purple-400"
             )}
           >
             <span className="text-sm font-medium">{category.label}</span>

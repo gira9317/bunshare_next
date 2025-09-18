@@ -24,7 +24,7 @@ export function PeriodSelect({ options, value, onChange, className }: PeriodSele
     <div className={cn("relative", className)}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
       >
         <span>{currentOption?.label || '期間を選択'}</span>
         <svg
@@ -46,7 +46,7 @@ export function PeriodSelect({ options, value, onChange, className }: PeriodSele
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 z-20 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
+          <div className="absolute right-0 z-20 mt-2 w-32 bg-white border border-gray-300 rounded-lg shadow-lg">
             {options.map((option) => (
               <button
                 key={option.value}
@@ -56,11 +56,11 @@ export function PeriodSelect({ options, value, onChange, className }: PeriodSele
                 }}
                 className={cn(
                   "w-full px-3 py-2 text-left text-sm transition-colors",
-                  "hover:bg-gray-50 dark:hover:bg-gray-700",
+                  "hover:bg-gray-50",
                   "first:rounded-t-lg last:rounded-b-lg",
                   value === option.value
-                    ? "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
-                    : "text-gray-700 dark:text-gray-300"
+                    ? "bg-purple-50 text-purple-600"
+                    : "text-gray-700"
                 )}
               >
                 {option.label}

@@ -23,14 +23,14 @@ function StatItem({ label, count, onClick }: StatItemProps) {
     <div 
       className={cn(
         'text-center',
-        onClick && 'cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors'
+        onClick && 'cursor-pointer hovertext-blue-400 transition-colors'
       )}
       onClick={onClick}
     >
-      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="text-2xl font-bold text-gray-900">
         {count.toLocaleString()}
       </div>
-      <div className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="text-sm text-gray-600">
         {label}
       </div>
     </div>

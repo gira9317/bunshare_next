@@ -33,11 +33,11 @@ export function PrivacySettingsCard({ user }: PrivacySettingsCardProps) {
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+      <h3 className="text-lg font-medium text-gray-900">
         プライバシー設定
       </h3>
       
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-1">
+      <div className="bg-gray-50 rounded-lg p-4 space-y-1">
         <SettingToggle
           id="publicProfile"
           label="プロフィール公開"
@@ -46,7 +46,7 @@ export function PrivacySettingsCard({ user }: PrivacySettingsCardProps) {
           onChange={(checked) => handleUpdateSetting('public_profile', checked)}
         />
         
-        <div className="border-t border-gray-200 dark:border-gray-700 my-3" />
+        <div className="border-t border-gray-200 my-3" />
         
         <SettingToggle
           id="followApproval"

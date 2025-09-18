@@ -146,8 +146,8 @@ export function ImageUpload({
             "relative border-2 border-dashed rounded-xl p-8",
             "transition-all duration-200",
             dragActive
-              ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-              : "border-gray-300 dark:border-gray-600 hover:border-purple-400",
+              ? "border-purple-500 bg-purple-50"
+              : "border-gray-300 hover:border-purple-400",
             "cursor-pointer"
           )}
           onDragEnter={handleDrag}
@@ -165,29 +165,29 @@ export function ImageUpload({
           />
           
           <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="p-4 bg-purple-100 dark:bg-purple-900/30 rounded-full">
-              <Upload className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+            <div className="p-4 bg-purple-100 rounded-full">
+              <Upload className="w-8 h-8 text-purple-600" />
             </div>
             
             <div className="text-center">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">
+              <p className="text-sm font-medium text-gray-900">
                 画像をアップロード
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-gray-500 mt-1">
                 クリックまたはドラッグ&ドロップ
               </p>
             </div>
             
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500">
               JPG, PNG, GIF (最大10MB)
             </p>
           </div>
           
           {isUploading && (
-            <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 rounded-xl flex items-center justify-center">
+            <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center">
               <div className="flex flex-col items-center gap-2">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">アップロード中...</span>
+                <span className="text-sm text-gray-600">アップロード中...</span>
               </div>
             </div>
           )}

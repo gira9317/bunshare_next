@@ -71,14 +71,14 @@ export function FollowListModal({
     : `${userCount || users.length} フォロー中`
 
   return (
-    <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       {/* Full Page Header */}
-      <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 z-10">
+      <div className="sticky top-0 bg-white border-b border-gray-200 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center gap-3 mb-3">
             <button
               onClick={onClose}
-              className="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              className="flex items-center gap-2 text-gray-500 hovertext-gray-200 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -88,10 +88,10 @@ export function FollowListModal({
           </div>
           {/* Username and count display */}
           <div className="pl-8">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-1">
+            <h1 className="text-xl font-bold text-gray-900 mb-1">
               {userDisplayName?.replace('@', '') || 'username'}
             </h1>
-            <h2 className="text-sm text-gray-600 dark:text-gray-400">
+            <h2 className="text-sm text-gray-600">
               {countText}
             </h2>
           </div>
@@ -105,7 +105,7 @@ export function FollowListModal({
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           </div>
         ) : users.length === 0 ? (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             {type === 'followers' ? 'フォロワーはいません' : 'フォローしているユーザーはいません'}
           </div>
         ) : (

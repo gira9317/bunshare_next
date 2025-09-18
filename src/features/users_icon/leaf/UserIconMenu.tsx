@@ -43,19 +43,24 @@ export function UserIconMenu({
       
       <div className={cn(
         'absolute right-0 top-full mt-2',
-        'w-64 bg-white dark:bg-gray-800',
-        'rounded-lg shadow-lg border border-gray-200 dark:border-gray-700',
+        'w-64',
+        'rounded-lg shadow-lg',
         'z-50 overflow-hidden',
         'animate-in fade-in-0 zoom-in-95 duration-200',
         className
-      )}>
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+      )}
+      style={{
+        backgroundColor: 'var(--bg-primary)',
+        borderColor: 'var(--border-primary)',
+        borderWidth: '1px'
+      }}>
+        <div className="p-4" style={{ borderBottomColor: 'var(--border-primary)', borderBottomWidth: '1px' }}>
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+              <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>
                 {user.username || 'ユーザー'}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              <p className="text-xs truncate" style={{ color: 'var(--text-secondary)' }}>
                 {user.email}
               </p>
             </div>
@@ -69,8 +74,8 @@ export function UserIconMenu({
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className={cn(
                 'flex items-center gap-3 px-4 py-2.5 w-full text-left',
-                'text-sm text-gray-700 dark:text-gray-200',
-                'hover:bg-gray-100 dark:hover:bg-gray-700',
+                'text-sm text-gray-700',
+                'hover:bg-gray-50',
                 'transition-colors duration-150'
               )}
             >
@@ -101,7 +106,7 @@ export function UserIconMenu({
             </button>
             
             {isProfileOpen && (
-              <div className="ml-4 border-l border-gray-200 dark:border-gray-700">
+              <div className="ml-4 border-l border-gray-200">
                 <UserIconMenuItem
                   label="投稿作品一覧"
                   icon={
@@ -182,7 +187,7 @@ export function UserIconMenu({
               </svg>
             }
             onClick={handleSignOut}
-            className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+            className="text-red-600 hover:bg-red-900/20"
           />
         </div>
       </div>

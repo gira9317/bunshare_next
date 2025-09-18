@@ -33,7 +33,7 @@ export function TrendHeroSection({ className = '' }: TrendHeroSectionProps) {
   return (
     <section className={`trend-hero-section ${className}`}>
       <Suspense fallback={
-        <div className="hero-skeleton bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" 
+        <div className="hero-skeleton bg-gray-200 rounded-xl animate-pulse" 
              style={{ aspectRatio: '16/6' }}>
           <LoadingSpinner className="h-full" />
         </div>

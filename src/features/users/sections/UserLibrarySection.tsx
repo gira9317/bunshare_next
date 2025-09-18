@@ -139,13 +139,13 @@ export function UserLibrarySection({
       const emptyState = emptyStates[activeTab] || emptyStates.works
 
       return (
-        <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8">
+        <div className="bg-white border border-gray-200 rounded-xl p-8">
           <div className="text-center">
             <div className="text-4xl mb-4">{emptyState.icon}</div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {emptyState.message}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600">
               {emptyState.description}
             </p>
           </div>
@@ -182,7 +182,7 @@ export function UserLibrarySection({
   return (
     <div className={cn('space-y-6', className)}>
       {/* Tab Navigation */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="border-b border-gray-200">
         <nav className="flex overflow-x-auto scrollbar-hide space-x-1 sm:space-x-8" aria-label="Tabs">
           {visibleTabs.map((tab) => {
             const Icon = tab.icon
@@ -193,8 +193,8 @@ export function UserLibrarySection({
                 className={cn(
                   'group inline-flex items-center gap-2 py-4 px-3 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap',
                   activeTab === tab.id
-                    ? 'border-purple-500 text-purple-600 dark:text-purple-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'border-purple-500 text-purple-600'
+                    : 'border-transparent text-gray-500 hovertext-gray-300 hover:border-gray-600'
                 )}
               >
                 <Icon className="w-4 h-4" />
@@ -204,8 +204,8 @@ export function UserLibrarySection({
                   <span className={cn(
                     'ml-1 rounded-full px-2.5 py-0.5 text-xs font-medium',
                     activeTab === tab.id
-                      ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                      ? 'bg-purple-100 text-purple-800'
+                      : 'bg-gray-100 text-gray-600'
                   )}>
                     {tab.count}
                   </span>
@@ -217,7 +217,7 @@ export function UserLibrarySection({
       </div>
 
       {/* Tab Description */}
-      <div className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="text-sm text-gray-600">
         {tabs.find(tab => tab.id === activeTab)?.description}
       </div>
 

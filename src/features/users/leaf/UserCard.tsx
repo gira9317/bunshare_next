@@ -90,8 +90,8 @@ export function UserCard({
   return (
     <div
       className={cn(
-        'bg-white dark:bg-gray-800',
-        'rounded-2xl border border-gray-200 dark:border-gray-700',
+        'bg-white',
+        'rounded-2xl border border-gray-200',
         'transition-all duration-300 cursor-pointer',
         'hover:border-purple-400/40 hover:shadow-lg hover:-translate-y-0.5',
         'shadow-sm backdrop-blur-xl w-full',
@@ -108,7 +108,7 @@ export function UserCard({
             'rounded-full overflow-hidden',
             'bg-gradient-to-br from-purple-500 via-purple-600 to-indigo-700',
             'flex items-center justify-center',
-            'border-2 border-white dark:border-gray-800',
+            'border-2 border-white',
             'shadow-md w-12 h-12',
             compact && 'w-10 h-10'
           )}>
@@ -136,14 +136,14 @@ export function UserCard({
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <h3 className={cn(
-                  'font-bold text-gray-900 dark:text-gray-100 text-lg leading-tight',
+                  'font-bold text-gray-900 text-lg leading-tight',
                   compact && 'text-base'
                 )}>
                   {user.username || 'ユーザー'}
                 </h3>
                 {user.custom_user_id && (
                   <p className={cn(
-                    'text-gray-500 dark:text-gray-400 text-xs mt-0.5',
+                    'text-gray-500 text-xs mt-0.5',
                     compact && 'text-xs'
                   )}>
                     @{user.custom_user_id}
@@ -171,7 +171,7 @@ export function UserCard({
 
             {/* Bio - 最大2行表示 */}
             {user.bio && !compact && (
-              <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2">
+              <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
                 {user.bio}
               </p>
             )}
@@ -180,30 +180,30 @@ export function UserCard({
             <div className="flex items-center gap-4">
               <div className="flex items-baseline gap-1">
                 <span className={cn(
-                  'font-bold text-gray-900 dark:text-gray-100 text-base',
+                  'font-bold text-gray-900 text-base',
                   compact && 'text-sm'
                 )}>
                   {formatNumber(stats.works_count)}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400 text-xs">作品</span>
+                <span className="text-gray-500 text-xs">作品</span>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className={cn(
-                  'font-bold text-gray-900 dark:text-gray-100 text-base',
+                  'font-bold text-gray-900 text-base',
                   compact && 'text-sm'
                 )}>
                   {formatNumber(stats.following_count)}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400 text-xs">フォロー</span>
+                <span className="text-gray-500 text-xs">フォロー</span>
               </div>
               <div className="flex items-baseline gap-1">
                 <span className={cn(
-                  'font-bold text-gray-900 dark:text-gray-100 text-base',
+                  'font-bold text-gray-900 text-base',
                   compact && 'text-sm'
                 )}>
                   {formatNumber(stats.followers_count)}
                 </span>
-                <span className="text-gray-500 dark:text-gray-400 text-xs">フォロワー</span>
+                <span className="text-gray-500 text-xs">フォロワー</span>
               </div>
             </div>
           </div>

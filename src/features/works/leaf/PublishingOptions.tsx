@@ -40,7 +40,7 @@ export function PublishingOptions({
             "hover:scale-105 active:scale-95",
             publishTiming === 'now'
               ? "bg-purple-600 border-purple-600 text-white"
-              : "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400"
+              : "bg-white border-gray-300 text-gray-700 hover:border-purple-400"
           )}
         >
           <Rocket className="w-6 h-6 mx-auto mb-2" />
@@ -59,7 +59,7 @@ export function PublishingOptions({
             "hover:scale-105 active:scale-95",
             publishTiming === 'scheduled'
               ? "bg-purple-600 border-purple-600 text-white"
-              : "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400"
+              : "bg-white border-gray-300 text-gray-700 hover:border-purple-400"
           )}
         >
           <Calendar className="w-6 h-6 mx-auto mb-2" />
@@ -78,7 +78,7 @@ export function PublishingOptions({
             "hover:scale-105 active:scale-95",
             publishTiming === 'draft'
               ? "bg-purple-600 border-purple-600 text-white"
-              : "bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-purple-400"
+              : "bg-white border-gray-300 text-gray-700 hover:border-purple-400"
           )}
         >
           <Save className="w-6 h-6 mx-auto mb-2" />
@@ -91,8 +91,8 @@ export function PublishingOptions({
 
       {/* 予約日時入力 */}
       {publishTiming === 'scheduled' && (
-        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg space-y-3">
-          <label htmlFor="scheduledDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <div className="p-4 bg-purple-50 rounded-lg space-y-3">
+          <label htmlFor="scheduledDate" className="block text-sm font-medium text-gray-700">
             公開予定日時 <span className="text-red-500">*</span>
           </label>
           <input
@@ -103,15 +103,15 @@ export function PublishingOptions({
             min={getMinDateTime()}
             className={cn(
               "w-full px-4 py-2 rounded-lg border",
-              "bg-white dark:bg-gray-900",
-              "border-gray-300 dark:border-gray-600",
-              "text-gray-900 dark:text-white",
+              "bg-white",
+              "border-gray-300",
+              "text-gray-900",
               "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent",
               "transition-colors"
             )}
             required
           />
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500">
             指定した日時に自動的に公開されます（日本時間）
           </p>
         </div>

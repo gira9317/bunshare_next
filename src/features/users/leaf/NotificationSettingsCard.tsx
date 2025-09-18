@@ -35,11 +35,11 @@ export function NotificationSettingsCard({ user }: NotificationSettingsCardProps
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+      <h3 className="text-lg font-medium text-gray-900">
         通知設定
       </h3>
       
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-1">
+      <div className="bg-gray-50 rounded-lg p-4 space-y-1">
         <SettingToggle
           id="likeNotification"
           label="いいね通知"
@@ -48,7 +48,7 @@ export function NotificationSettingsCard({ user }: NotificationSettingsCardProps
           onChange={(checked) => handleUpdateSetting('like_notification', checked)}
         />
         
-        <div className="border-t border-gray-200 dark:border-gray-700 my-3" />
+        <div className="border-t border-gray-200 my-3" />
         
         <SettingToggle
           id="commentNotification"
@@ -58,7 +58,7 @@ export function NotificationSettingsCard({ user }: NotificationSettingsCardProps
           onChange={(checked) => handleUpdateSetting('comment_notification', checked)}
         />
         
-        <div className="border-t border-gray-200 dark:border-gray-700 my-3" />
+        <div className="border-t border-gray-200 my-3" />
         
         <SettingToggle
           id="followNotification"
@@ -68,7 +68,7 @@ export function NotificationSettingsCard({ user }: NotificationSettingsCardProps
           onChange={(checked) => handleUpdateSetting('follow_notification', checked)}
         />
         
-        <div className="border-t border-gray-200 dark:border-gray-700 my-3" />
+        <div className="border-t border-gray-200 my-3" />
         
         <SettingToggle
           id="emailNotification"

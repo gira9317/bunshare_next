@@ -240,10 +240,14 @@ export function SignupFormSection() {
               id="agreeTerms"
               checked={formData.agreeTerms}
               onChange={(e) => setFormData({ ...formData, agreeTerms: e.target.checked })}
-              className="mt-1 w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-purple-500"
+              className="mt-1 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+              style={{
+                backgroundColor: 'var(--bg-primary)',
+                borderColor: 'var(--border-secondary)'
+              }}
               required
             />
-            <label htmlFor="agreeTerms" className="text-sm text-gray-700">
+            <label htmlFor="agreeTerms" className="text-sm" style={{ color: 'var(--text-primary)' }}>
               <Link href="/terms" target="_blank" className="text-purple-600 hover:text-purple-500 underline">
                 利用規約
               </Link>
@@ -261,9 +265,13 @@ export function SignupFormSection() {
               id="agreeMarketing"
               checked={formData.agreeMarketing}
               onChange={(e) => setFormData({ ...formData, agreeMarketing: e.target.checked })}
-              className="mt-1 w-4 h-4 text-purple-600 bg-white border-gray-300 rounded focus:ring-purple-500"
+              className="mt-1 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+              style={{
+                backgroundColor: 'var(--bg-primary)',
+                borderColor: 'var(--border-secondary)'
+              }}
             />
-            <label htmlFor="agreeMarketing" className="text-sm text-gray-700">
+            <label htmlFor="agreeMarketing" className="text-sm" style={{ color: 'var(--text-primary)' }}>
               お得な情報やアップデート情報をメールで受け取る（任意）
             </label>
           </div>

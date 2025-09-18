@@ -321,11 +321,16 @@ export function WorkCard({
       }}>
         <article 
         className={cn(
-          'group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700',
+          'group relative rounded-xl overflow-hidden',
           !disableNavigation && 'hover:border-transparent hover:shadow-2xl transition-all duration-500 cursor-pointer',
           !disableNavigation && 'transform hover:-translate-y-1 hover:scale-[1.02]',
           'aspect-[16/9]'
         )}
+        style={{
+          backgroundColor: 'var(--bg-primary)',
+          borderColor: 'var(--border-primary)',
+          borderWidth: '1px'
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -363,7 +368,7 @@ export function WorkCard({
                 <div className={cn(
                   'text-xs font-medium px-2 py-1 rounded-full inline-block',
                   'bg-white/20 backdrop-blur-sm',
-                  displayImageUrl ? 'text-white' : 'text-gray-600 dark:text-gray-400'
+                  displayImageUrl ? 'text-white' : 'text-gray-600'
                 )}>
                   {work.series_title ? `${work.series_title} 第${work.episode_number}話` : `シリーズ 第${work.episode_number}話`}
                 </div>
@@ -374,9 +379,10 @@ export function WorkCard({
               'font-bold text-base sm:text-lg md:text-xl lg:text-lg xl:text-base leading-tight line-clamp-1',
               'transition-colors duration-300',
               displayImageUrl 
-                ? cn('text-white', !disableNavigation && 'group-hover:text-gray-100')
-                : cn('text-gray-900 dark:text-white', !disableNavigation && 'group-hover:text-purple-600')
-            )}>
+                ? cn('text-gray-200', !disableNavigation && 'group-hover:text-gray-100')
+                : !disableNavigation && 'group-hover:text-purple-600'
+            )}
+            style={!displayImageUrl ? { color: 'var(--text-primary)' } : {}}>
               {work.title}
             </h3>
             
@@ -384,8 +390,9 @@ export function WorkCard({
               'text-xs sm:text-sm font-medium transition-colors duration-300',
               displayImageUrl 
                 ? cn('text-gray-200', !disableNavigation && 'group-hover:text-gray-100')
-                : cn('text-gray-600 dark:text-gray-400', !disableNavigation && 'group-hover:text-purple-500')
-            )}>
+                : !disableNavigation && 'group-hover:text-purple-500'
+            )}
+            style={!displayImageUrl ? { color: 'var(--text-secondary)' } : {}}>
               by {work.author}
             </p>
           </div>
@@ -396,9 +403,10 @@ export function WorkCard({
             'transition-all duration-300',
             displayImageUrl 
               ? cn('text-gray-100', !disableNavigation && 'group-hover:text-white')
-              : 'text-gray-700 dark:text-gray-300',
+              : '',
             !work.description && 'italic opacity-75'
-          )}>
+          )}
+          style={!displayImageUrl ? { color: 'var(--text-secondary)' } : {}}>
             {excerpt}
           </p>
 
@@ -421,8 +429,9 @@ export function WorkCard({
                 {/* Views */}
                 <div className={cn(
                   'stat-item flex items-center gap-1 text-xs sm:text-sm',
-                  displayImageUrl ? 'text-white/80' : 'text-gray-500'
-                )}>
+                  displayImageUrl ? 'text-white/80' : ''
+                )}
+                style={!displayImageUrl ? { color: 'var(--text-tertiary)' } : {}}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="icon">
                     <path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" stroke="currentColor" strokeWidth="2"/>
                     <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7Z" stroke="currentColor" strokeWidth="2"/>
@@ -440,8 +449,9 @@ export function WorkCard({
                       ? 'text-red-500' 
                       : displayImageUrl 
                         ? 'text-white/80 hover:text-red-400' 
-                        : 'text-gray-500 hover:text-red-500'
+                        : 'hover:text-red-500'
                   )}
+                  style={!liked && !displayImageUrl ? { color: 'var(--text-tertiary)' } : {}}
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} className="icon">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2"/>
@@ -502,7 +512,7 @@ export function WorkCard({
         
         {/* YouTube-style progress bar at bottom */}
         {hasReadingProgress && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/50 dark:bg-gray-700/50">
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/50">
             <div 
               className="h-full bg-purple-500 transition-all duration-300 ease-out"
               style={{ width: `${readingProgress}%` }}
@@ -517,7 +527,7 @@ export function WorkCard({
         <div 
           ref={dropdownMenuRef}
           className={cn(
-            'fixed bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700',
+            'fixed bg-white rounded-lg shadow-xl border border-gray-200',
             'min-w-[160px] py-1 z-[9999]'
           )}
           style={{
@@ -535,8 +545,8 @@ export function WorkCard({
                 {...getDropdownItemProps(handleRemove)}
                 className={cn(
                   'dropdown-item w-full px-3 py-2 text-sm text-left',
-                  'flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20',
-                  'transition-colors duration-200 text-red-600 dark:text-red-400'
+                  'flex items-center gap-2 hover:bg-red-900/20',
+                  'transition-colors duration-200 text-red-600'
                 )}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -548,8 +558,8 @@ export function WorkCard({
               </button>
               
               {availableFolders.length > 0 && (
-                <div className="border-t border-gray-200 dark:border-gray-600 my-1">
-                  <div className="px-3 py-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                <div className="border-t border-gray-200 my-1">
+                  <div className="px-3 py-2 text-xs text-gray-500 font-medium">
                     他のフォルダに移動
                   </div>
                   {availableFolders.map((folder) => (
@@ -558,8 +568,8 @@ export function WorkCard({
                       {...getDropdownItemProps((e) => handleMoveToFolder(e, folder.folder_key))}
                       className={cn(
                         'dropdown-item w-full px-3 py-2 text-sm text-left',
-                        'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
-                        'transition-colors duration-200 text-gray-700 dark:text-gray-300'
+                        'flex items-center gap-2 hover:bg-gray-50',
+                        'transition-colors duration-200 text-gray-700'
                       )}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -584,9 +594,9 @@ export function WorkCard({
                 })}
                 className={cn(
                   'dropdown-item w-full px-3 py-2 text-sm text-left',
-                  'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
+                  'flex items-center gap-2 hover:bg-gray-50',
                   'transition-colors duration-200',
-                  bookmarked ? 'text-yellow-600' : 'text-gray-700 dark:text-gray-300'
+                  bookmarked ? 'text-yellow-600' : 'text-gray-700'
                 )}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill={bookmarked ? "currentColor" : "none"}>
@@ -601,8 +611,8 @@ export function WorkCard({
                 })}
                 className={cn(
                   'dropdown-item w-full px-3 py-2 text-sm text-left',
-                  'flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700',
-                  'transition-colors duration-200 text-gray-700 dark:text-gray-300'
+                  'flex items-center gap-2 hover:bg-gray-50',
+                  'transition-colors duration-200 text-gray-700'
                 )}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

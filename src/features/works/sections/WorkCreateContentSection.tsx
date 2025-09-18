@@ -75,12 +75,12 @@ export function WorkCreateContentSection() {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 space-y-6">
+      <div className="bg-white rounded-xl p-6 space-y-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
             本文
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-600">
             作品の内容を入力してください
           </p>
         </div>

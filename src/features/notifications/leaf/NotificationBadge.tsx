@@ -18,11 +18,14 @@ export function NotificationBadge({
       onClick={onClick}
       className={cn(
         'p-1.5 sm:p-2 rounded-lg relative',
-        'bg-gray-100/80 dark:bg-gray-800/80',
-        'hover:bg-gray-200 dark:hover:bg-gray-700',
+        'hover:opacity-80',
         'active:scale-95 transition-all duration-200',
         className
       )}
+      style={{
+        backgroundColor: 'var(--bg-tertiary)',
+        color: 'var(--text-secondary)'
+      }}
       title="通知"
     >
       <svg 
@@ -30,7 +33,8 @@ export function NotificationBadge({
         height="16" 
         viewBox="0 0 24 24" 
         fill="none" 
-        className="text-gray-600 dark:text-gray-300 sm:w-4 sm:h-4"
+        className="sm:w-4 sm:h-4"
+        style={{ color: 'var(--text-secondary)' }}
       >
         <path 
           d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" 

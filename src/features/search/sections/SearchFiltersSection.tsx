@@ -61,7 +61,7 @@ export function SearchFiltersSection({ filters }: SearchFiltersSectionProps) {
       <div className="hidden lg:block">
         <div className="space-y-4">
           <div className="filter-section">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
               カテゴリ
             </h3>
             <FilterChips
@@ -73,7 +73,7 @@ export function SearchFiltersSection({ filters }: SearchFiltersSectionProps) {
           </div>
 
           <div className="filter-section">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
               並び順
             </h3>
             <FilterChips
@@ -91,7 +91,7 @@ export function SearchFiltersSection({ filters }: SearchFiltersSectionProps) {
         <div className="flex items-center gap-2 mb-4">
           <button
             onClick={() => setShowMobileFilters(!showMobileFilters)}
-            className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm font-medium"
+            className="flex items-center gap-2 px-3 py-2 bg-gray-100 rounded-lg text-sm font-medium"
             disabled={isPending}
           >
             <span>フィルター</span>
@@ -113,9 +113,9 @@ export function SearchFiltersSection({ filters }: SearchFiltersSectionProps) {
 
         {/* モバイル展開フィルター */}
         {showMobileFilters && (
-          <div className="mobile-filters p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-4">
+          <div className="mobile-filters p-4 bg-gray-50 rounded-lg space-y-4">
             <div>
-              <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
                 並び順
               </h4>
               <FilterChips
@@ -131,7 +131,7 @@ export function SearchFiltersSection({ filters }: SearchFiltersSectionProps) {
       </div>
       
       {isPending && (
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="text-sm text-gray-500">
           フィルターを適用中...
         </div>
       )}

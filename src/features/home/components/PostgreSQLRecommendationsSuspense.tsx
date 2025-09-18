@@ -84,10 +84,10 @@ async function PostgreSQLRecommendationsContent({ userId }: PostgreSQLRecommenda
   if ('error' in recommendationsResult) {
     return (
       <div className="py-8">
-        <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+        <h2 className="text-xl font-bold mb-4 text-gray-900">
           あなたへのおすすめ
         </h2>
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           <p>おすすめを読み込めませんでした</p>
           <p className="text-sm mt-2">PostgreSQL推薦システムエラー</p>
         </div>

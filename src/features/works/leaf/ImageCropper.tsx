@@ -87,22 +87,22 @@ export function ImageCropper({
   
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-0 sm:p-4">
-      <div className="bg-white dark:bg-gray-900 sm:rounded-xl max-w-4xl w-full h-full sm:max-h-[90vh] overflow-hidden sm:overflow-auto flex flex-col">
+      <div className="bg-white sm:rounded-xl max-w-4xl w-full h-full sm:max-h-[90vh] overflow-hidden sm:overflow-auto flex flex-col">
         {/* ヘッダー */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900">
             画像をトリミング
           </h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* クロッパー */}
-        <div className="relative flex-1 min-h-[300px] sm:h-96 bg-gray-100 dark:bg-gray-800">
+        <div className="relative flex-1 min-h-[300px] sm:h-96 bg-gray-100">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -134,7 +134,7 @@ export function ImageCropper({
         {/* コントロール */}
         <div className="flex-shrink-0 p-4 space-y-4 pb-safe">
           {/* 操作説明 */}
-          <div className="text-sm text-gray-600 dark:text-gray-400 text-center space-y-1">
+          <div className="text-sm text-gray-600 text-center space-y-1">
             <p className="hidden md:block">マウスホイールでズーム、ドラッグで位置調整</p>
             <p className="md:hidden">ピンチでズーム、ドラッグで位置調整</p>
             <p className="text-xs">または下のボタンでズーム操作できます</p>
@@ -144,7 +144,7 @@ export function ImageCropper({
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={handleZoomOut}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+              className="p-3 hover:bg-gray-800 rounded-full transition-colors"
               disabled={zoom <= 1}
             >
               <ZoomOut className="w-5 h-5" />
@@ -154,7 +154,7 @@ export function ImageCropper({
             </span>
             <button
               onClick={handleZoomIn}
-              className="p-3 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+              className="p-3 hover:bg-gray-800 rounded-full transition-colors"
               disabled={zoom >= 3}
             >
               <ZoomIn className="w-5 h-5" />
@@ -168,8 +168,8 @@ export function ImageCropper({
                 onClick={handleRotate}
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 rounded-lg",
-                  "bg-gray-100 dark:bg-gray-800",
-                  "hover:bg-gray-200 dark:hover:bg-gray-700",
+                  "bg-gray-100",
+                  "hover:bg-gray-50",
                   "transition-colors"
                 )}
               >
@@ -181,8 +181,8 @@ export function ImageCropper({
                 onClick={handleReset}
                 className={cn(
                   "px-3 py-2 text-sm rounded-lg",
-                  "text-gray-600 dark:text-gray-400",
-                  "hover:bg-gray-100 dark:hover:bg-gray-800",
+                  "text-gray-600",
+                  "hover:bg-gray-800",
                   "transition-colors"
                 )}
               >
@@ -195,8 +195,8 @@ export function ImageCropper({
                 onClick={onClose}
                 className={cn(
                   "px-4 py-2 text-sm rounded-lg",
-                  "text-gray-600 dark:text-gray-400",
-                  "hover:bg-gray-100 dark:hover:bg-gray-800",
+                  "text-gray-600",
+                  "hover:bg-gray-800",
                   "transition-colors"
                 )}
               >
@@ -230,7 +230,7 @@ export function ImageCropper({
           </div>
 
           {/* 設定情報 */}
-          <div className="hidden sm:block text-xs text-gray-500 dark:text-gray-400 space-y-1">
+          <div className="hidden sm:block text-xs text-gray-500 space-y-1">
             <div className="flex justify-between">
               <span>アスペクト比:</span>
               <span>{aspectRatio === 16/9 ? '16:9' : aspectRatio === 1 ? '1:1' : aspectRatio.toFixed(2)}</span>

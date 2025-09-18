@@ -44,10 +44,14 @@ export function TopBar({
   return (
     <header className={cn(
       'sticky top-0 z-50',
-      'bg-white dark:bg-gray-800 backdrop-blur-md',
-      'border-b border-gray-200 dark:border-gray-700',
+      'backdrop-blur-md',
       'transition-colors duration-200'
-    )}>
+    )}
+    style={{
+      backgroundColor: 'var(--bg-primary)',
+      borderBottomColor: 'var(--border-primary)',
+      borderBottomWidth: '1px'
+    }}>
       <div className={cn(
         'flex items-center justify-between',
         'h-12 sm:h-14 md:h-16',
@@ -69,6 +73,9 @@ export function TopBar({
                 'w-6 h-6 sm:w-7 sm:h-7 object-contain logo-light',
                 'group-hover:scale-105 transition-all duration-200'
               )}
+              style={{
+                filter: 'var(--logo-filter, none)'
+              }}
             />
             <Image
               src="/images/logo/Bunshare_logo_dark_mode.png"
@@ -94,16 +101,19 @@ export function TopBar({
         <div className="hidden md:flex flex-1 max-w-xl lg:max-w-2xl mx-4 lg:mx-8">
           <form onSubmit={handleSearch} className="relative w-full">
             <div className={cn(
-              'flex items-center w-full',
-              'bg-gray-100/80 dark:bg-gray-700/50 rounded-full',
-              'border border-gray-200/50 dark:border-gray-600/50',
-              'hover:border-purple-300 dark:hover:border-purple-600',
-              'focus-within:border-purple-400 dark:focus-within:border-purple-500',
+              'flex items-center w-full rounded-full',
+              'hover:border-purple-300',
+              'focus-within:border-purple-400',
               'focus-within:ring-2 focus-within:ring-purple-400/20',
               'transition-all duration-200'
-            )}>
+            )}
+            style={{
+              backgroundColor: 'var(--bg-tertiary)',
+              borderColor: 'var(--border-secondary)',
+              borderWidth: '1px'
+            }}>
               <div className="pl-3 lg:pl-4 pr-2">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-gray-500 dark:text-gray-400 lg:w-5 lg:h-5">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="lg:w-5 lg:h-5" style={{ color: 'var(--text-secondary)' }}>
                   <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" fill="none"/>
                   <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2"/>
                 </svg>
@@ -115,10 +125,13 @@ export function TopBar({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={cn(
                   'flex-1 py-2 lg:py-2.5 px-2 bg-transparent',
-                  'text-sm lg:text-base text-gray-900 dark:text-gray-100',
-                  'placeholder-gray-500 dark:placeholder-gray-400',
+                  'text-sm lg:text-base',
                   'focus:outline-none font-medium'
                 )}
+                style={{
+                  color: 'var(--text-primary)',
+                  '::placeholder': { color: 'var(--text-secondary)' }
+                }}
               />
               <button
                 type="submit"
@@ -146,13 +159,15 @@ export function TopBar({
             {...mobileSearchButtonTapFeedback.tapProps}
             className={cn(
               'p-1.5 sm:p-2 rounded-lg md:hidden',
-              'bg-gray-100/80 dark:bg-gray-800/80',
-              'hover:bg-gray-200 dark:hover:bg-gray-700',
+              'hover:opacity-80',
               'transition-all duration-200'
             )}
+            style={{
+              backgroundColor: 'var(--bg-tertiary)'
+            }}
             title="検索"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-600 dark:text-gray-300 sm:w-4 sm:h-4">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="sm:w-4 sm:h-4" style={{ color: 'var(--text-secondary)' }}>
               <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" fill="none"/>
               <path d="m21 21-4.35-4.35" stroke="currentColor" strokeWidth="2"/>
             </svg>

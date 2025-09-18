@@ -102,7 +102,7 @@ export default function TermsPage() {
 
   const renderContent = (content: any) => {
     if (typeof content === 'string') {
-      return <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{content}</p>
+      return <p className="text-gray-700 leading-relaxed">{content}</p>
     }
 
     if (Array.isArray(content)) {
@@ -111,7 +111,7 @@ export default function TermsPage() {
           {content.map((item, index) => (
             <div key={index}>
               {typeof item === 'string' ? (
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed">
                   {index === 0 && content[0].includes('：') ? (
                     <span className="font-medium">{item}</span>
                   ) : (
@@ -120,21 +120,21 @@ export default function TermsPage() {
                 </p>
               ) : (
                 <div className={`p-4 rounded-lg border-l-4 ${
-                  item.highlight ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-400' :
-                  item.warning ? 'bg-red-50 dark:bg-red-900/20 border-red-400' :
-                  'bg-gray-50 dark:bg-gray-800 border-gray-400'
+                  item.highlight ? 'bg-purple-50 border-purple-400' :
+                  item.warning ? 'bg-red-50 border-red-400' :
+                  'bg-gray-50 border-gray-400'
                 }`}>
                   <p className={`leading-relaxed ${
-                    item.highlight ? 'text-purple-800 dark:text-purple-200' :
-                    item.warning ? 'text-red-800 dark:text-red-200' :
-                    'text-gray-700 dark:text-gray-300'
+                    item.highlight ? 'text-purple-800' :
+                    item.warning ? 'text-red-800' :
+                    'text-gray-700'
                   }`}>
                     {item.text}
                   </p>
                   {item.subItems && (
                     <ul className="mt-3 ml-4 space-y-1">
                       {item.subItems.map((subItem: string, subIndex: number) => (
-                        <li key={subIndex} className="text-sm text-gray-600 dark:text-gray-400 flex items-start gap-2">
+                        <li key={subIndex} className="text-sm text-gray-600 flex items-start gap-2">
                           <span className="text-purple-500 mt-1">•</span>
                           {subItem}
                         </li>
@@ -153,20 +153,20 @@ export default function TermsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white">
       {/* ヘッダー */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+      <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
+            <Link href="/" className="flex items-center gap-2 text-gray-600 hovertext-gray-200 transition-colors">
               <ChevronLeft className="w-5 h-5" />
               <span className="font-medium">ホームに戻る</span>
             </Link>
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-2 text-sm text-gray-500">
               <span>進捗: {readSections.length}/{termsData.length}</span>
-              <div className="w-16 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-gray-900 dark:bg-gray-100 transition-all duration-500"
+                  className="h-full bg-gray-900 transition-all duration-500"
                   style={{ width: `${(readSections.length / termsData.length) * 100}%` }}
                 />
               </div>
@@ -179,14 +179,14 @@ export default function TermsPage() {
         {/* ヒーローセクション */}
         <div className="text-center mb-12">
           <div className="mb-6">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-4xl font-bold text-gray-900">
               利用規約
             </h1>
           </div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Bunshareをご利用いただくにあたっての重要な規約です
           </p>
-          <p className="text-sm text-gray-500 dark:text-gray-500 mt-4">
+          <p className="text-sm text-gray-500 mt-4">
             最終更新日: 2025年1月10日
           </p>
         </div>
@@ -195,9 +195,9 @@ export default function TermsPage() {
           {/* サイドナビゲーション */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-                <div className="p-4 bg-gray-900 dark:bg-gray-100">
-                  <h2 className="text-white dark:text-gray-900 font-semibold">目次</h2>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="p-4 bg-gray-900">
+                  <h2 className="text-white font-semibold">目次</h2>
                 </div>
                 <nav className="p-2">
                   {termsData.map(({ id, title, icon: Icon }) => (
@@ -206,13 +206,13 @@ export default function TermsPage() {
                       onClick={() => scrollToSection(id)}
                       className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all ${
                         activeSection === id
-                          ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100'
-                          : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                          ? 'bg-gray-200 text-gray-900'
+                          : 'hover:bg-gray-50 text-gray-700'
                       }`}
                     >
                       <span className="text-sm font-medium flex-1">{title}</span>
                       {readSections.includes(id) && (
-                        <Check className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        <Check className="w-4 h-4 text-gray-500" />
                       )}
                       <ChevronRight className={`w-4 h-4 transition-transform ${
                         activeSection === id ? 'rotate-90' : ''
@@ -231,23 +231,23 @@ export default function TermsPage() {
                 <section
                   key={id}
                   id={id}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-shadow"
+                  className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow"
                 >
                   <div className="p-6 sm:p-8">
                     <div className="flex items-center gap-4 mb-6">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                         {title}
                       </h2>
                       {readSections.includes(id) && (
                         <div className="ml-auto">
-                          <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                            <Check className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                          <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                            <Check className="w-5 h-5 text-gray-600" />
                           </div>
                         </div>
                       )}
                     </div>
                     
-                    <div className="prose prose-gray dark:prose-invert max-w-none">
+                    <div className="prose prose-gray max-w-none">
                       {renderContent(content)}
                     </div>
                   </div>
@@ -256,24 +256,24 @@ export default function TermsPage() {
             </div>
 
             {/* お問い合わせセクション */}
-            <div className="mt-12 bg-gray-100 dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700">
+            <div className="mt-12 bg-gray-100 rounded-xl p-8 border border-gray-200">
               <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
                   ご不明な点がございましたら
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                <p className="text-gray-600 mb-6">
                   利用規約に関してご質問やご不明な点がございましたら、お気軽にお問い合わせください。
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
                     href="/contact"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg font-medium hover:bg-gray-800 dark:hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-200 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     お問い合わせ
                   </Link>
                   <Link
                     href="/"
-                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-900 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors shadow-md hover:shadow-lg"
                   >
                     ホームに戻る
                   </Link>

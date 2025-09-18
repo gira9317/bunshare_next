@@ -17,8 +17,8 @@ export function RelatedSearches({ currentQuery, tags = [] }: RelatedSearchesProp
   }
 
   return (
-    <div className="related-searches mt-8 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+    <div className="related-searches mt-8 p-6 bg-gray-50 rounded-lg">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
         <Tag className="w-5 h-5" />
         関連する検索
       </h3>
@@ -28,7 +28,7 @@ export function RelatedSearches({ currentQuery, tags = [] }: RelatedSearchesProp
           <Link
             key={index}
             href={`/app/search?q=${encodeURIComponent(tag)}`}
-            className="inline-flex items-center px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full border border-gray-200 dark:border-gray-600 hover:bg-blue-50 dark:hover:bg-gray-600 hover:border-blue-300 dark:hover:border-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors text-sm"
+            className="inline-flex items-center px-3 py-1.5 bg-white text-gray-700 rounded-full border border-gray-200 hover:bg-gray-600 hover:border-blue-400 hovertext-blue-300 transition-colors text-sm"
           >
             {tag}
           </Link>

@@ -31,6 +31,8 @@ export default async function RootLayout({
   return (
     <html lang="ja" className="h-full">
       <head>
+        <meta name="color-scheme" content="light only" />
+        <meta name="theme-color" content="#ffffff" />
         <ThemeScript />
         {/* 重要データの先行取得（プリロード） */}
         <link rel="preload" href="/api/recommendations" as="fetch" crossOrigin="anonymous" />

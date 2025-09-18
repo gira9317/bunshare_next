@@ -30,11 +30,11 @@ export function AccountSettingsCard({ user }: AccountSettingsCardProps) {
   return (
     <>
       <div className="space-y-4">
-        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg font-medium text-gray-900">
           アカウント設定
         </h3>
         
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+        <div className="bg-gray-50 rounded-lg p-4">
           <SettingToggle
             id="bookmarkModal"
             label="しおり確認モーダル"
@@ -48,9 +48,9 @@ export function AccountSettingsCard({ user }: AccountSettingsCardProps) {
           <Button
             variant="ghost"
             onClick={() => setIsEmailModalOpen(true)}
-            className="w-full justify-between px-4 py-3 h-auto bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+            className="w-full justify-between px-4 py-3 h-auto bg-gray-50 hover:bg-gray-50 rounded-lg"
           >
-            <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+            <span className="flex items-center gap-2 text-sm font-medium text-gray-900">
               <Mail className="w-4 h-4" />
               メールアドレス変更
             </span>
@@ -60,9 +60,9 @@ export function AccountSettingsCard({ user }: AccountSettingsCardProps) {
           <Button
             variant="ghost"
             onClick={() => window.location.href = '/auth/forgot-password'}
-            className="w-full justify-between px-4 py-3 h-auto bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+            className="w-full justify-between px-4 py-3 h-auto bg-gray-50 hover:bg-gray-50 rounded-lg"
           >
-            <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-gray-100">
+            <span className="flex items-center gap-2 text-sm font-medium text-gray-900">
               <Key className="w-4 h-4" />
               パスワードリセット
             </span>

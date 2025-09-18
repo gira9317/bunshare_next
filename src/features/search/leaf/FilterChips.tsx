@@ -38,7 +38,7 @@ export function FilterChips({
             size === 'sm' ? 'px-3 py-1 text-xs' : 'px-4 py-2 text-sm',
             value === option.value
               ? "bg-blue-600 text-white border-blue-600 shadow-md"
-              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700",
+              : "bg-white text-gray-700 border-gray-200 hover:border-blue-400 hover:bg-gray-50",
             disabled && "opacity-50 cursor-not-allowed hover:scale-100"
           )}
         >

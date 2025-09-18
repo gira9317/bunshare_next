@@ -46,7 +46,7 @@ export function CommentForm({ workId, onCommentAdded }: CommentFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label htmlFor="comment" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-2">
           コメントを投稿
         </label>
         <textarea
@@ -59,10 +59,10 @@ export function CommentForm({ workId, onCommentAdded }: CommentFormProps) {
           placeholder="作品の感想を書いてください..."
           className={cn(
             "w-full p-3 rounded-lg resize-none",
-            "border border-gray-300 dark:border-gray-600",
-            "bg-white dark:bg-gray-900",
-            "text-gray-900 dark:text-white",
-            "placeholder:text-gray-500 dark:placeholder:text-gray-400",
+            "border border-gray-300",
+            "bg-white",
+            "text-gray-900",
+            "placeholdertext-gray-400",
             "focus:ring-2 focus:ring-purple-500 focus:border-transparent",
             "transition-colors",
             error && "border-red-500 focus:ring-red-500"

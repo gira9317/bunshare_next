@@ -28,14 +28,14 @@ export function UserBio({
     : bio
 
   return (
-    <div className={cn('text-gray-700 dark:text-gray-300', className)}>
+    <div className={cn('text-gray-700', className)}>
       <p className="leading-relaxed whitespace-pre-wrap">
         {displayText}
       </p>
       {shouldCollapse && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm mt-1 font-medium transition-colors"
+          className="text-blue-600 hovertext-blue-300 text-sm mt-1 font-medium transition-colors"
         >
           {isExpanded ? 'Show less' : 'Show more'}
         </button>

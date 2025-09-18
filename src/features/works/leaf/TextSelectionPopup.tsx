@@ -106,7 +106,7 @@ export function TextSelectionPopup({
   return (
     <div
       ref={popupRef}
-      className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 min-w-64 max-w-80"
+      className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-3 min-w-64 max-w-80"
       style={{
         left: Math.max(8, Math.min(popupPosition.x - 128, window.innerWidth - 320 - 8)),
         top: popupPosition.y,
@@ -117,20 +117,20 @@ export function TextSelectionPopup({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-purple-600" />
-          <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <span className="text-sm font-medium text-gray-900">
             テキスト選択
           </span>
         </div>
         <button
           onClick={handleClose}
-          className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          className="p-1 text-gray-400 hovertext-gray-300 transition-colors"
         >
           <X className="w-4 h-4" />
         </button>
       </div>
 
       {/* 選択されたテキスト */}
-      <div className="mb-3 p-2 bg-gray-50 dark:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300 max-h-20 overflow-y-auto">
+      <div className="mb-3 p-2 bg-gray-50 rounded text-sm text-gray-700 max-h-20 overflow-y-auto">
         "{selectedText}"
       </div>
 
@@ -158,7 +158,7 @@ export function TextSelectionPopup({
         
         <button
           onClick={handleClose}
-          className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors text-sm"
+          className="px-3 py-2 text-gray-600 hovertext-gray-100 transition-colors text-sm"
         >
           キャンセル
         </button>

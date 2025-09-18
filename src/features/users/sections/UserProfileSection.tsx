@@ -44,7 +44,7 @@ export function UserProfileSection({
     : '不明'
 
   return (
-    <div className={cn('bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden shadow-sm', className)}>
+    <div className={cn('bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm', className)}>
       {/* Cover Image - Compact mobile first */}
       <div className="relative h-24 md:h-32 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600">
         {user.header_img_url ? (
@@ -73,7 +73,7 @@ export function UserProfileSection({
             src={user.avatar_img_url}
             alt={user.username || 'ユーザー'}
             size="lg"
-            className="ring-4 ring-white dark:ring-gray-800 w-16 h-16 md:w-20 md:h-20"
+            className="ring-4 ring-white w-16 h-16 md:w-20 md:h-20"
           />
           
           {/* Action Button - positioned below header */}
@@ -83,7 +83,7 @@ export function UserProfileSection({
                 variant="outline" 
                 size="sm" 
                 onClick={() => setIsEditModalOpen(true)}
-                className="text-xs px-4 py-1.5 h-8 font-medium rounded-full border-gray-300 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
+                className="text-xs px-4 py-1.5 h-8 font-medium rounded-full border-gray-300 hover:bg-gray-800"
               >
                 プロフィール編集
               </Button>
@@ -103,11 +103,11 @@ export function UserProfileSection({
         <div className="mt-2 space-y-2">
           {/* Name and Username */}
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+            <h1 className="text-xl font-bold text-gray-900 leading-tight">
               {user.username || 'ユーザー'}
             </h1>
             {user.custom_user_id && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0">
+              <p className="text-sm text-gray-500 mt-0">
                 @{user.custom_user_id}
               </p>
             )}
@@ -115,7 +115,7 @@ export function UserProfileSection({
 
           {/* Bio */}
           {user.bio && (
-            <div className="text-sm text-gray-900 dark:text-gray-100 leading-relaxed">
+            <div className="text-sm text-gray-900 leading-relaxed">
               {user.bio}
             </div>
           )}
@@ -123,7 +123,7 @@ export function UserProfileSection({
           {/* Meta Info - Improved layout */}
           <div className="space-y-2">
             {/* Join date */}
-            <div className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1.5 text-sm text-gray-500">
               <Calendar className="w-4 h-4" />
               <span>{joinedDate}に登録</span>
             </div>
@@ -147,7 +147,7 @@ export function UserProfileSection({
                   </a>
                 ))}
                 {user.website_url.filter(url => url.trim()).length > 3 && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-sm text-gray-500">
                     +{user.website_url.filter(url => url.trim()).length - 3} more
                   </span>
                 )}
@@ -161,20 +161,20 @@ export function UserProfileSection({
               onClick={() => setFollowModalType('following')}
               className="hover:underline transition-all"
             >
-              <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats?.following_count || 0}</span>
-              <span className="text-gray-500 dark:text-gray-400 ml-1">フォロー中</span>
+              <span className="font-bold text-gray-900">{user.stats?.following_count || 0}</span>
+              <span className="text-gray-500 ml-1">フォロー中</span>
             </button>
             <button 
               onClick={() => setFollowModalType('followers')}
               className="hover:underline transition-all"
             >
-              <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats?.followers_count || 0}</span>
-              <span className="text-gray-500 dark:text-gray-400 ml-1">フォロワー</span>
+              <span className="font-bold text-gray-900">{user.stats?.followers_count || 0}</span>
+              <span className="text-gray-500 ml-1">フォロワー</span>
             </button>
             {user.stats?.works_count > 0 && (
               <span>
-                <span className="font-bold text-gray-900 dark:text-gray-100">{user.stats?.works_count}</span>
-                <span className="text-gray-500 dark:text-gray-400 ml-1">作品</span>
+                <span className="font-bold text-gray-900">{user.stats?.works_count}</span>
+                <span className="text-gray-500 ml-1">作品</span>
               </span>
             )}
           </div>

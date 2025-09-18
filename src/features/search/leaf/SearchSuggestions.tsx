@@ -118,7 +118,7 @@ export function SearchSuggestions({
     <div 
       ref={suggestionsRef}
       className={cn(
-        "absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50",
+        "absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50",
         className
       )}
     >
@@ -129,16 +129,16 @@ export function SearchSuggestions({
             onClick={() => handleSelect(suggestion.text)}
             onMouseEnter={() => setSelectedIndex(index)}
             className={cn(
-              "w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-left",
-              selectedIndex === index && "bg-gray-50 dark:bg-gray-700"
+              "w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left",
+              selectedIndex === index && "bg-gray-50"
             )}
           >
             {getIcon(suggestion.type)}
-            <span className="flex-1 text-gray-900 dark:text-white">
+            <span className="flex-1 text-gray-900">
               {suggestion.text}
             </span>
             {suggestion.count && (
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+              <span className="text-xs text-gray-500">
                 {suggestion.count}件
               </span>
             )}
@@ -147,10 +147,10 @@ export function SearchSuggestions({
       </div>
       
       {!query && (
-        <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-2">
+        <div className="border-t border-gray-200 px-4 py-2">
           <button
             onClick={() => router.push('/app/search')}
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-sm text-blue-600 hover:underline"
           >
             詳細検索 →
           </button>

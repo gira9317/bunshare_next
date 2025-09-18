@@ -42,13 +42,13 @@ export function UserResultsWrapper({
         {/* デスクトップ表示 */}
         <div className="hidden sm:block">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-gray-900">
               作者 ({totalCount}人)
             </h2>
             {users.length > 6 && (
               <button
                 onClick={() => setShowModal(true)}
-                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm transition-colors"
+                className="text-blue-600 hovertext-blue-300 font-medium text-sm transition-colors"
               >
                 もっと見る ({users.length}人)
               </button>

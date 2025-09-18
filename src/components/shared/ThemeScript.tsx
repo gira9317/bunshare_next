@@ -6,23 +6,23 @@ export function ThemeScript() {
           (function() {
             function setTheme() {
               try {
-                const theme = localStorage.getItem('theme') || 'system'
+                const theme = localStorage.getItem('theme') || 'light'
                 const root = document.documentElement
                 
                 if (theme === 'dark') {
                   root.classList.add('dark')
                 } else if (theme === 'light') {
                   root.classList.remove('dark')
-                } else {
-                  // system
+                } else if (theme === 'system') {
+                  // システムモード（ユーザーが明示的に選択した場合のみ）
                   const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
                   root.classList.toggle('dark', isDark)
                 }
               } catch (e) {
-                // Fallback to system preference
+                // Fallback - デフォルトはライトテーマ
                 try {
-                  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-                  document.documentElement.classList.toggle('dark', isDark)
+                  const root = document.documentElement
+                  root.classList.remove('dark')
                 } catch (err) {
                   // Complete fallback - do nothing
                 }

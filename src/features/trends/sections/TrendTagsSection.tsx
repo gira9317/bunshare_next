@@ -17,7 +17,7 @@ async function TrendTagsContent() {
         <div className="text-gray-400 mb-4">
           <Hash className="w-12 h-12 mx-auto" />
         </div>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600">
           トレンドタグがありません
         </p>
       </div>
@@ -48,7 +48,7 @@ function TrendTagsLoading() {
       {[...Array(8)].map((_, i) => (
         <div 
           key={i} 
-          className="bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse p-4 h-20"
+          className="bg-gray-200 rounded-lg animate-pulse p-4 h-20"
         />
       ))}
     </div>
@@ -60,7 +60,7 @@ export function TrendTagsSection({ className = '' }: TrendTagsSectionProps) {
     <section className={`trend-tags-section ${className}`}>
       <div className="flex items-center gap-3 mb-6">
         <Hash className="w-6 h-6 text-blue-500" />
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-2xl font-bold text-gray-900">
           トレンドタグ
         </h2>
       </div>

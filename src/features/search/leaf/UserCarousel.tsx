@@ -67,14 +67,14 @@ export function UserCarousel({ users, onShowMore, className }: UserCarouselProps
   return (
     <div className={cn("user-carousel-container relative", className)}>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+        <h3 className="text-base font-semibold text-gray-900 flex items-center gap-2">
           <Users className="w-4 h-4" />
           ユーザー
         </h3>
         {users.length > 3 && onShowMore && (
           <button
             onClick={onShowMore}
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-sm text-blue-600 hover:underline"
           >
             もっと見る →
           </button>
@@ -86,7 +86,7 @@ export function UserCarousel({ users, onShowMore, className }: UserCarouselProps
         {showLeftButton && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-colors"
             aria-label="前へ"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -129,7 +129,7 @@ export function UserCarousel({ users, onShowMore, className }: UserCarouselProps
         {showRightButton && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition-colors"
             aria-label="次へ"
           >
             <ChevronRight className="w-4 h-4" />

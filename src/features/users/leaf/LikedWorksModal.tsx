@@ -69,18 +69,18 @@ export function LikedWorksModal({
       <div className={cn(
         'fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2',
         'w-full max-w-2xl max-h-[80vh] overflow-hidden',
-        'bg-white dark:bg-gray-800 rounded-lg shadow-xl z-50',
-        'border border-gray-200 dark:border-gray-700',
+        'bg-white rounded-lg shadow-xl z-50',
+        'border border-gray-200',
         className
       )}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
             いいねした作品
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            className="text-gray-400 hovertext-gray-200"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -95,16 +95,16 @@ export function LikedWorksModal({
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             </div>
           ) : works.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8 text-gray-500">
               いいねした作品はありません
             </div>
           ) : (
             <div className="p-4 space-y-4">
               {works.map((work) => (
-                <div key={work.work_id} className="flex gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors">
+                <div key={work.work_id} className="flex gap-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-750 transition-colors">
                   {/* Work Image */}
                   <div className="flex-shrink-0">
-                    <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                    <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
                       {work.image_url ? (
                         <Image
                           src={work.image_url}
@@ -125,14 +125,14 @@ export function LikedWorksModal({
 
                   {/* Work Info */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                    <h3 className="font-medium text-gray-900 truncate">
                       {work.title}
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    <p className="text-sm text-gray-600 mb-2">
                       作者: {work.author_username || work.author}
                     </p>
                     {work.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-2">
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-2">
                         {work.description}
                       </p>
                     )}

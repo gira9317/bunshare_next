@@ -14,10 +14,10 @@ export function WorkContentCore({ work, className }: WorkContentCoreProps) {
   return (
     <div className={cn("space-y-6", className)}>
       {/* 本文 - 最優先表示、装飾なし */}
-      <div className="prose prose-gray dark:prose-invert max-w-none">
+      <div className="prose prose-gray max-w-none">
         <div 
           id="main-content-text"
-          className="whitespace-pre-wrap leading-relaxed text-base text-gray-800 dark:text-gray-200"
+          className="whitespace-pre-wrap leading-relaxed text-base text-gray-800"
           dangerouslySetInnerHTML={{ 
             __html: work.content?.replace(/\n/g, '<br />') || '' 
           }}

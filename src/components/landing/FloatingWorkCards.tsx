@@ -93,13 +93,13 @@ export function FloatingWorkCards({ works }: FloatingWorkCardsProps) {
   const getCardClasses = () => {
     switch (screenSize) {
       case 'mobile':
-        return 'flex-shrink-0 w-28 aspect-video relative rounded-md overflow-hidden shadow-md bg-white dark:bg-gray-800'
+        return 'flex-shrink-0 w-28 aspect-video relative rounded-md overflow-hidden shadow-md bg-white'
       case 'tablet':
-        return 'flex-shrink-0 w-40 aspect-video relative rounded-lg overflow-hidden shadow-md bg-white dark:bg-gray-800'
+        return 'flex-shrink-0 w-40 aspect-video relative rounded-lg overflow-hidden shadow-md bg-white'
       case 'desktop':
-        return 'flex-shrink-0 w-64 aspect-video relative rounded-lg overflow-hidden shadow-lg bg-white dark:bg-gray-800'
+        return 'flex-shrink-0 w-64 aspect-video relative rounded-lg overflow-hidden shadow-lg bg-white'
       default:
-        return 'flex-shrink-0 w-28 aspect-video relative rounded-md overflow-hidden shadow-md bg-white dark:bg-gray-800'
+        return 'flex-shrink-0 w-28 aspect-video relative rounded-md overflow-hidden shadow-md bg-white'
     }
   }
 
@@ -126,7 +126,7 @@ export function FloatingWorkCards({ works }: FloatingWorkCardsProps) {
   }
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-10">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
       {rowsArray.map((rowData, rowIndex) => {
         if (!rowData || rowData.length === 0) return null
         

@@ -53,18 +53,18 @@ export function ContinueReadingDialog({
       
       {/* ダイアログ */}
       <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-auto">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-auto">
           {/* ヘッダー */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <div className="flex items-center gap-3">
               <BookOpen className="w-6 h-6 text-purple-600" />
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h2 className="text-lg font-semibold text-gray-900">
                 読書を再開
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              className="p-1 text-gray-400 hovertext-gray-300 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -73,10 +73,10 @@ export function ContinueReadingDialog({
           {/* 本文 */}
           <div className="p-6 space-y-4">
             <div>
-              <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
+              <h3 className="font-medium text-gray-900 mb-2 line-clamp-2">
                 {workTitle}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-600">
                 前回は<span className="font-semibold text-purple-600">{Math.round(progress)}%</span>まで読んでいました
               </p>
             </div>
@@ -87,7 +87,7 @@ export function ContinueReadingDialog({
                 <span>読書進捗</span>
                 <span>{Math.round(progress)}%</span>
               </div>
-              <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-700 ease-out"
                   style={{ width: `${progress}%` }}
@@ -124,8 +124,8 @@ export function ContinueReadingDialog({
               disabled={isLoading !== null}
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 px-4 py-3",
-                "bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600",
-                "text-gray-700 dark:text-gray-300 rounded-lg transition-colors font-medium",
+                "bg-gray-100 hover:bg-gray-600",
+                "text-gray-700 rounded-lg transition-colors font-medium",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 "focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
               )}

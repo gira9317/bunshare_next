@@ -84,7 +84,7 @@ export function EmbeddedImageCropper({
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* Cropper */}
-      <div className="relative flex-1 min-h-[300px] bg-gray-100 dark:bg-gray-800">
+      <div className="relative flex-1 min-h-[300px] bg-gray-100">
         <Cropper
           image={imageSrc}
           crop={crop}
@@ -116,7 +116,7 @@ export function EmbeddedImageCropper({
       {/* Controls */}
       <div className="flex-shrink-0 p-4 space-y-4">
         {/* Instructions */}
-        <div className="text-sm text-gray-600 dark:text-gray-400 text-center space-y-1">
+        <div className="text-sm text-gray-600 text-center space-y-1">
           <p className="hidden md:block">マウスホイールでズーム、ドラッグで位置調整</p>
           <p className="md:hidden">ピンチでズーム、ドラッグで位置調整</p>
         </div>
@@ -125,7 +125,7 @@ export function EmbeddedImageCropper({
         <div className="flex items-center justify-center gap-4">
           <button
             onClick={handleZoomOut}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-50 rounded-full transition-colors"
             disabled={zoom <= 1}
           >
             <ZoomOut className="w-4 h-4" />
@@ -135,7 +135,7 @@ export function EmbeddedImageCropper({
           </span>
           <button
             onClick={handleZoomIn}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-50 rounded-full transition-colors"
             disabled={zoom >= 3}
           >
             <ZoomIn className="w-4 h-4" />
@@ -149,8 +149,8 @@ export function EmbeddedImageCropper({
               onClick={handleRotate}
               className={cn(
                 "flex items-center gap-2 px-3 py-2 rounded-lg",
-                "bg-gray-100 dark:bg-gray-700",
-                "hover:bg-gray-200 dark:hover:bg-gray-600",
+                "bg-gray-100",
+                "hover:bg-gray-600",
                 "transition-colors"
               )}
             >
@@ -162,8 +162,8 @@ export function EmbeddedImageCropper({
               onClick={handleReset}
               className={cn(
                 "px-3 py-2 text-sm rounded-lg",
-                "text-gray-600 dark:text-gray-400",
-                "hover:bg-gray-100 dark:hover:bg-gray-700",
+                "text-gray-600",
+                "hover:bg-gray-50",
                 "transition-colors"
               )}
             >
@@ -199,7 +199,7 @@ export function EmbeddedImageCropper({
         </div>
 
         {/* Settings info */}
-        <div className="text-xs text-gray-500 dark:text-gray-400 space-y-1">
+        <div className="text-xs text-gray-500 space-y-1">
           <div className="flex justify-between">
             <span>アスペクト比:</span>
             <span>{aspectRatio === 16/9 ? '16:9' : aspectRatio === 1 ? '1:1' : aspectRatio.toFixed(2)}</span>

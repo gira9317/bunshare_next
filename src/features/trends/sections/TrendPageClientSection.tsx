@@ -41,10 +41,10 @@ export function TrendPageClientSection({
     <div className={`trend-page-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 ${className}`}>
       <div className="mb-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">
             トレンド
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
+          <p className="text-gray-600 text-lg">
             話題の作品と人気の作家を発見
           </p>
         </div>

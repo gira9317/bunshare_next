@@ -7,7 +7,7 @@ export default {
     "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: ["class"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -20,12 +20,25 @@ export default {
           DEFAULT: "#3b82f6",
           hover: "#2563eb",
         },
-        background: "var(--color-background)",
-        foreground: "var(--color-foreground)",
-        card: "var(--color-card)",
-        "card-border": "var(--color-card-border)",
-        muted: "var(--color-muted)",
-        "muted-foreground": "var(--color-muted-foreground)",
+        background: "var(--bg-primary)",
+        foreground: "var(--text-primary)",
+        card: "var(--bg-primary)",
+        "card-border": "var(--border-primary)",
+        muted: "var(--bg-secondary)",
+        "muted-foreground": "var(--text-secondary)",
+        // グレー色をカスタマイズ
+        gray: {
+          50: "#f9fafb",
+          100: "#f3f4f6", 
+          200: "#e5e7eb",
+          300: "#d1d5db",
+          400: "#9ca3af",
+          500: "#6b7280",
+          600: "#4b5563",
+          700: "#374151",
+          800: "#1f2937",
+          900: "#111827",
+        },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui"],
@@ -88,12 +101,6 @@ export default {
             background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
             transform: 'scale(1.02)',
             boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)',
-          }
-        },
-        '.btn-icon-dark': {
-          backgroundColor: 'rgba(26, 26, 26, 0.8)',
-          '&:hover': {
-            backgroundColor: 'rgba(36, 36, 36, 0.8)',
           }
         },
         '.tap-feedback': {

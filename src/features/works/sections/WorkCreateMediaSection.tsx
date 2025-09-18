@@ -88,22 +88,22 @@ export function WorkCreateMediaSection() {
   // シリーズ画像を使用する場合は画像アップロード機能を表示しない
   if (useSeriesImage) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 space-y-4">
+      <div className="bg-white rounded-xl p-6 space-y-4">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
             ヘッダー画像
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-600">
             シリーズのカバー画像を使用します
           </p>
         </div>
 
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center gap-3">
+        <div className="p-4 bg-blue-50 rounded-lg flex items-center gap-3">
           <div>
-            <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+            <p className="text-sm font-medium text-blue-900">
               シリーズ画像を使用中
             </p>
-            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+            <p className="text-xs text-blue-700 mt-1">
               この作品ではシリーズのカバー画像が表示されます。個別の画像を設定したい場合は、基本情報セクションで「シリーズのカバー画像を使用する」のチェックを外してください。
             </p>
           </div>
@@ -116,12 +116,12 @@ export function WorkCreateMediaSection() {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 space-y-6">
+    <div className="bg-white rounded-xl p-6 space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">
           ヘッダー画像
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-sm text-gray-600">
           作品カードの背景に表示される画像です（任意）
         </p>
       </div>
@@ -142,8 +142,8 @@ export function WorkCreateMediaSection() {
       
       {/* デバッグ情報 */}
       {imageFile && (
-        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-          <p className="text-xs text-blue-600 dark:text-blue-400">
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-xs text-blue-600">
             📝 ファイル情報: {imageFile.name} ({Math.round(imageFile.size / 1024)}KB)
           </p>
         </div>

@@ -23,7 +23,7 @@ export async function SearchResultsSection({
   if (!query.trim()) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-gray-500">
           検索キーワードを入力してください
         </p>
       </div>
@@ -58,7 +58,7 @@ export async function SearchResultsSection({
         {showWorks && works.length > 0 && (
           <section className="works-section">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-gray-900">
                 作品 ({total_works}件)
               </h2>
             </div>
@@ -132,7 +132,7 @@ export async function SearchResultsSection({
     console.error('Search results error:', error);
     return (
       <div className="text-center py-12">
-        <p className="text-red-500 dark:text-red-400">
+        <p className="text-red-500">
           検索結果の取得に失敗しました。しばらくしてから再度お試しください。
         </p>
       </div>

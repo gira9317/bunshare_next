@@ -76,9 +76,9 @@ export function WorkDetailCommentsSection({
   return (
     <div className="space-y-6">
       {/* ヘッダー */}
-      <div className="flex items-center gap-2 pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-2 pb-4 border-b border-gray-200">
         <MessageCircle className="w-5 h-5 text-purple-600" />
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+        <h2 className="text-xl font-bold text-gray-900">
           コメント
         </h2>
         <span className="text-sm text-gray-500">
@@ -135,7 +135,7 @@ export function WorkDetailCommentsSection({
             disabled={currentPage === 1}
             className={cn(
               "p-2 rounded-lg transition-colors",
-              "hover:bg-gray-100 dark:hover:bg-gray-800",
+              "hover:bg-gray-800",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >
@@ -161,7 +161,7 @@ export function WorkDetailCommentsSection({
                       "w-10 h-10 rounded-lg transition-colors",
                       currentPage === page
                         ? "bg-purple-600 text-white"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                        : "hover:bg-gray-800"
                     )}
                   >
                     {page}
@@ -175,7 +175,7 @@ export function WorkDetailCommentsSection({
             disabled={currentPage === totalPages}
             className={cn(
               "p-2 rounded-lg transition-colors",
-              "hover:bg-gray-100 dark:hover:bg-gray-800",
+              "hover:bg-gray-800",
               "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >

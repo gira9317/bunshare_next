@@ -54,15 +54,22 @@ export function Sidebar() {
     <aside className={cn(
       'hidden md:flex fixed left-0 top-0 h-screen flex-col z-40',
       'w-56 lg:w-64 xl:w-72',
-      'bg-white dark:bg-gray-800 backdrop-blur-md',
-      'border-r border-gray-200 dark:border-gray-700',
+      'backdrop-blur-md',
       'transition-colors duration-200'
-    )}>
+    )}
+    style={{
+      backgroundColor: 'var(--bg-primary)',
+      borderRightColor: 'var(--border-primary)',
+      borderRightWidth: '1px'
+    }}>
       {/* ロゴヘッダー */}
       <div className={cn(
-        'px-4 lg:px-6 py-4 lg:py-6',
-        'border-b border-gray-200 dark:border-gray-700'
-      )}>
+        'px-4 lg:px-6 py-4 lg:py-6'
+      )}
+      style={{
+        borderBottomColor: 'var(--border-primary)',
+        borderBottomWidth: '1px'
+      }}>
         <Link href="/app" className="flex items-center gap-2 lg:gap-3 group">
           <Image
             src="/images/logo/Bunshare_logo.png"
@@ -73,6 +80,9 @@ export function Sidebar() {
               'w-8 h-8 lg:w-10 lg:h-10 object-contain logo-light',
               'group-hover:scale-105 transition-all duration-200'
             )}
+            style={{
+              filter: 'var(--logo-filter, none)'
+            }}
           />
           <Image
             src="/images/logo/Bunshare_logo_dark_mode.png"
@@ -97,7 +107,7 @@ export function Sidebar() {
       {/* ナビゲーション */}
       <nav className={cn(
         'flex-1 px-3 lg:px-4 py-4 lg:py-6',
-        'overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600'
+        'overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300'
       )}>
         {navItems.map((item) => {
           const isActive = pathname === item.href
@@ -113,14 +123,14 @@ export function Sidebar() {
                 'group relative',
                 isActive
                   ? cn(
-                      'bg-purple-100 dark:bg-purple-900/30',
-                      'text-purple-600 dark:text-purple-400 font-medium',
+                      'bg-purple-100',
+                      'text-purple-600 font-medium',
                       'shadow-sm'
                     )
                   : cn(
-                      'text-gray-600 dark:text-gray-400',
-                      'hover:bg-gray-100/80 dark:hover:bg-gray-700/50',
-                      'hover:text-gray-900 dark:hover:text-gray-100',
+                      'text-gray-600',
+                      'hover:bg-gray-50/50',
+                      'hovertext-gray-100',
                       'hover:translate-x-0.5'
                     )
               )}
@@ -153,7 +163,7 @@ export function Sidebar() {
       {/* 投稿ボタン */}
       <div className={cn(
         'px-4 lg:px-6 py-3 lg:py-4',
-        'border-t border-gray-200/50 dark:border-gray-700/50'
+        'border-t border-gray-200/50'
       )}>
         <Link
           href="/app/works/create"

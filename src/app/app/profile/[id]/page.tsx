@@ -34,13 +34,13 @@ export default async function UserProfilePage({ params }: ProfilePageProps) {
   const canView = await canViewProfile(currentUser?.id || null, id)
   if (!canView) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="max-w-md mx-auto text-center p-6">
           <div className="text-6xl mb-4">🔒</div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
             非公開プロフィール
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600">
             このユーザーは自身のプロフィールを非公開に設定しています。
           </p>
         </div>
@@ -52,7 +52,7 @@ export default async function UserProfilePage({ params }: ProfilePageProps) {
   const isPublicProfile = user.public_profile
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* プロフィールセクション - 即座に表示 */}
         <FastProfileSuspense

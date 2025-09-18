@@ -192,14 +192,14 @@ export function UserTagsSection({
   return (
     <section className="py-8">
       <div className="mb-4">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
           {sectionTitle}
         </h2>
       </div>
       
       {isLoading && (
         <div className="mb-4 text-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-sm text-gray-500">
             並び替え中...
           </div>
         </div>
@@ -211,7 +211,7 @@ export function UserTagsSection({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <TagBadge tag={group.tag} />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
+                <span className="text-sm text-gray-600">
                   からの作品
                 </span>
               </div>
@@ -245,7 +245,7 @@ export function UserTagsSection({
                 <button
                   onClick={() => loadMoreForTag(group.tag)}
                   disabled={tagLoadingStates[group.tag]}
-                  className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {tagLoadingStates[group.tag] ? '読み込み中...' : 'もっと表示する'}
                 </button>
@@ -261,7 +261,7 @@ export function UserTagsSection({
           <button
             onClick={loadMoreTags}
             disabled={isLoadingMore}
-            className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoadingMore ? '読み込み中...' : 'もっと表示する'}
           </button>
@@ -270,7 +270,7 @@ export function UserTagsSection({
       
       {/* 個人化ヒント（コールドユーザーのみ） */}
       {!isWarm && (
-        <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-6 text-center text-sm text-gray-500">
           💡 作品にいいねやブックマークをすると、より個人的なおすすめを表示します
         </div>
       )}

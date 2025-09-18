@@ -9,9 +9,9 @@ export const dynamic = 'force-dynamic'
 export default async function LandingPage() {
   const landingWorks = await getLandingWorks()
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-white">
       {/* ナビゲーションヘッダー */}
-      <header className="fixed w-full top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+      <header className="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
@@ -19,25 +19,25 @@ export default async function LandingPage() {
                 <img 
                   src="/images/logo/Bunshare_logo.png" 
                   alt="Bunshare" 
-                  className="h-8 w-auto dark:hidden"
+                  className="h-8 w-auto"
                 />
                 <img 
                   src="/images/logo/Bunshare_logo_dark_mode.png" 
                   alt="Bunshare" 
-                  className="h-8 w-auto hidden dark:block"
+                  className="h-8 w-auto hidden"
                 />
-                <span className="text-xl font-bold text-gray-900 dark:text-white">Bunshare</span>
+                <span className="text-xl font-bold text-gray-900">Bunshare</span>
               </Link>
             </div>
             
             <nav className="md:flex items-center space-x-8">
-              <Link href="#features" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <Link href="#features" className="text-gray-600 hovertext-white transition-colors">
                 機能
               </Link>
-              <Link href="#gallery" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <Link href="#gallery" className="text-gray-600 hovertext-white transition-colors">
                 作品
               </Link>
-              <Link href="#pricing" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <Link href="#pricing" className="text-gray-600 hovertext-white transition-colors">
                 料金
               </Link>
             </nav>
@@ -45,7 +45,7 @@ export default async function LandingPage() {
             <div className="flex items-center space-x-4">
               <Link
                 href="/auth/login"
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="text-gray-600 hovertext-white transition-colors"
               >
                 ログイン
               </Link>
@@ -73,13 +73,13 @@ export default async function LandingPage() {
         </div>
         
         <div className="max-w-6xl mx-auto text-center relative">
-          <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-8">
+          <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-8">
             <span className="block">もっと多くの人に。</span>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               あなたの物語。
             </span>
           </h1>
-          <p className="text-lg md:text-xl lg:text-2xl text-gray-600 dark:text-gray-300 mb-10 max-w-4xl mx-auto">
+          <p className="text-lg md:text-xl lg:text-2xl text-gray-600 mb-10 max-w-4xl mx-auto">
             Bunshareは、創作者と読者をつなぐ新しいプラットフォーム。<br />
             あなたの想像力を、世界中の読者と共有しましょう。
           </p>
@@ -91,7 +91,7 @@ export default async function LandingPage() {
               無料で始める
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
-            <button className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
+            <button className="inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 text-base md:text-lg font-semibold text-blue-600 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-all">
               <div className="w-5 h-5 mr-2 bg-blue-600 rounded-full flex items-center justify-center">
                 <div className="w-0 h-0 border-l-2 border-l-white border-t-transparent border-b-transparent border-t border-b ml-0.5"></div>
               </div>
@@ -102,27 +102,27 @@ export default async function LandingPage() {
       </section>
 
       {/* 統計セクション */}
-      <section className="py-20 bg-gray-50 dark:bg-gray-800">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-12 text-lg">
+          <p className="text-center text-gray-600 mb-12 text-lg">
             多くの創作者に選ばれています
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center">
-              <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">10,000+</div>
-              <div className="text-gray-600 dark:text-gray-400">アクティブな創作者</div>
+              <div className="text-4xl font-bold text-gray-900 mb-2">10,000+</div>
+              <div className="text-gray-600">アクティブな創作者</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">50,000+</div>
-              <div className="text-gray-600 dark:text-gray-400">公開作品数</div>
+              <div className="text-4xl font-bold text-gray-900 mb-2">50,000+</div>
+              <div className="text-gray-600">公開作品数</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">1M+</div>
-              <div className="text-gray-600 dark:text-gray-400">月間読者数</div>
+              <div className="text-4xl font-bold text-gray-900 mb-2">1M+</div>
+              <div className="text-gray-600">月間読者数</div>
             </div>
             <div className="text-center">
-              <div className="text-4xl font-bold text-gray-900 dark:text-white mb-2">98%</div>
-              <div className="text-gray-600 dark:text-gray-400">満足度</div>
+              <div className="text-4xl font-bold text-gray-900 mb-2">98%</div>
+              <div className="text-gray-600">満足度</div>
             </div>
           </div>
         </div>
@@ -132,13 +132,13 @@ export default async function LandingPage() {
       <section id="features" className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium mb-4">
+            <div className="inline-block px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-medium mb-4">
               機能
             </div>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-6">
               創作活動を支える充実の機能
             </h2>
-            <p className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600 max-w-3xl mx-auto">
               Bunshareは、物語を書く人と読む人、すべての人のために設計されています。
             </p>
           </div>
@@ -179,16 +179,16 @@ export default async function LandingPage() {
       </section>
 
       {/* 作品ギャラリー */}
-      <section id="gallery" className="py-20 bg-gray-50 dark:bg-gray-800 px-4">
+      <section id="gallery" className="py-20 bg-gray-50 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-full text-sm font-medium mb-4">
+            <div className="inline-block px-4 py-2 bg-purple-100 text-purple-600 rounded-full text-sm font-medium mb-4">
               ギャラリー
             </div>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-6">
               注目の作品
             </h2>
-            <p className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600">
               今月最も読まれている作品をご紹介
             </p>
           </div>
@@ -223,7 +223,7 @@ export default async function LandingPage() {
           <div className="text-center mt-12">
             <Link
               href="/app/works"
-              className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold"
+              className="inline-flex items-center text-blue-600 hovertext-blue-300 font-semibold"
             >
               すべての作品を見る
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -236,13 +236,13 @@ export default async function LandingPage() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full text-sm font-medium mb-4">
+            <div className="inline-block px-4 py-2 bg-green-100 text-green-600 rounded-full text-sm font-medium mb-4">
               レビュー
             </div>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-6">
               創作者からの声
             </h2>
-            <p className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600">
               Bunshareを利用している創作者の方々からのメッセージ
             </p>
           </div>
@@ -274,16 +274,16 @@ export default async function LandingPage() {
       </section>
 
       {/* 料金プラン */}
-      <section id="pricing" className="py-20 bg-gray-50 dark:bg-gray-800 px-4">
+      <section id="pricing" className="py-20 bg-gray-50 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 rounded-full text-sm font-medium mb-4">
+            <div className="inline-block px-4 py-2 bg-yellow-100 text-yellow-600 rounded-full text-sm font-medium mb-4">
               料金
             </div>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-6">
               シンプルな料金プラン
             </h2>
-            <p className="text-base md:text-lg lg:text-xl text-gray-600 dark:text-gray-300">
+            <p className="text-base md:text-lg lg:text-xl text-gray-600">
               あなたの創作スタイルに合わせたプランを選べます
             </p>
           </div>
@@ -363,7 +363,7 @@ export default async function LandingPage() {
       </section>
 
       {/* フッター */}
-      <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+      <footer className="bg-white border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-4 py-12">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
             <div className="col-span-2">
@@ -371,55 +371,55 @@ export default async function LandingPage() {
                 <img 
                   src="/images/logo/Bunshare_logo.png" 
                   alt="Bunshare" 
-                  className="h-8 w-auto dark:hidden"
+                  className="h-8 w-auto"
                 />
                 <img 
                   src="/images/logo/Bunshare_logo_dark_mode.png" 
                   alt="Bunshare" 
-                  className="h-8 w-auto hidden dark:block"
+                  className="h-8 w-auto hidden"
                 />
               </Link>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
+              <p className="text-gray-600 mb-4">
                 物語でつながる、あなたの世界
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">プロダクト</h4>
-              <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                <li><Link href="#features" className="hover:text-gray-900 dark:hover:text-white">機能</Link></li>
-                <li><Link href="#pricing" className="hover:text-gray-900 dark:hover:text-white">料金</Link></li>
-                <li><Link href="/app" className="hover:text-gray-900 dark:hover:text-white">アプリ</Link></li>
+              <h4 className="font-semibold text-gray-900 mb-4">プロダクト</h4>
+              <ul className="space-y-2 text-gray-600">
+                <li><Link href="#features" className="hovertext-white">機能</Link></li>
+                <li><Link href="#pricing" className="hovertext-white">料金</Link></li>
+                <li><Link href="/app" className="hovertext-white">アプリ</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">リソース</h4>
-              <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                <li><Link href="#" className="hover:text-gray-900 dark:hover:text-white">ヘルプ</Link></li>
-                <li><Link href="#" className="hover:text-gray-900 dark:hover:text-white">コミュニティ</Link></li>
-                <li><Link href="#" className="hover:text-gray-900 dark:hover:text-white">ブログ</Link></li>
+              <h4 className="font-semibold text-gray-900 mb-4">リソース</h4>
+              <ul className="space-y-2 text-gray-600">
+                <li><Link href="#" className="hovertext-white">ヘルプ</Link></li>
+                <li><Link href="#" className="hovertext-white">コミュニティ</Link></li>
+                <li><Link href="#" className="hovertext-white">ブログ</Link></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-4">法務</h4>
-              <ul className="space-y-2 text-gray-600 dark:text-gray-400">
-                <li><Link href="/terms" className="hover:text-gray-900 dark:hover:text-white">利用規約</Link></li>
-                <li><Link href="/privacy" className="hover:text-gray-900 dark:hover:text-white">プライバシーポリシー</Link></li>
-                <li><Link href="/contact" className="hover:text-gray-900 dark:hover:text-white">お問い合わせ</Link></li>
+              <h4 className="font-semibold text-gray-900 mb-4">法務</h4>
+              <ul className="space-y-2 text-gray-600">
+                <li><Link href="/terms" className="hovertext-white">利用規約</Link></li>
+                <li><Link href="/privacy" className="hovertext-white">プライバシーポリシー</Link></li>
+                <li><Link href="/contact" className="hovertext-white">お問い合わせ</Link></li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-gray-200 dark:border-gray-700 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <div className="border-t border-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-500 text-sm">
               © 2025 Bunshare. All rights reserved.
             </p>
             <div className="flex items-center space-x-4 mt-4 md:mt-0">
-              <span className="text-gray-500 dark:text-gray-400 text-sm">日本語</span>
-              <span className="text-gray-300 dark:text-gray-600">|</span>
-              <span className="text-gray-500 dark:text-gray-400 text-sm">English</span>
+              <span className="text-gray-500 text-sm">日本語</span>
+              <span className="text-gray-300">|</span>
+              <span className="text-gray-500 text-sm">English</span>
             </div>
           </div>
         </div>
@@ -437,14 +437,14 @@ function FeatureCard({ icon, title, description }: {
   description: string
 }) {
   return (
-    <div className="p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-700">
-      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 text-blue-600 dark:text-blue-400 mb-4">
+    <div className="p-6 rounded-2xl bg-white shadow-lg hover:shadow-xl transition-shadow border border-gray-100">
+      <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-gradient-to-br from-blue-100 to-purple-100 text-blue-600 mb-4">
         {icon}
       </div>
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">
         {title}
       </h3>
-      <p className="text-gray-600 dark:text-gray-300">
+      <p className="text-gray-600">
         {description}
       </p>
     </div>
@@ -460,21 +460,21 @@ function WorkCard({ title, author, genre, likes, comments, icon }: {
   icon: string
 }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden border border-gray-100 dark:border-gray-700">
+    <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow overflow-hidden border border-gray-100">
       <div className="p-6">
-        <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 text-2xl mb-4">
+        <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 text-2xl mb-4">
           {icon}
         </div>
-        <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-sm rounded-full mb-3">
+        <span className="inline-block px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full mb-3">
           {genre}
         </span>
-        <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">
           {title}
         </h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-4">
+        <p className="text-gray-600 mb-4">
           by {author}
         </p>
-        <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center space-x-4 text-sm text-gray-500">
           <div className="flex items-center">
             <Heart className="h-4 w-4 mr-1" />
             {likes.toLocaleString()}
@@ -497,24 +497,24 @@ function TestimonialCard({ rating, text, author, title, avatar }: {
   avatar: string
 }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
       <div className="flex mb-4">
         {[...Array(rating)].map((_, i) => (
           <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
         ))}
       </div>
-      <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed">
+      <p className="text-gray-600 mb-6 leading-relaxed">
         "{text}"
       </p>
       <div className="flex items-center">
-        <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xl mr-4">
+        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl mr-4">
           {avatar}
         </div>
         <div>
-          <h4 className="font-semibold text-gray-900 dark:text-white">
+          <h4 className="font-semibold text-gray-900">
             {author}
           </h4>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <p className="text-gray-500 text-sm">
             {title}
           </p>
         </div>
@@ -534,7 +534,7 @@ function PricingCard({ name, price, period, description, features, buttonText, b
   featured?: boolean
 }) {
   return (
-    <div className={`rounded-2xl p-8 ${featured ? 'bg-gradient-to-b from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-700' : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'} relative`}>
+    <div className={`rounded-2xl p-8 ${featured ? 'bg-gradient-to-b from-blue-50 to-purple-50 border-2 border-blue-200' : 'bg-white border border-gray-200'} relative`}>
       {featured && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
           <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium">
@@ -544,15 +544,15 @@ function PricingCard({ name, price, period, description, features, buttonText, b
       )}
       
       <div className="text-center mb-6">
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <h3 className="text-2xl font-bold text-gray-900 mb-2">
           {name}
         </h3>
         <div className="mb-4">
-          <span className="text-sm text-gray-500 dark:text-gray-400">¥</span>
-          <span className="text-4xl font-bold text-gray-900 dark:text-white">{price}</span>
-          {period && <span className="text-gray-500 dark:text-gray-400">/{period}</span>}
+          <span className="text-sm text-gray-500">¥</span>
+          <span className="text-4xl font-bold text-gray-900">{price}</span>
+          {period && <span className="text-gray-500">/{period}</span>}
         </div>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-gray-600">
           {description}
         </p>
       </div>
@@ -561,7 +561,7 @@ function PricingCard({ name, price, period, description, features, buttonText, b
         {features.map((feature, index) => (
           <li key={index} className="flex items-center">
             <CheckCircle className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
-            <span className="text-gray-600 dark:text-gray-300">{feature}</span>
+            <span className="text-gray-600">{feature}</span>
           </li>
         ))}
       </ul>
@@ -570,7 +570,7 @@ function PricingCard({ name, price, period, description, features, buttonText, b
         href={buttonLink}
         className={`w-full inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold transition-all ${featured 
           ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700' 
-          : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+          : 'bg-gray-100 text-gray-900 hover:bg-gray-600'
         }`}
       >
         {buttonText}

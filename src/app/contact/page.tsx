@@ -247,11 +247,11 @@ export default function ContactPage() {
   const selectedCategory = categoryOptions.find(opt => opt.value === formData.category)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white">
       {/* ヘッダー */}
-      <div className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+      <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors">
+          <Link href="/" className="flex items-center gap-2 text-gray-600 hovertext-gray-200 transition-colors">
             <ChevronLeft className="w-5 h-5" />
             <span className="font-medium">ホームに戻る</span>
           </Link>
@@ -262,19 +262,19 @@ export default function ContactPage() {
         {/* ヒーローセクション */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-3 mb-6">
-            <div className="p-3 bg-gray-900 dark:bg-gray-100 rounded-xl shadow-lg">
-              <Mail className="w-8 h-8 text-white dark:text-gray-900" />
+            <div className="p-3 bg-gray-900 rounded-xl shadow-lg">
+              <Mail className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              <h1 className="text-4xl font-bold text-gray-900">
                 お問い合わせ
               </h1>
             </div>
           </div>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-4">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
             ご質問やご要望がございましたら、お気軽にお問い合わせください
           </p>
-          <div className="space-y-2 text-sm text-gray-500 dark:text-gray-500">
+          <div className="space-y-2 text-sm text-gray-500">
             <p>お使いいただいた感想、気になったこと、どんな些細なことでもお聞かせください。</p>
             <p>「ここがイマイチ」「これ不便」「もっとこうしてほしい」など、本音のご意見をぜひお寄せください。開発者が全部読みます！</p>
           </div>
@@ -282,24 +282,24 @@ export default function ContactPage() {
 
         {/* 成功・エラーメッセージ */}
         {submitStatus === 'success' && (
-          <div className="mb-8 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+          <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-xl">
             <div className="flex items-center gap-3">
-              <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+              <CheckCircle className="w-6 h-6 text-green-600" />
               <div>
-                <h3 className="font-semibold text-green-800 dark:text-green-200">送信完了</h3>
-                <p className="text-green-700 dark:text-green-300">お問い合わせを受け付けました。通常1-3営業日以内に回答いたします。</p>
+                <h3 className="font-semibold text-green-800">送信完了</h3>
+                <p className="text-green-700">お問い合わせを受け付けました。通常1-3営業日以内に回答いたします。</p>
               </div>
             </div>
           </div>
         )}
 
         {submitStatus === 'error' && (
-          <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl">
             <div className="flex items-center gap-3">
-              <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+              <AlertCircle className="w-6 h-6 text-red-600" />
               <div>
-                <h3 className="font-semibold text-red-800 dark:text-red-200">送信エラー</h3>
-                <p className="text-red-700 dark:text-red-300">
+                <h3 className="font-semibold text-red-800">送信エラー</h3>
+                <p className="text-red-700">
                   {errors.submit || '送信に失敗しました。時間をおいて再度お試しください。'}
                 </p>
               </div>
@@ -310,9 +310,9 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* お問い合わせフォーム */}
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-900">
                   お問い合わせフォーム
                 </h2>
               </div>
@@ -320,7 +320,7 @@ export default function ContactPage() {
               <form onSubmit={handleSubmit} className="p-6 space-y-6">
                 {/* お名前 */}
                 <div className="space-y-2">
-                  <label htmlFor="name" className="block text-sm font-semibold text-gray-900 dark:text-white">
+                  <label htmlFor="name" className="block text-sm font-semibold text-gray-900">
                     お名前（ニックネーム可）
                     <span className="text-red-500 ml-1">*</span>
                   </label>
@@ -333,12 +333,12 @@ export default function ContactPage() {
                     placeholder="例：ブンシェア太郎"
                     className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
                       errors.name 
-                        ? 'border-red-300 bg-red-50 dark:bg-red-900/20' 
-                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                    } bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
+                        ? 'border-red-300 bg-red-50' 
+                        : 'border-gray-200 hover:border-gray-500'
+                    } bg-white text-gray-900 placeholder-gray-400`}
                   />
                   {errors.name && (
-                    <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <p className="text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="w-4 h-4" />
                       {errors.name}
                     </p>
@@ -347,7 +347,7 @@ export default function ContactPage() {
 
                 {/* メールアドレス */}
                 <div className="space-y-2">
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-900 dark:text-white">
+                  <label htmlFor="email" className="block text-sm font-semibold text-gray-900">
                     メールアドレス
                   </label>
                   <input
@@ -359,15 +359,15 @@ export default function ContactPage() {
                     placeholder="example@email.com"
                     className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all ${
                       errors.email 
-                        ? 'border-red-300 bg-red-50 dark:bg-red-900/20' 
-                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                    } bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
+                        ? 'border-red-300 bg-red-50' 
+                        : 'border-gray-200 hover:border-gray-500'
+                    } bg-white text-gray-900 placeholder-gray-400`}
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-gray-500">
                     返信が必要な場合はご入力ください
                   </p>
                   {errors.email && (
-                    <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                    <p className="text-sm text-red-600 flex items-center gap-1">
                       <AlertCircle className="w-4 h-4" />
                       {errors.email}
                     </p>
@@ -376,7 +376,7 @@ export default function ContactPage() {
 
                 {/* 使用機種 */}
                 <div className="space-y-2">
-                  <label htmlFor="device" className="block text-sm font-semibold text-gray-900 dark:text-white">
+                  <label htmlFor="device" className="block text-sm font-semibold text-gray-900">
                     使用機種・デバイス
                   </label>
                   <input
@@ -386,16 +386,16 @@ export default function ContactPage() {
                     value={formData.device}
                     onChange={handleChange}
                     placeholder="例：iPhone 15 Pro、Windows PC、MacBook Air M2 等"
-                    className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent hover:border-gray-500 bg-white text-gray-900 placeholder-gray-400 transition-all"
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-gray-500">
                     不具合報告の際は、ご使用の機種やデバイス情報をお書きください
                   </p>
                 </div>
 
                 {/* お問い合わせ種別 */}
                 <div className="space-y-2">
-                  <label htmlFor="category" className="block text-sm font-semibold text-gray-900 dark:text-white">
+                  <label htmlFor="category" className="block text-sm font-semibold text-gray-900">
                     お問い合わせ種別
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -406,17 +406,17 @@ export default function ContactPage() {
                         onClick={() => setFormData(prev => ({ ...prev, category: option.value }))}
                         className={`flex items-center gap-3 p-4 border-2 rounded-xl transition-all ${
                           formData.category === option.value
-                            ? 'border-gray-900 bg-gray-100 dark:border-gray-100 dark:bg-gray-800'
-                            : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 bg-white dark:bg-gray-900'
+                            ? 'border-gray-900 bg-gray-100'
+                            : 'border-gray-200 hover:border-gray-500 bg-white'
                         }`}
                       >
                         <option.icon className={`w-5 h-5 ${
-                          formData.category === option.value ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'
+                          formData.category === option.value ? 'text-gray-900' : 'text-gray-600'
                         }`} />
                         <span className={`text-sm font-medium ${
                           formData.category === option.value 
-                            ? 'text-gray-900 dark:text-gray-100' 
-                            : 'text-gray-700 dark:text-gray-300'
+                            ? 'text-gray-900' 
+                            : 'text-gray-700'
                         }`}>
                           {option.label}
                         </span>
@@ -427,7 +427,7 @@ export default function ContactPage() {
 
                 {/* お問い合わせ内容 */}
                 <div className="space-y-2">
-                  <label htmlFor="message" className="block text-sm font-semibold text-gray-900 dark:text-white">
+                  <label htmlFor="message" className="block text-sm font-semibold text-gray-900">
                     お問い合わせ内容
                     <span className="text-red-500 ml-1">*</span>
                   </label>
@@ -444,19 +444,19 @@ export default function ContactPage() {
 ・エラーメッセージ（もしあれば）`}
                     className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all resize-none ${
                       errors.message 
-                        ? 'border-red-300 bg-red-50 dark:bg-red-900/20' 
-                        : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
-                    } bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500`}
+                        ? 'border-red-300 bg-red-50' 
+                        : 'border-gray-200 hover:border-gray-500'
+                    } bg-white text-gray-900 placeholder-gray-400`}
                   />
                   <div className="flex justify-between items-center">
                     {errors.message && (
-                      <p className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                      <p className="text-sm text-red-600 flex items-center gap-1">
                         <AlertCircle className="w-4 h-4" />
                         {errors.message}
                       </p>
                     )}
                     <p className={`text-xs ml-auto ${
-                      formData.message.length > 1800 ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'
+                      formData.message.length > 1800 ? 'text-red-500' : 'text-gray-500'
                     }`}>
                       {formData.message.length} / 2000文字
                     </p>
@@ -468,7 +468,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 dark:bg-gray-100 dark:hover:bg-gray-200 dark:disabled:bg-gray-600 text-white dark:text-gray-900 disabled:text-gray-300 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-gray-900 hover:bg-gray-800 disabledbg-gray-200:bg-gray-600 text-white disabled:text-gray-300 rounded-xl font-semibold text-lg transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:transform-none disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>
@@ -482,7 +482,7 @@ export default function ContactPage() {
                       </>
                     )}
                   </button>
-                  <p className="mt-4 text-sm text-gray-600 dark:text-gray-400 text-center">
+                  <p className="mt-4 text-sm text-gray-600 text-center">
                     送信いただいた内容は、お問い合わせ対応のためにのみ使用いたします。
                     <br />
                     通常1-3営業日以内に回答いたします。
@@ -494,9 +494,9 @@ export default function ContactPage() {
 
           {/* よくある質問 */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <div className="bg-white rounded-xl shadow-lg border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">
                   よくある質問
                 </h2>
                 <div className="relative">
@@ -506,7 +506,7 @@ export default function ContactPage() {
                     placeholder="質問を検索..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 text-sm"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-400 text-sm"
                   />
                 </div>
               </div>
@@ -515,14 +515,14 @@ export default function ContactPage() {
                 <div className="p-2 space-y-2">
                   {filteredFAQ.map((faq, index) => (
                     <details key={index} className="group">
-                      <summary className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white flex-1">
+                      <summary className="flex items-center gap-3 p-4 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <span className="text-sm font-medium text-gray-900 flex-1">
                           {faq.question}
                         </span>
                         <ChevronLeft className="w-4 h-4 text-gray-400 transform transition-transform group-open:rotate-90" />
                       </summary>
                       <div className="px-4 pb-4">
-                        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed pl-8">
+                        <p className="text-sm text-gray-600 leading-relaxed pl-8">
                           {faq.answer}
                         </p>
                       </div>
@@ -532,7 +532,7 @@ export default function ContactPage() {
                 
                 {filteredFAQ.length === 0 && (
                   <div className="p-6 text-center">
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">
+                    <p className="text-gray-500 text-sm">
                       該当する質問が見つかりませんでした
                     </p>
                   </div>
@@ -543,19 +543,19 @@ export default function ContactPage() {
         </div>
 
         {/* フッターリンク */}
-        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+        <div className="mt-12 pt-8 border-t border-gray-200">
           <div className="flex flex-wrap gap-4 justify-center text-sm">
-            <Link href="/terms" className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
+            <Link href="/terms" className="text-gray-600 hovertext-green-400 transition-colors">
               利用規約
             </Link>
-            <Link href="/privacy" className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
+            <Link href="/privacy" className="text-gray-600 hovertext-green-400 transition-colors">
               プライバシーポリシー
             </Link>
-            <Link href="/help" className="text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 transition-colors">
+            <Link href="/help" className="text-gray-600 hovertext-green-400 transition-colors">
               ヘルプ
             </Link>
           </div>
-          <p className="text-center text-sm text-gray-500 dark:text-gray-500 mt-4">
+          <p className="text-center text-sm text-gray-500 mt-4">
             © 2025 Bunshare. All rights reserved.
           </p>
         </div>

@@ -68,13 +68,13 @@ export function SearchInput({
   return (
     <form onSubmit={handleSubmit} className={cn("relative", className)} ref={containerRef}>
       <div className={cn(
-        "flex items-center bg-white dark:bg-gray-800 border rounded-lg transition-all duration-200",
+        "flex items-center bg-white border rounded-lg transition-all duration-200",
         isFocused 
           ? "border-blue-500 ring-2 ring-blue-500 ring-opacity-20" 
-          : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
+          : "border-gray-300 hover:border-gray-500"
       )}>
         <div className="pl-3 flex items-center">
-          <Search className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+          <Search className="w-5 h-5 text-gray-400" />
         </div>
         
         <input
@@ -91,14 +91,14 @@ export function SearchInput({
           }}
           onBlur={() => setIsFocused(false)}
           placeholder={placeholder}
-          className="flex-1 px-3 py-3 bg-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none"
+          className="flex-1 px-3 py-3 bg-transparent text-gray-900 placeholder-gray-500 focus:outline-none"
         />
         
         {query && (
           <button
             type="button"
             onClick={handleClear}
-            className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            className="p-2 text-gray-400 hovertext-gray-300 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -111,7 +111,7 @@ export function SearchInput({
             "px-4 py-3 text-sm font-medium rounded-r-lg transition-colors",
             query.trim()
               ? "bg-blue-600 hover:bg-blue-700 text-white"
-              : "bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+              : "bg-gray-100 text-gray-400 cursor-not-allowed"
           )}
         >
           検索

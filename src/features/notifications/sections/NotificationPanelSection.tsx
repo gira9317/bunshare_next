@@ -60,28 +60,33 @@ export function NotificationPanelSection({
           <div className={cn(
             'absolute right-0 top-full mt-2',
             'w-80 sm:w-96 max-h-[70vh]',
-            'bg-white dark:bg-gray-800',
-            'rounded-lg shadow-xl border border-gray-200 dark:border-gray-700',
+            'rounded-lg shadow-xl',
             'z-50 overflow-hidden',
             'animate-in fade-in-0 zoom-in-95 duration-200',
             'flex flex-col'
-          )}>
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          )}
+          style={{
+            backgroundColor: 'var(--bg-primary)',
+            borderColor: 'var(--border-primary)',
+            borderWidth: '1px'
+          }}>
+            <div className="flex items-center justify-between px-4 py-3" style={{ borderBottomColor: 'var(--border-primary)', borderBottomWidth: '1px' }}>
+              <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                 通知
               </h3>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllAsRead}
-                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                    className="text-xs text-blue-600 hover:underline"
                   >
                     すべて既読にする
                   </button>
                 )}
                 <button
                   onClick={handleClose}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  className="hover:opacity-70 transition-opacity"
+                  style={{ color: 'var(--text-tertiary)' }}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                     <path 
@@ -103,7 +108,7 @@ export function NotificationPanelSection({
               ) : notifications.length === 0 ? (
                 <NotificationEmpty />
               ) : (
-                <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                <div className="divide-y" style={{ borderColor: 'var(--border-secondary)' }}>
                   {notifications.map(notification => (
                     <NotificationItem
                       key={notification.id}
@@ -116,8 +121,8 @@ export function NotificationPanelSection({
             </div>
             
             {notifications.length > 0 && (
-              <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
-                <button className="w-full text-xs text-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">
+              <div className="px-4 py-2" style={{ borderTopColor: 'var(--border-primary)', borderTopWidth: '1px' }}>
+                <button className="w-full text-xs text-center hover:opacity-70 transition-opacity" style={{ color: 'var(--text-secondary)' }}>
                   すべての通知を見る
                 </button>
               </div>

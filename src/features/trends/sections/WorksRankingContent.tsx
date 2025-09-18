@@ -53,10 +53,10 @@ export function WorksRankingContent({ initialRankings }: WorksRankingContentProp
                   {ranking.icon}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  <h3 className="text-xl font-bold text-gray-900">
                     {ranking.title}ランキング
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                  <p className="text-sm text-gray-500 mt-0.5">
                     {ranking.criterion}
                   </p>
                 </div>
@@ -67,8 +67,8 @@ export function WorksRankingContent({ initialRankings }: WorksRankingContentProp
                   onClick={() => toggleExpanded(ranking.period)}
                   className={cn(
                     "flex items-center gap-2 px-4 py-2 rounded-lg",
-                    "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700",
-                    "text-sm font-medium text-gray-700 dark:text-gray-300",
+                    "bg-gray-100 hover:bg-gray-50",
+                    "text-sm font-medium text-gray-700",
                     "transition-all duration-200"
                   )}
                 >
@@ -115,8 +115,8 @@ export function WorksRankingContent({ initialRankings }: WorksRankingContentProp
                 })}
               </div>
             ) : (
-              <div className="text-center py-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                <p className="text-gray-500 dark:text-gray-400">
+              <div className="text-center py-8 bg-gray-50 rounded-lg">
+                <p className="text-gray-500">
                   {ranking.title}のランキングデータがありません
                 </p>
               </div>

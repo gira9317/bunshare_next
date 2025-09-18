@@ -235,21 +235,21 @@ export function ProfileEditModal({
           currentStep === 'edit' 
             ? 'w-full max-w-md h-screen supports-[height:100dvh]:h-dvh overflow-y-auto md:max-w-md md:max-h-[90vh] md:supports-[height:100dvh]:max-h-[90dvh] md:h-auto'
             : 'w-full max-w-4xl h-screen supports-[height:100dvh]:h-dvh overflow-hidden flex flex-col md:h-[90vh] md:supports-[height:100dvh]:h-[90dvh]',
-          'bg-white dark:bg-gray-800 rounded-none md:rounded-lg shadow-xl z-[60]',
-          'border-0 md:border md:border-gray-200 md:dark:border-gray-700',
+          'bg-white rounded-none md:rounded-lg shadow-xl z-[60]',
+          'border-0 md:border md:border-gray-200 mdborder-gray-700',
           className
         )}
       >
         {/* Header */}
-        <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <div className="flex-shrink-0 flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
             {currentStep === 'edit' && 'プロフィール編集'}
             {currentStep === 'crop-avatar' && '画像をトリミング - プロフィール画像'}
             {currentStep === 'crop-cover' && '画像をトリミング - カバー画像'}
           </h2>
           <button
             onClick={currentStep === 'edit' ? onClose : handleCropCancel}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            className="text-gray-400 hovertext-gray-200"
           >
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -262,13 +262,13 @@ export function ProfileEditModal({
           /* Edit Form */
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {errors.general && (
-            <div className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 p-2 rounded">
+            <div className="text-red-500 text-sm bg-red-50 p-2 rounded">
               {errors.general}
             </div>
           )}
           
           {showSuccess && (
-            <div className="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-lg flex items-center gap-2">
+            <div className="text-green-600 text-sm bg-green-50 p-3 rounded-lg flex items-center gap-2">
               <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -295,15 +295,15 @@ export function ProfileEditModal({
 
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               ユーザー名
             </label>
             <input
               type="text"
               value={formData.username || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
-                       bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+              className="w-full px-3 py-2 border border-gray-300 rounded-md
+                       bg-white text-gray-900
                        focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="ユーザー名を入力"
             />
@@ -314,40 +314,40 @@ export function ProfileEditModal({
 
           {/* Custom User ID */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               カスタムユーザーID
             </label>
             <div className="flex">
-              <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm rounded-l-md">
+              <span className="inline-flex items-center px-3 py-2 border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-md">
                 @
               </span>
               <input
                 type="text"
                 value={formData.custom_user_id || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, custom_user_id: e.target.value }))}
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-r-md
-                         bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-r-md
+                         bg-white text-gray-900
                          focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="カスタムID（任意）"
                 maxLength={50}
               />
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-gray-500 mt-1">
               1-50文字の英数字とアンダースコア
             </p>
           </div>
 
           {/* Bio */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               自己紹介
             </label>
             <textarea
               value={formData.bio || ''}
               onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
-                       bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+              className="w-full px-3 py-2 border border-gray-300 rounded-md
+                       bg-white text-gray-900
                        focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
               placeholder="自己紹介を入力（最大500文字）"
               maxLength={500}
@@ -362,7 +362,7 @@ export function ProfileEditModal({
 
           {/* Website URLs */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               ウェブサイト
             </label>
             {(formData.website_url || []).map((url, index) => (
@@ -375,8 +375,8 @@ export function ProfileEditModal({
                     newUrls[index] = e.target.value
                     setFormData(prev => ({ ...prev, website_url: newUrls }))
                   }}
-                  className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md
-                           bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md
+                           bg-white text-gray-900
                            focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="https://example.com"
                 />
@@ -386,7 +386,7 @@ export function ProfileEditModal({
                     const newUrls = (formData.website_url || []).filter((_, i) => i !== index)
                     setFormData(prev => ({ ...prev, website_url: newUrls }))
                   }}
-                  className="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
+                  className="px-3 py-2 text-red-600 hover:bg-red-900/20 rounded-md"
                 >
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -451,11 +451,11 @@ export function ProfileEditModal({
             )}
             
             {/* Bottom cancel button */}
-            <div className="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex-shrink-0 p-4 border-t border-gray-200">
               <button
                 type="button"
                 onClick={handleCropCancel}
-                className="w-full px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="w-full px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
               >
                 戻る
               </button>

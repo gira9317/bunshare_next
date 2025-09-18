@@ -92,7 +92,7 @@ export function EssaysSection({
     return (
       <section className="py-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
             エッセイ
           </h2>
           <SortSelect
@@ -101,7 +101,7 @@ export function EssaysSection({
             onChange={handleSortChange}
           />
         </div>
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           <p>まだエッセイがありません</p>
         </div>
       </section>
@@ -111,7 +111,7 @@ export function EssaysSection({
   return (
     <section className="py-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-xl font-bold text-gray-900">
           エッセイ
         </h2>
         <SortSelect
@@ -123,7 +123,7 @@ export function EssaysSection({
       
       {isLoading && (
         <div className="mb-4 text-center">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-sm text-gray-500">
             並び替え中...
           </div>
         </div>
@@ -151,7 +151,7 @@ export function EssaysSection({
         <button
           onClick={loadMoreWorks}
           disabled={isLoadingMore}
-          className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoadingMore ? '読み込み中...' : 'もっと表示する'}
         </button>

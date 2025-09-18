@@ -99,15 +99,15 @@ export function WorkDetailHeaderSection({
 
       {/* タイトルと基本情報 */}
       <div className="space-y-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
           {work.title}
         </h1>
 
         {/* 作者と投稿日 */}
-        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
           <a 
             href={`/app/profile/${work.user_id}`}
-            className="flex items-center gap-1 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+            className="flex items-center gap-1 hovertext-purple-400 transition-colors"
           >
             <User className="w-4 h-4" />
             <span>{work.author}</span>
@@ -127,7 +127,7 @@ export function WorkDetailHeaderSection({
         {/* 統計情報とアクション */}
         <div className="flex flex-wrap items-center gap-4">
           {/* 統計 */}
-          <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center gap-1">
               <Eye className="w-4 h-4" />
               <span>{work.views || 0}</span>
@@ -152,7 +152,7 @@ export function WorkDetailHeaderSection({
                 "hover:scale-105 active:scale-95",
                 isLiked
                   ? "bg-red-500 text-white hover:bg-red-600"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-50"
               )}
             >
               <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
@@ -167,7 +167,7 @@ export function WorkDetailHeaderSection({
                 "hover:scale-105 active:scale-95",
                 isBookmarked
                   ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                  : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-50"
               )}
             >
               <Bookmark className={cn("w-4 h-4", isBookmarked && "fill-current")} />
@@ -178,7 +178,7 @@ export function WorkDetailHeaderSection({
 
         {/* 概要 */}
         {work.description && (
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+          <p className="text-gray-700 leading-relaxed">
             {work.description}
           </p>
         )}
@@ -189,7 +189,7 @@ export function WorkDetailHeaderSection({
             {work.tags.map((tag, index) => (
               <span
                 key={index}
-                className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-300 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                className="px-3 py-1 bg-gray-100 text-sm text-gray-700 rounded-full hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 #{tag}
               </span>

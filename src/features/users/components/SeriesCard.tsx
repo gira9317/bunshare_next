@@ -39,8 +39,8 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
         <div 
           className={cn(
             "absolute inset-x-4 top-0",
-            "bg-white dark:bg-gray-800 rounded-xl overflow-hidden",
-            "border border-gray-200 dark:border-gray-700",
+            "bg-white rounded-xl overflow-hidden",
+            "border border-gray-200",
             "transform rotate-[3deg] transition-all duration-500",
             "group-hover:rotate-[5deg] group-hover:translate-x-2",
             "aspect-[16/9]"
@@ -58,8 +58,8 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
               <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30" />
             </div>
           ) : (
-            <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-              <Library className="w-8 h-8 text-gray-300 dark:text-gray-600" />
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <Library className="w-8 h-8 text-gray-300" />
             </div>
           )}
         </div>
@@ -70,8 +70,8 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
         <div 
           className={cn(
             "absolute inset-x-2 top-3",
-            "bg-white dark:bg-gray-800 rounded-xl overflow-hidden",
-            "border border-gray-200 dark:border-gray-700",
+            "bg-white rounded-xl overflow-hidden",
+            "border border-gray-200",
             "transform rotate-[1.5deg] transition-all duration-500",
             "group-hover:rotate-[2.5deg] group-hover:translate-x-1",
             "shadow-sm",
@@ -90,8 +90,8 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
               <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-black/25" />
             </div>
           ) : (
-            <div className="w-full h-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-              <Library className="w-8 h-8 text-gray-300 dark:text-gray-600" />
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <Library className="w-8 h-8 text-gray-300" />
             </div>
           )}
         </div>
@@ -101,8 +101,8 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
       <article 
         className={cn(
           'absolute inset-x-0 top-6',
-          'group/main relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden',
-          'border border-gray-200 dark:border-gray-700',
+          'group/main relative bg-white rounded-xl overflow-hidden',
+          'border border-gray-200',
           'hover:border-transparent hover:shadow-2xl transition-all duration-500',
           'transform hover:-translate-y-1',
           'aspect-[16/9]'
@@ -126,8 +126,8 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
             )} />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-            <Library className="w-16 h-16 text-gray-300 dark:text-gray-600" />
+          <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
+            <Library className="w-16 h-16 text-gray-300" />
           </div>
         )}
 
@@ -151,7 +151,7 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
               'transition-colors duration-300',
               mainImage
                 ? 'text-white group-hover:text-gray-100'
-                : 'text-gray-900 dark:text-white group-hover:text-purple-600'
+                : 'text-gray-900 group-hover:text-purple-600'
             )}>
               {series.title}
             </h3>
@@ -164,7 +164,7 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
               'transition-all duration-300',
               mainImage
                 ? 'text-gray-100 group-hover:text-white'
-                : 'text-gray-700 dark:text-gray-300'
+                : 'text-gray-700'
             )}>
               {series.description}
             </p>
@@ -180,7 +180,7 @@ export function SeriesCard({ series, className, onClick }: SeriesCardProps) {
                     "category-tag-brand px-2 py-1 text-xs font-semibold rounded-full",
                     mainImage
                       ? "bg-white/20 backdrop-blur-sm text-white"
-                      : "bg-gray-500 dark:bg-gray-600 text-white"
+                      : "bg-gray-500 text-white"
                   )}>
                     {(series.works_count || 0) > 0 
                       ? `全${series.works_count}話`

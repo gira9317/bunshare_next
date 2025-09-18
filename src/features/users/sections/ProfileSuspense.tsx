@@ -127,13 +127,13 @@ async function WorksDataLoader({ user, currentUserId, userSeries, defaultTab }: 
 // スケルトン UI
 function ProfileTabsSkeleton() {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       {/* タブヘッダー */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
+      <div className="border-b border-gray-200">
         <nav className="-mb-px flex space-x-8 px-6">
           {[1, 2, 3, 4].map(i => (
             <div key={i} className="py-4 px-1 border-b-2 border-transparent">
-              <div className="h-5 w-20 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+              <div className="h-5 w-20 bg-gray-200 rounded animate-pulse" />
             </div>
           ))}
         </nav>
@@ -144,19 +144,19 @@ function ProfileTabsSkeleton() {
         <div className="flex flex-col items-center justify-center py-12">
           {/* スピナー */}
           <div className="relative">
-            <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 rounded-full"></div>
-            <div className="absolute top-0 left-0 w-12 h-12 border-4 border-purple-600 dark:border-purple-400 rounded-full border-t-transparent animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-gray-200 rounded-full"></div>
+            <div className="absolute top-0 left-0 w-12 h-12 border-4 border-purple-600 rounded-full border-t-transparent animate-spin"></div>
           </div>
-          <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">作品を読み込み中...</p>
+          <p className="mt-4 text-sm text-gray-500">作品を読み込み中...</p>
         </div>
         
         {/* オプション: カードのスケルトンも薄く表示 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-30 mt-8">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <div className="h-32 w-full bg-gray-200 dark:bg-gray-600 rounded mb-4 animate-pulse" />
-              <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-600 rounded mb-2 animate-pulse" />
-              <div className="h-3 w-1/2 bg-gray-200 dark:bg-gray-600 rounded animate-pulse" />
+            <div key={i} className="bg-gray-50 rounded-lg p-4">
+              <div className="h-32 w-full bg-gray-200 rounded mb-4 animate-pulse" />
+              <div className="h-4 w-3/4 bg-gray-200 rounded mb-2 animate-pulse" />
+              <div className="h-3 w-1/2 bg-gray-200 rounded animate-pulse" />
             </div>
           ))}
         </div>

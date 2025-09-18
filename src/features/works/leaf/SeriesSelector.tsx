@@ -108,7 +108,7 @@ export function SeriesSelector({
   return (
     <>
       <div className="space-y-4">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="block text-sm font-medium text-gray-700">
           シリーズ
         </label>
         
@@ -139,9 +139,9 @@ export function SeriesSelector({
             }}
             className={cn(
               "flex-1 px-4 py-2 rounded-lg border",
-              "bg-white dark:bg-gray-900",
-              "border-gray-300 dark:border-gray-600",
-              "text-gray-900 dark:text-white",
+              "bg-white",
+              "border-gray-300",
+              "text-gray-900",
               "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent",
               "transition-colors"
             )}
@@ -172,8 +172,8 @@ export function SeriesSelector({
 
         {/* エピソード番号入力 */}
         {selectedSeries && (
-          <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg space-y-2">
-            <label htmlFor="episodeNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="p-4 bg-purple-50 rounded-lg space-y-2">
+            <label htmlFor="episodeNumber" className="block text-sm font-medium text-gray-700">
               エピソード番号
             </label>
             <input
@@ -185,15 +185,15 @@ export function SeriesSelector({
               min="1"
               className={cn(
                 "w-full px-4 py-2 rounded-lg border",
-                "bg-white dark:bg-gray-900",
-                "border-gray-300 dark:border-gray-600",
-                "text-gray-900 dark:text-white",
+                "bg-white",
+                "border-gray-300",
+                "text-gray-900",
                 "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent",
                 "transition-colors"
               )}
               placeholder="例: 1, 2, 3..."
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500">
               シリーズ内での順序を指定します
             </p>
           </div>
@@ -203,13 +203,13 @@ export function SeriesSelector({
       {/* シリーズ作成モーダル */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">
               新しいシリーズを作成
             </h3>
             
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium text-gray-700">
                 シリーズタイトル <span className="text-red-500">*</span>
               </label>
               <input
@@ -218,9 +218,9 @@ export function SeriesSelector({
                 onChange={(e) => setNewSeriesTitle(e.target.value)}
                 className={cn(
                   "w-full px-4 py-2 rounded-lg border",
-                  "bg-white dark:bg-gray-900",
-                  "border-gray-300 dark:border-gray-600",
-                  "text-gray-900 dark:text-white",
+                  "bg-white",
+                  "border-gray-300",
+                  "text-gray-900",
                   "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 )}
                 placeholder="シリーズのタイトル"
@@ -229,7 +229,7 @@ export function SeriesSelector({
             </div>
             
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium text-gray-700">
                 シリーズ概要
               </label>
               <textarea
@@ -237,9 +237,9 @@ export function SeriesSelector({
                 onChange={(e) => setNewSeriesDescription(e.target.value)}
                 className={cn(
                   "w-full px-4 py-2 rounded-lg border",
-                  "bg-white dark:bg-gray-900",
-                  "border-gray-300 dark:border-gray-600",
-                  "text-gray-900 dark:text-white",
+                  "bg-white",
+                  "border-gray-300",
+                  "text-gray-900",
                   "focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent",
                   "resize-none"
                 )}
@@ -250,10 +250,10 @@ export function SeriesSelector({
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-sm font-medium text-gray-700">
                 カバー画像（任意）
               </label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500">
                 シリーズのカバー画像です。16:9の比率でトリミングされます。
               </p>
               <ImageUpload
@@ -279,9 +279,9 @@ export function SeriesSelector({
                 }}
                 className={cn(
                   "px-4 py-2 rounded-lg",
-                  "bg-gray-200 dark:bg-gray-700",
-                  "text-gray-700 dark:text-gray-300",
-                  "hover:bg-gray-300 dark:hover:bg-gray-600",
+                  "bg-gray-200",
+                  "text-gray-700",
+                  "hover:bg-gray-600",
                   "transition-colors"
                 )}
               >

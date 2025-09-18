@@ -78,12 +78,12 @@ export function PostgreSQLRecommendationsSection({
     return (
       <section className="py-8">
         <div className="flex items-center gap-3 mb-4">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <h2 className="text-xl font-bold text-gray-900">
             {title || 'あなたへのおすすめ'}
           </h2>
           <RecommendationSourceBadge source={source} strategy={strategy} />
         </div>
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-12 text-gray-500">
           <p>まだおすすめできる作品がありません</p>
           <p className="text-sm mt-2">作品を読んだりいいねすると、より良いおすすめを表示します</p>
         </div>
@@ -94,7 +94,7 @@ export function PostgreSQLRecommendationsSection({
   return (
     <section className="py-8">
       <div className="flex items-center gap-3 mb-4">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">
           {title || 'あなたへのおすすめ'}
         </h2>
         <RecommendationSourceBadge source={source} strategy={strategy} />
@@ -134,7 +134,7 @@ export function PostgreSQLRecommendationsSection({
           <button
             onClick={showMoreWorks}
             disabled={isLoading}
-            className="px-6 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? '読み込み中...' : 'もっと表示する'}
           </button>

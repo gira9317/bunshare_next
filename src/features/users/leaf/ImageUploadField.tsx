@@ -100,7 +100,7 @@ export function ImageUploadField({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label className="block text-sm font-medium text-gray-700">
         {label}
       </label>
       
@@ -111,10 +111,10 @@ export function ImageUploadField({
         onDrop={handleDrop}
         className={cn(
           'relative cursor-pointer transition-all duration-200',
-          'border-2 border-dashed border-gray-300 dark:border-gray-600',
-          'hover:border-blue-400 dark:hover:border-blue-500',
-          'bg-gray-50 dark:bg-gray-800/50',
-          dragOver && 'border-blue-500 bg-blue-50 dark:bg-blue-900/20',
+          'border-2 border-dashed border-gray-300',
+          'hover:border-blue-500',
+          'bg-gray-50',
+          dragOver && 'border-blue-500 bg-blue-50',
           isAvatar ? 'w-32 h-32 rounded-full' : 'w-full h-32 rounded-lg'
         )}
       >
@@ -145,10 +145,10 @@ export function ImageUploadField({
           </>
         ) : (
           <div className="flex flex-col items-center justify-center h-full p-4">
-            <svg className="w-8 h-8 text-gray-400 dark:text-gray-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-8 h-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            <span className="text-sm text-gray-500 dark:text-gray-400 text-center">
+            <span className="text-sm text-gray-500 text-center">
               クリックまたはドラッグして<br />画像を選択
             </span>
           </div>
@@ -163,7 +163,7 @@ export function ImageUploadField({
         className="hidden"
       />
       
-      <div className="text-xs text-gray-500 dark:text-gray-400">
+      <div className="text-xs text-gray-500">
         JPG、PNG、GIF対応（最大5MB、WebP圧縮で自動最適化）
       </div>
       

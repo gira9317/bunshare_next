@@ -41,10 +41,10 @@ export default async function WorkCreatePage() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* ページヘッダー */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
           作品を投稿
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600">
           あなたの創造性を世界とシェアしましょう
         </p>
       </div>

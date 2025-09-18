@@ -154,7 +154,7 @@ export function BookmarkFolderManager({
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg font-bold text-gray-900">
           📁 ブックマークフォルダ管理
         </h3>
         <button
@@ -168,13 +168,13 @@ export function BookmarkFolderManager({
 
       {/* Create Form */}
       {showCreateForm && (
-        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg space-y-3">
+        <div className="p-4 bg-gray-50 rounded-lg space-y-3">
           <input
             type="text"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
             placeholder="フォルダ名を入力"
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
           <label className="flex items-center gap-2">
             <input
@@ -183,7 +183,7 @@ export function BookmarkFolderManager({
               onChange={(e) => setNewFolderPrivate(e.target.checked)}
               className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="text-sm text-gray-700">
               プライベートフォルダにする
             </span>
           </label>
@@ -218,7 +218,7 @@ export function BookmarkFolderManager({
             {/* System Folders */}
             {folders.filter(f => f.is_system).length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 px-2">
+                <h4 className="text-sm font-medium text-gray-600 mb-2 px-2">
                   システムフォルダ
                 </h4>
                 <div className="space-y-2">
@@ -245,7 +245,7 @@ export function BookmarkFolderManager({
             {/* Custom Folders */}
             {folders.filter(f => !f.is_system).length > 0 && (
               <div>
-                <h4 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2 px-2">
+                <h4 className="text-sm font-medium text-gray-600 mb-2 px-2">
                   カスタムフォルダ
                 </h4>
                 <div className="space-y-2">
@@ -307,8 +307,8 @@ function FolderItem({
       className={cn(
         'flex items-center gap-3 p-3 rounded-lg border transition-colors',
         isSelected 
-          ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
-          : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700',
+          ? 'border-purple-500 bg-purple-50'
+          : 'border-gray-200 hover:bg-gray-50',
         onSelect && 'cursor-pointer'
       )}
       onClick={() => onSelect?.(folder.folder_key)}
@@ -331,7 +331,7 @@ function FolderItem({
           }}
         />
       ) : (
-        <span className="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100">
+        <span className="flex-1 text-sm font-medium text-gray-900">
           {folder.folder_name}
         </span>
       )}
@@ -342,7 +342,7 @@ function FolderItem({
           onClick={() => onPrivateToggle(folder)}
           disabled={folder.is_system}
           className={cn(
-            "p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors",
+            "p-1.5 rounded hover:bg-gray-600 transition-colors",
             folder.is_system ? "cursor-not-allowed opacity-50" : "cursor-pointer"
           )}
           title={
@@ -364,7 +364,7 @@ function FolderItem({
         {!folder.is_system && !isEditing && (
           <button
             onClick={() => onStartEdit(folder)}
-            className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            className="p-1.5 rounded hover:bg-gray-600 transition-colors"
             title="フォルダ名を編集"
           >
             <Edit2 size={14} className="text-blue-500" />
@@ -376,14 +376,14 @@ function FolderItem({
           <>
             <button
               onClick={() => onSaveEdit(folder.id)}
-              className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-green-500"
+              className="p-1.5 rounded hover:bg-gray-600 transition-colors text-green-500"
               title="保存"
             >
               ✓
             </button>
             <button
               onClick={onCancelEdit}
-              className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-red-500"
+              className="p-1.5 rounded hover:bg-gray-600 transition-colors text-red-500"
               title="キャンセル"
             >
               ✕
@@ -395,7 +395,7 @@ function FolderItem({
         {!folder.is_system && !isEditing && (
           <button
             onClick={() => onDelete(folder)}
-            className="p-1.5 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            className="p-1.5 rounded hover:bg-gray-600 transition-colors"
             title="フォルダを削除"
           >
             <Trash2 size={14} className="text-red-500" />

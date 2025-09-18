@@ -17,7 +17,7 @@ async function TrendingWorksContent() {
         <div className="text-gray-400 mb-4">
           <TrendingUp className="w-12 h-12 mx-auto" />
         </div>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600">
           急上昇中の作品がありません
         </p>
       </div>
@@ -64,12 +64,12 @@ function TrendingWorksLoading() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse">
-          <div className="aspect-video bg-gray-300 dark:bg-gray-600 rounded-t-lg" />
+        <div key={i} className="bg-gray-200 rounded-lg animate-pulse">
+          <div className="aspect-video bg-gray-300 rounded-t-lg" />
           <div className="p-4 space-y-3">
-            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4" />
-            <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2" />
-            <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-2/3" />
+            <div className="h-4 bg-gray-300 rounded w-3/4" />
+            <div className="h-3 bg-gray-300 rounded w-1/2" />
+            <div className="h-3 bg-gray-300 rounded w-2/3" />
           </div>
         </div>
       ))}
@@ -82,7 +82,7 @@ export function TrendingWorksSection({ className = '' }: TrendingWorksSectionPro
     <section className={`trending-works-section ${className}`}>
       <div className="flex items-center gap-3 mb-6">
         <TrendingUp className="w-6 h-6 text-red-500" />
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-2xl font-bold text-gray-900">
           本日の急上昇注目作品
         </h2>
       </div>

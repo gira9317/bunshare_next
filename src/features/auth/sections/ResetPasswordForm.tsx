@@ -82,13 +82,13 @@ export function ResetPasswordForm() {
   if (success) {
     return (
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full mb-4">
-          <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+          <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-gray-900">
           パスワードを更新しました
         </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+        <p className="text-sm text-gray-600 leading-relaxed">
           新しいパスワードでログインできます。<br />
           ログインページに自動的に移動します...
         </p>
@@ -103,8 +103,8 @@ export function ResetPasswordForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* General Error */}
       {errors.general && (
-        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3">
-          <p className="text-sm text-red-600 dark:text-red-400">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+          <p className="text-sm text-red-600">
             {errors.general}
           </p>
         </div>
@@ -112,19 +112,19 @@ export function ResetPasswordForm() {
 
       {/* New Password Field */}
       <div>
-        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
           新しいパスワード
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+            <Lock className="h-5 w-5 text-gray-400" />
           </div>
           <input
             id="newPassword"
             type={showNewPassword ? 'text' : 'password'}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
             placeholder="新しいパスワードを入力"
             required
             disabled={isLoading}
@@ -145,7 +145,7 @@ export function ResetPasswordForm() {
               <span className={requirement.met ? 'text-green-500' : 'text-gray-400'}>
                 {requirement.met ? '✓' : '○'}
               </span>
-              <span className={requirement.met ? 'text-green-600 dark:text-green-400' : 'text-gray-500'}>
+              <span className={requirement.met ? 'text-green-600' : 'text-gray-500'}>
                 {requirement.label}
               </span>
             </div>
@@ -155,19 +155,19 @@ export function ResetPasswordForm() {
 
       {/* Confirm Password Field */}
       <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
           パスワード確認
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+            <Lock className="h-5 w-5 text-gray-400" />
           </div>
           <input
             id="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+            className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
             placeholder="パスワードを再入力"
             required
             disabled={isLoading}

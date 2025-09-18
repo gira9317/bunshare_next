@@ -56,7 +56,7 @@ export default function DebugPage() {
       <h1 className="text-3xl font-bold mb-8">デバッグページ</h1>
       
       <div className="space-y-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+        <div className="bg-white rounded-lg p-6 shadow">
           <h2 className="text-xl font-semibold mb-4">Supabase接続テスト</h2>
           
           <button
@@ -68,7 +68,7 @@ export default function DebugPage() {
           </button>
           
           {result && (
-            <pre className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm whitespace-pre-wrap">
+            <pre className="mt-4 p-4 bg-gray-50 rounded-lg text-sm whitespace-pre-wrap">
               {result}
             </pre>
           )}

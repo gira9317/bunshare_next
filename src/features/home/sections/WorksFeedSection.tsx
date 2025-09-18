@@ -19,8 +19,8 @@ export function WorksFeedSection({
   if (works.length === 0) {
     return (
       <section className="py-8">
-        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">{title}</h2>
-        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-gray-900">{title}</h2>
+        <div className="text-center py-12 text-gray-500">
           <p>まだ作品がありません</p>
         </div>
       </section>
@@ -29,7 +29,7 @@ export function WorksFeedSection({
 
   return (
     <section className="py-8">
-      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">{title}</h2>
+      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 text-gray-900">{title}</h2>
       <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-5 xl:gap-4 grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
         {works.map((work) => {
           const readingProgress = userReadingProgress[work.work_id]

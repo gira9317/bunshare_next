@@ -29,7 +29,7 @@ export function UserAvatar({
   return (
     <div 
       className={cn(
-        'relative rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-700',
+        'relative rounded-full overflow-hidden bg-gray-100 flex items-center justify-center border border-gray-200',
         sizeClasses[size],
         onClick && 'cursor-pointer hover:ring-2 hover:ring-blue-500 hover:ring-offset-2 transition-all',
         className
@@ -47,7 +47,7 @@ export function UserAvatar({
       ) : (
         <svg 
           className={cn(
-            'text-gray-400 dark:text-gray-600',
+            'text-gray-400',
             size === 'xl' ? 'w-16 h-16' : 
             size === 'lg' ? 'w-8 h-8' : 
             size === 'md' ? 'w-6 h-6' : 'w-4 h-4'

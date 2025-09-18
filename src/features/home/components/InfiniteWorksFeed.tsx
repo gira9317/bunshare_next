@@ -83,13 +83,13 @@ export function InfiniteWorksFeed({
         )}
         
         {!hasMore && works.length > 0 && (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-8 text-gray-500">
             すべての作品を表示しました
           </div>
         )}
         
         {!hasMore && works.length === 0 && (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-gray-500">
             まだ作品がありません
           </div>
         )}

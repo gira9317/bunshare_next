@@ -15,7 +15,7 @@ export function ContinueReadingSection({ works, userLikes = [], userBookmarks = 
 
   return (
     <section className="mb-8">
-      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+      <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-4 flex items-center gap-2 text-gray-900">
         <span>📖</span>
         <span>続きを読む</span>
       </h2>

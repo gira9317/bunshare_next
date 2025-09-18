@@ -103,17 +103,17 @@ export function UserSearchModal({
       
       {/* モーダル本体 */}
       <div className="absolute inset-x-0 bottom-0 h-[90vh] sm:inset-y-4 sm:inset-x-4 sm:h-auto sm:max-h-[80vh] sm:max-w-3xl sm:mx-auto sm:my-auto">
-        <div className="h-full bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col">
+        <div className="h-full bg-white rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col">
           {/* ヘッダー */}
-          <div className="flex-shrink-0 px-4 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex-shrink-0 px-4 py-4 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <Users className="w-5 h-5" />
                 検索結果内のユーザー
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -126,7 +126,7 @@ export function UserSearchModal({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="結果内のユーザーを絞り込み..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 autoFocus
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -146,7 +146,7 @@ export function UserSearchModal({
                     "px-3 py-1.5 text-sm font-medium rounded-full whitespace-nowrap transition-colors",
                     sortBy === option.value
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-50"
                   )}
                 >
                   {option.label}
@@ -187,16 +187,16 @@ export function UserSearchModal({
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <Users className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
-                  <p className="text-gray-500 dark:text-gray-400">
+                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500">
                     ユーザーが見つかりませんでした
                   </p>
                 </div>
               )
             ) : (
               <div className="text-center py-12">
-                <Search className="w-12 h-12 text-gray-300 dark:text-gray-700 mx-auto mb-3" />
-                <p className="text-gray-500 dark:text-gray-400">
+                <Search className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">
                   検索結果からユーザーを絞り込めます
                 </p>
               </div>

@@ -39,7 +39,7 @@ export default async function ProfilePage({
   const defaultTab = params.tab || 'dashboard'
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* プロフィールセクション - 即座に表示 */}
         <UserProfileSection
