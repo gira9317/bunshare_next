@@ -59,7 +59,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
     - [ ] 通知ボタン
       - [ ] すべて既読ボタンを押下し、通知を既読状態にした後、検索ページに遷移すると、通知が未読状態になる(おそらく、検索ページだけヘッダー部を再読み込みしていて、かつ既読状態への変更がDBに通知されていない(ページリロードしても未読状態が復活するし))
       - [ ] 作品ページに遷移しない(リンクにappがない、かつ本来worksなのが、workになってしまっているため)
-    - [ ] アカウントボタン
 
   - [ ] フッター
     - [ ] リンクにappがない(ヘルプについてはappを手動でつけたらページが存在する)(そもそもappをつけたままにするのかってのも考えないといけないけど...統一は必要)
@@ -71,7 +70,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 <br>
 
 - ホーム
-  - [ ] aaa
 
 
 <br>
@@ -87,6 +85,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 <br>
 
 - プロフィール
+
+
+<br>
+
+- 全体
+  - [ ] 作品カード
+    - [ ] 画像取得できなかった場合の表示は何かあった方がいいかも
 
 
 
