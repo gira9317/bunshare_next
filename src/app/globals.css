@@ -91,10 +91,7 @@ html .bg-gray-200 { background-color: var(--bg-tertiary); }
 html .bg-gray-800 { background-color: var(--bg-secondary); }
 html .bg-gray-900 { background-color: var(--bg-primary); }
 
-/* グラデーション背景ボタンは除外してtext-whiteを変更 */
-html .text-white:not([class*="bg-gradient"]):not([class*="from-purple"]) { 
-  color: var(--text-primary); 
-}
+/* text-whiteの上書きを無効化 */
 html .text-gray-900 { color: var(--text-primary); }
 html .text-gray-800 { color: var(--text-primary); }
 html .text-gray-700 { color: var(--text-primary); }
