@@ -279,7 +279,7 @@ export function DashboardTabContent({ user, publishedWorks, userLikes = [], user
   return (
     <div className="space-y-4">
       {publishedWorks.length > 0 ? (
-        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
           {publishedWorks.map((work) => (
             <WorkCard
               key={work.work_id}
@@ -462,7 +462,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
               items={seriesWorks.map(w => w.work_id)}
               strategy={rectSortingStrategy}
             >
-              <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+              <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
                 {seriesWorks.map((work) => (
                   <DraggableSeriesWorkCard
                     key={work.work_id}
@@ -474,7 +474,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
             </SortableContext>
           </DndContext>
         ) : (
-          <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+          <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
             {seriesWorks.map((work) => (
               <WorkCard
                 key={work.work_id}
@@ -506,7 +506,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
         )
       }
       return (
-        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
           {userSeries.map((series) => (
             <SeriesCard
               key={series.id}
@@ -526,7 +526,7 @@ export function WorksTabContent({ user, publishedWorks, draftWorks, userSeries, 
         )
       }
       return (
-        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+        <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
           {publishedWorks.map((work) => (
             <WorkCard
               key={work.work_id}
@@ -830,7 +830,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
     })
 
     return (
-      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
         {visibleFolders.map((folder) => (
           <BookmarkFolderCard
             key={folder.folder_key}
@@ -881,7 +881,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
             items={folderWorks.map(work => work.work_id)}
             strategy={rectSortingStrategy}
           >
-            <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+            <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
               {folderWorks.map((work) => (
                 <DraggableWorkCard
                   key={work.work_id}
@@ -1025,7 +1025,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
 
       return (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+          <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
             {readingHistory.map((work) => (
               <WorkCard
                 key={work.work_id}
@@ -1080,7 +1080,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
     }
 
     return (
-      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+      <div className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-6 xl:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
         {works.map((work) => (
           <WorkCard
             key={work.work_id}

@@ -51,8 +51,10 @@ export default async function ProfilePage({
       
       {/* プロフィール詳細情報（サスペンス対応） */}
       <ProfileSuspense 
-        userId={user.id}
-        initialTab={params.tab}
+        user={userWithStats}
+        currentUserId={user.id}
+        userSeries={userSeries || []}
+        defaultTab={params.tab}
       />
     </div>
   )
