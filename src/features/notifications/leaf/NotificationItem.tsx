@@ -34,11 +34,19 @@ export function NotificationItem({
       onClick={handleClick}
       className={cn(
         'flex gap-3 px-4 py-3',
-        'hover:bg-gray-800',
         'cursor-pointer transition-colors',
-        !notification.is_read && 'bg-blue-50/50',
+        !notification.is_read && 'opacity-95',
         className
       )}
+      style={{
+        backgroundColor: !notification.is_read ? 'var(--bg-secondary)' : 'transparent',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.backgroundColor = 'var(--bg-tertiary)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.backgroundColor = !notification.is_read ? 'var(--bg-secondary)' : 'transparent';
+      }}
     >
       <div className="flex-shrink-0 text-xl">
         <NotificationIcon type={notification.type} />
