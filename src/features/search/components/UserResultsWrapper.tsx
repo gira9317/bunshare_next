@@ -51,12 +51,12 @@ export function UserResultsWrapper({
               作者 ({totalCount}人)
             </h2>
             {users.length > 6 && (
-              <button
-                onClick={handleShowModal}
-                className="text-blue-600 hovertext-blue-300 font-medium text-sm transition-colors"
+              <a
+                href={`/app/search/users?q=${encodeURIComponent(query)}&sort=followers`}
+                className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
               >
-                もっと見る ({users.length}人)
-              </button>
+                もっと見る ({totalCount}人)
+              </a>
             )}
           </div>
           
@@ -85,6 +85,7 @@ export function UserResultsWrapper({
           <UserCarousel
             users={users}
             onShowMore={handleShowModal}
+            searchQuery={query}
           />
         </div>
       </section>

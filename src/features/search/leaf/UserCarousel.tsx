@@ -18,9 +18,10 @@ interface UserCarouselProps {
   }>;
   onShowMore?: () => void;
   className?: string;
+  searchQuery?: string;
 }
 
-export function UserCarousel({ users, onShowMore, className }: UserCarouselProps) {
+export function UserCarousel({ users, onShowMore, className, searchQuery }: UserCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(false);
@@ -71,13 +72,13 @@ export function UserCarousel({ users, onShowMore, className }: UserCarouselProps
           <Users className="w-4 h-4" />
           ユーザー
         </h3>
-        {users.length > 3 && onShowMore && (
-          <button
-            onClick={onShowMore}
+        {users.length > 3 && (
+          <a
+            href={`/app/search/users?q=${encodeURIComponent(searchQuery || '')}&sort=followers`}
             className="text-sm text-blue-600 hover:underline"
           >
             もっと見る →
-          </button>
+          </a>
         )}
       </div>
       

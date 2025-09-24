@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Search, Users, TrendingUp, UserPlus } from 'lucide-react';
 import { UserCard } from '@/features/users/leaf/UserCard';
 import { cn } from '@/lib/utils';
@@ -36,42 +36,130 @@ export function UserSearchModal({
   const [query, setQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortType>('followers');
   const [showResults, setShowResults] = useState(false);
+  
+  // ページネーション用の状態
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // 初期結果から絞り込み
+  // APIからデータを取得する関数
+  const loadMoreUsers = useCallback(async (searchTerm: string = '', isInitial: boolean = false) => {
+    if (loadingMore && !isInitial) return;
+    if (!hasMore && !isInitial) return;
+    
+    const currentPage = isInitial ? 0 : page + 1;
+    const offset = currentPage * 50;
+    
+    // スクロール位置を保存（追加データロード時のみ）
+    const savedScrollTop = !isInitial && scrollContainerRef.current ? scrollContainerRef.current.scrollTop : 0;
+    
+    if (isInitial) {
+      setLoading(true);
+      setError(null);
+    } else {
+      setLoadingMore(true);
+    }
+    
+    try {
+      const params = new URLSearchParams({
+        q: searchQuery,
+        sort: sortBy,
+        limit: '50',
+        offset: offset.toString()
+      });
+      
+      const response = await fetch(`/api/users/search?${params}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', response.status, errorText);
+        throw new Error(`検索に失敗しました: ${response.status} ${errorText}`);
+      }
+      
+      const data = await response.json();
+      
+      // エラーレスポンスの場合
+      if (data.error) {
+        throw new Error(data.details || data.error);
+      }
+      
+      if (isInitial) {
+        setUsers(data.users || []);
+        setShowResults(true);
+      } else {
+        setUsers(prev => [...prev, ...(data.users || [])]);
+      }
+      
+      setPage(currentPage);
+      setHasMore(data.hasMore || false);
+      setError(null);
+      
+      // スクロール位置を復元（追加データロード時のみ）
+      if (!isInitial && scrollContainerRef.current && savedScrollTop > 0) {
+        // 少し遅延させてDOMが更新されるのを待つ
+        setTimeout(() => {
+          if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = savedScrollTop;
+          }
+        }, 10);
+      }
+    } catch (error) {
+      console.error('Failed to load users:', error);
+      setError('ユーザーの読み込みに失敗しました');
+    } finally {
+      if (isInitial) {
+        setLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
+    }
+  }, [searchQuery, sortBy, page, loadingMore, hasMore]);
+  
+  // 初期結果から絞り込み（ローカルフィルタリング）
   const filterUsers = useCallback((searchTerm: string, sortType: SortType) => {
-    let filtered = initialUsers;
+    let filtered = users;
     
     if (searchTerm.trim()) {
       const lowercaseQuery = searchTerm.toLowerCase();
-      filtered = initialUsers.filter(user => 
+      filtered = users.filter(user => 
         (user.username?.toLowerCase() || '').includes(lowercaseQuery) ||
         (user.display_name?.toLowerCase() || '').includes(lowercaseQuery) ||
         (user.bio?.toLowerCase() || '').includes(lowercaseQuery)
       );
     }
     
-    // ソート
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortType) {
-        case 'followers':
-          return b.followers_count - a.followers_count;
-        case 'following':
-          return (b.following_count || 0) - (a.following_count || 0);
-        case 'works':
-          return b.works_count - a.works_count;
-        default:
-          return 0;
-      }
-    });
+    // ソート（APIから既にソートされているが、ローカル検索時は再ソート）
+    if (searchTerm.trim()) {
+      const sorted = [...filtered].sort((a, b) => {
+        switch (sortType) {
+          case 'followers':
+            return b.followers_count - a.followers_count;
+          case 'following':
+            return (b.following_count || 0) - (a.following_count || 0);
+          case 'works':
+            return b.works_count - a.works_count;
+          default:
+            return 0;
+        }
+      });
+      
+      return sorted;
+    }
     
-    setUsers(sorted);
-    setShowResults(true);
-  }, [initialUsers]);
+    return filtered;
+  }, [users]);
 
   useEffect(() => {
     if (isOpen) {
-      // 初回表示時もフィルター関数を通してソートを適用
-      filterUsers(query, sortBy);
+      // 初回表示時はAPIからデータを取得
+      if (searchQuery) {
+        loadMoreUsers('', true);
+      } else {
+        // 初期データをそのまま使用
+        setUsers(initialUsers);
+        setShowResults(true);
+      }
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -80,16 +168,37 @@ export function UserSearchModal({
     return () => {
       document.body.style.overflow = '';
     };
-  }, [isOpen, initialUsers, filterUsers, query, sortBy]);
+  }, [isOpen, searchQuery, loadMoreUsers, initialUsers]);
+  
+  // ローカル検索用のデバウンス関数
+  const debouncedLocalFilter = useCallback(
+    debounce((searchTerm: string, sortType: SortType) => {
+      const filtered = filterUsers(searchTerm, sortType);
+      setUsers(filtered);
+    }, 150),
+    [filterUsers]
+  );
   
   useEffect(() => {
-    filterUsers(query, sortBy);
-  }, [query, sortBy, filterUsers]);
+    if (query.trim()) {
+      debouncedLocalFilter(query, sortBy);
+    } else {
+      // 検索クエリがない場合は全ユーザーを表示
+      const filtered = filterUsers('', sortBy);
+      setUsers(filtered);
+    }
+  }, [query, sortBy, debouncedLocalFilter, filterUsers]);
 
   const handleSortChange = (newSort: SortType) => {
     setSortBy(newSort);
-    // filterUsers関数で自動的に再ソートされる
+    // データをリセットして新しいソート順で再取得
+    setPage(0);
+    setHasMore(true);
+    if (searchQuery) {
+      loadMoreUsers('', true);
+    }
   };
+  
 
   if (!isOpen) return null;
 
@@ -157,35 +266,64 @@ export function UserSearchModal({
           </div>
           
           {/* コンテンツ */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4">
             {loading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
               </div>
             ) : showResults ? (
               users.length > 0 ? (
-                <div className="grid gap-3">
-                  {users.map((user) => (
-                    <UserCard
-                      key={user.user_id}
-                      user={{
-                        id: user.user_id,
-                        username: user.username,
-                        custom_user_id: null,
-                        avatar_img_url: user.avatar_url,
-                        bio: user.bio,
-                        works_count: user.works_count,
-                        followers_count: user.followers_count,
-                        following_count: 0
-                      }}
-                      compact={false}
-                      onUserClick={() => {
-                        window.location.href = `/app/profile/${user.user_id}`;
-                        onClose();
-                      }}
-                    />
-                  ))}
-                </div>
+                <>
+                  <div className="grid gap-3">
+                    {users.map((user) => (
+                      <UserCard
+                        key={user.user_id}
+                        user={{
+                          id: user.user_id,
+                          username: user.username,
+                          custom_user_id: null,
+                          avatar_img_url: user.avatar_url,
+                          bio: user.bio,
+                          works_count: user.works_count,
+                          followers_count: user.followers_count,
+                          following_count: 0
+                        }}
+                        compact={false}
+                        onUserClick={() => {
+                          window.location.href = `/app/profile/${user.user_id}`;
+                          onClose();
+                        }}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* もっと見るボタン */}
+                  {hasMore && !query.trim() && (
+                    <div className="text-center mt-6">
+                      {loadingMore ? (
+                        <div className="flex items-center justify-center py-4">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+                          <span className="text-gray-600">読み込み中...</span>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => loadMoreUsers()}
+                          disabled={loadingMore}
+                          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          もっと見る
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* エラー表示 */}
+                  {error && (
+                    <div className="text-center mt-4 p-3 bg-red-50 rounded-lg">
+                      <p className="text-red-600 text-sm">{error}</p>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-12">
                   <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
