@@ -37,20 +37,6 @@ export function UserSearchModal({
   const [sortBy, setSortBy] = useState<SortType>('followers');
   const [showResults, setShowResults] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      setUsers(initialUsers);
-      setShowResults(initialUsers.length > 0);
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [isOpen, initialUsers]);
-
   // 初期結果から絞り込み
   const filterUsers = useCallback((searchTerm: string, sortType: SortType) => {
     let filtered = initialUsers;
@@ -83,6 +69,20 @@ export function UserSearchModal({
   }, [initialUsers]);
 
   useEffect(() => {
+    if (isOpen) {
+      // 初回表示時もフィルター関数を通してソートを適用
+      filterUsers(query, sortBy);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen, initialUsers, filterUsers, query, sortBy]);
+  
+  useEffect(() => {
     filterUsers(query, sortBy);
   }, [query, sortBy, filterUsers]);
 
@@ -102,7 +102,7 @@ export function UserSearchModal({
       />
       
       {/* モーダル本体 */}
-      <div className="absolute inset-x-0 bottom-0 h-[90vh] sm:inset-y-4 sm:inset-x-4 sm:h-auto sm:max-h-[80vh] sm:max-w-3xl sm:mx-auto sm:my-auto">
+      <div className="absolute inset-x-0 bottom-0 h-[90vh] sm:inset-4 sm:h-auto sm:max-h-[90vh] sm:max-w-3xl sm:mx-auto sm:my-auto">
         <div className="h-full bg-white rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col">
           {/* ヘッダー */}
           <div className="flex-shrink-0 px-4 py-4 border-b border-gray-200">
@@ -145,9 +145,10 @@ export function UserSearchModal({
                   className={cn(
                     "px-3 py-1.5 text-sm font-medium rounded-full whitespace-nowrap transition-colors",
                     sortBy === option.value
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-600"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-50"
                   )}
+                  style={sortBy === option.value ? { color: 'white' } : {}}
                 >
                   {option.label}
                 </button>

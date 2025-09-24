@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const SearchFiltersSchema = z.object({
-  category: z.enum(['all', '小説', '詩', 'エッセイ']).default('all'),
+  category: z.enum(['all', '小説', '詩', 'エッセイ', '戯曲', 'チャットノベル', '日記', 'ラノベ', 'ノンフィクション']).default('all'),
   sort: z.enum([
     'relevance',
     'popular_today', 

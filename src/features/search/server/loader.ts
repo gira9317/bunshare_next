@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { SearchParams, SearchResponse, SearchResult, AuthorResult } from '../types';
-import { getViewsCountByPeriod } from './views';
 
 const SEARCH_CONFIG = {
   VECTOR_WEIGHT: 0.5,
@@ -181,62 +180,9 @@ export async function searchWorks(params: SearchParams): Promise<SearchResponse>
       total_likes: 0 // TODO: 実装が必要
     }));
 
-    // 期間別人気ソートの場合、views_logからデータを取得して並び替え
+    // 期間別人気ソートは既にDBでソート済み（recent_views_24h, recent_views_7dカラム使用）なので、追加処理は不要
+    // views_logテーブルへのクエリを削除してパフォーマンス改善
     let sortedWorks = formattedWorks;
-    if (filters.sort === 'popular_today' || filters.sort === 'popular_week' || filters.sort === 'popular_month') {
-      const period = filters.sort === 'popular_today' ? 'today' : 
-                     filters.sort === 'popular_week' ? 'week' : 'month';
-      const workIds = formattedWorks.map(w => w.work_id);
-      const viewCounts = await getViewsCountByPeriod(workIds, period);
-      
-      // 期間内の視聴回数が全て0かチェック
-      const hasAnyViews = Object.values(viewCounts).some(count => count > 0);
-      
-      if (!hasAnyViews) {
-        // 期間内の視聴回数が全て0の場合、全期間の視聴回数（viewsカラム）でソート
-        console.log(`${period}の視聴回数が全て0のため、全期間の視聴回数でソート`);
-        sortedWorks = formattedWorks.sort((a, b) => {
-          const aViews = a.views || 0;
-          const bViews = b.views || 0;
-          
-          // 両方0の場合は、作成日時の新しい順
-          if (aViews === 0 && bViews === 0) {
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          }
-          
-          // 片方が0の場合は、0を後ろに
-          if (aViews === 0) return 1;
-          if (bViews === 0) return -1;
-          
-          // 両方に視聴回数がある場合は、視聴回数の多い順
-          return bViews - aViews;
-        });
-      } else {
-        // 期間内の視聴回数でソート（0回のものは後ろに）
-        sortedWorks = formattedWorks.sort((a, b) => {
-          const aViews = viewCounts[a.work_id] || 0;
-          const bViews = viewCounts[b.work_id] || 0;
-          
-          // 両方0の場合は、全期間の視聴回数でソート
-          if (aViews === 0 && bViews === 0) {
-            const aTotalViews = a.views || 0;
-            const bTotalViews = b.views || 0;
-            
-            if (aTotalViews === bTotalViews) {
-              return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-            }
-            return bTotalViews - aTotalViews;
-          }
-          
-          // 片方が0の場合は、0を後ろに
-          if (aViews === 0) return 1;
-          if (bViews === 0) return -1;
-          
-          // 両方に閲覧数がある場合は、閲覧数の多い順
-          return bViews - aViews;
-        });
-      }
-    }
 
     return {
       works: sortedWorks,
