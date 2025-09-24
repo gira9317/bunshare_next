@@ -34,7 +34,7 @@ export function ResultsPagination({
     if (filters.rating !== 'all') params.set('rating', filters.rating);
     if (page > 1) params.set('page', page.toString());
     
-    return `/search?${params.toString()}`;
+    return `/app/search?${params.toString()}`;
   };
 
   // 表示するページ番号の範囲を計算
