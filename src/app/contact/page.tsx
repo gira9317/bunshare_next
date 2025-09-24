@@ -551,7 +551,7 @@ export default function ContactPage() {
             <Link href="/privacy" className="text-gray-600 hovertext-green-400 transition-colors">
               プライバシーポリシー
             </Link>
-            <Link href="/help" className="text-gray-600 hovertext-green-400 transition-colors">
+            <Link href="/app/help" className="text-gray-600 hovertext-green-400 transition-colors">
               ヘルプ
             </Link>
           </div>

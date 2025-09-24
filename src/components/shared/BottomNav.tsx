@@ -96,10 +96,13 @@ export function BottomNav() {
                 'rounded-xl sm:rounded-2xl',
                 'flex-1 min-w-0 max-w-20 sm:max-w-24',
                 'transition-colors duration-200',
-                isActive
-                  ? 'text-purple-600'
-                  : 'text-gray-500 hovertext-gray-300 hover:bg-gray-50/30'
+                !isActive && 'hover:bg-gray-50/30'
               )}
+              style={isActive ? {
+                color: 'var(--text-primary)'
+              } : {
+                color: 'var(--text-secondary)'
+              }}
             >
               <span className="w-5 h-5 sm:w-6 sm:h-6">
                 <svg 

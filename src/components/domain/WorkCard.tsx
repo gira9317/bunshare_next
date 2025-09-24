@@ -512,10 +512,14 @@ export function WorkCard({
         
         {/* YouTube-style progress bar at bottom */}
         {hasReadingProgress && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200/50">
+          <div className="absolute bottom-0 left-0 right-0 h-1"
+          style={{ backgroundColor: 'var(--border-secondary)' }}>
             <div 
-              className="h-full bg-purple-500 transition-all duration-300 ease-out"
-              style={{ width: `${readingProgress}%` }}
+              className="h-full transition-all duration-300 ease-out"
+              style={{ 
+                width: `${readingProgress}%`,
+                background: 'linear-gradient(90deg, #8b5cf6, #3b82f6)'
+              }}
             />
           </div>
         )}

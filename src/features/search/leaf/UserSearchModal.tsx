@@ -179,7 +179,7 @@ export function UserSearchModal({
                       }}
                       compact={false}
                       onUserClick={() => {
-                        window.location.href = `/users/${user.user_id}`;
+                        window.location.href = `/app/profile/${user.user_id}`;
                         onClose();
                       }}
                     />

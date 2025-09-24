@@ -21,7 +21,7 @@ export default function TestPage() {
         
         // 作品詳細ページに遷移
         setTimeout(() => {
-          router.push(`/works/${response.workId}`)
+          router.push(`/app/works/${response.workId}`)
         }, 2000)
       } else {
         setResult(`❌ エラー: ${response.error}`)

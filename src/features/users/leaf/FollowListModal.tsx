@@ -119,7 +119,7 @@ export function FollowListModal({
                 compact={false}
                 onUserClick={(userId) => {
                   // Navigate to user profile and close modal
-                  window.location.href = `/users/${userId}`
+                  window.location.href = `/app/profile/${userId}`
                   onClose()
                 }}
               />

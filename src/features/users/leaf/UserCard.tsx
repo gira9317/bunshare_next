@@ -71,7 +71,7 @@ export function UserCard({
     if (onUserClick) {
       onUserClick(user.id)
     } else {
-      window.location.href = `/users/${user.id}`
+      window.location.href = `/app/profile/${user.id}`
     }
   }
 

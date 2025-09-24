@@ -30,7 +30,7 @@ export function SiteFooter() {
               プライバシーポリシー
             </Link>
             <Link 
-              href="/help" 
+              href="/app/help" 
               className="hover:opacity-70 transition-colors"
               style={{ color: 'var(--text-secondary)' }}
             >

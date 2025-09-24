@@ -123,17 +123,21 @@ export function Sidebar() {
                 'group relative',
                 isActive
                   ? cn(
-                      'bg-purple-100',
-                      'text-purple-600 font-medium',
+                      'font-medium',
                       'shadow-sm'
                     )
                   : cn(
-                      'text-gray-600',
                       'hover:bg-gray-50/50',
                       'hovertext-gray-100',
                       'hover:translate-x-0.5'
                     )
               )}
+              style={isActive ? {
+                backgroundColor: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)'
+              } : {
+                color: 'var(--text-secondary)'
+              }}
             >
               <span className={cn(
                 'w-5 h-5 lg:w-6 lg:h-6 flex-shrink-0',
@@ -153,7 +157,8 @@ export function Sidebar() {
               
               {/* アクティブインジケーター */}
               {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-purple-600 rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full" 
+                style={{ backgroundColor: 'var(--text-primary)' }} />
               )}
             </Link>
           )

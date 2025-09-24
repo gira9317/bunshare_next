@@ -210,10 +210,11 @@ export function AnimatedTabs<T = string>({
       {/* Animated underline indicator */}
       {variant === 'underline' && (
         <div
-          className="absolute bottom-0 h-0.5 bg-blue-600 transition-all duration-300 ease-out"
+          className="absolute bottom-0 h-0.5 transition-all duration-300 ease-out"
           style={{
             width: indicatorStyle.width,
-            transform: `translateX(${indicatorStyle.left}px)`
+            transform: `translateX(${indicatorStyle.left}px)`,
+            background: 'linear-gradient(90deg, #8b5cf6, #3b82f6)'
           }}
         />
       )}
