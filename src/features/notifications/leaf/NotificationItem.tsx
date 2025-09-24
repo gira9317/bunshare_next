@@ -20,7 +20,7 @@ export function NotificationItem({
   
   const handleClick = () => {
     if (!notification.is_read) {
-      // Client-side only update for now
+      // Server action integrated via useNotifications hook
       onRead?.(notification.id)
     }
     

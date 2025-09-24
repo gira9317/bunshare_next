@@ -6,6 +6,7 @@ import { NotificationItem } from '../leaf/NotificationItem'
 import { NotificationEmpty } from '../leaf/NotificationEmpty'
 import { NotificationBadge } from '../leaf/NotificationBadge'
 import { useNotifications } from '../hooks/useNotifications'
+import { markAllAsRead as markAllAsReadAction } from '../server/actions'
 import { cn } from '@/lib/utils'
 
 interface NotificationPanelSectionProps {
@@ -22,6 +23,7 @@ export function NotificationPanelSection({
   className
 }: NotificationPanelSectionProps) {
   const [isOpen, setIsOpen] = useState(false)
+  const [isMarkingAllAsRead, setIsMarkingAllAsRead] = useState(false)
   const {
     notifications,
     unreadCount,
@@ -38,9 +40,24 @@ export function NotificationPanelSection({
     setIsOpen(false)
   }
   
-  const handleMarkAllAsRead = () => {
-    // Client-side only update for now
-    markAllAsRead()
+  const handleMarkAllAsRead = async () => {
+    if (isMarkingAllAsRead || !userId) return
+    
+    setIsMarkingAllAsRead(true)
+    
+    try {
+      // 楽観的更新: UIを即座に更新
+      markAllAsRead()
+      
+      // サーバーアクションを呼び出し
+      await markAllAsReadAction(userId)
+    } catch (error) {
+      console.error('Failed to mark all as read:', error)
+      // エラー時は何もしない（楽観的更新済みのため）
+      // 必要に応じてエラー表示やロールバック処理を追加
+    } finally {
+      setIsMarkingAllAsRead(false)
+    }
   }
   
   return (
@@ -78,9 +95,15 @@ export function NotificationPanelSection({
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllAsRead}
-                    className="text-xs text-blue-600 hover:underline"
+                    disabled={isMarkingAllAsRead}
+                    className={cn(
+                      "text-xs hover:underline transition-colors",
+                      isMarkingAllAsRead
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-blue-600"
+                    )}
                   >
-                    すべて既読にする
+                    {isMarkingAllAsRead ? '処理中...' : 'すべて既読にする'}
                   </button>
                 )}
                 <button
