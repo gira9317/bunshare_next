@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/shared/Sidebar'
 import { TopBarWrapper } from '@/components/shared/TopBarWrapper'
 import { BottomNav } from '@/components/shared/BottomNav'
@@ -8,18 +8,27 @@ import { MobileSearchModal } from './MobileSearchModal'
 import { UserSearchModal } from '@/features/search/leaf/UserSearchModal'
 import { SiteFooter } from './SiteFooter'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/components/shared/AuthProvider'
 
 interface ClientLayoutProps {
   children: React.ReactNode
 }
 
 export function ClientLayout({ children }: ClientLayoutProps) {
+  const { user } = useAuth()
   const [showMobileSearch, setShowMobileSearch] = useState(false)
   const [showUserSearchModal, setShowUserSearchModal] = useState(false)
   const [userSearchData, setUserSearchData] = useState<{
     users: Array<any>;
     query: string;
   }>({ users: [], query: '' })
+
+  // Force light mode for unauthenticated users
+  useEffect(() => {
+    if (!user) {
+      document.documentElement.classList.remove('dark')
+    }
+  }, [user])
 
   // Global function to open user search modal
   if (typeof window !== 'undefined') {
