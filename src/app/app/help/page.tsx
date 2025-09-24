@@ -210,13 +210,13 @@ export default function HelpPage() {
                 ご不明な点がございましたら、お気軽にお問い合わせください
               </span>
             </div>
-            <a
-              href="mailto:support@bunshare.com"
+            <Link
+              href="/contact"
               className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              style={{ color: 'white' }}
             >
-              <Mail className="w-4 h-4" />
-              お問い合わせメールを送る
-            </a>
+              <span style={{ color: 'white' }}>お問い合わせページはこちら</span>
+            </Link>
           </div>
         </section>
 
