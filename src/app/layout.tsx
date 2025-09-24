@@ -29,7 +29,7 @@ export default async function RootLayout({
   const user = await getAuthenticatedUser()
 
   return (
-    <html lang="ja" className="h-full">
+    <html lang="ja" className="h-full" suppressHydrationWarning>
       <head>
         <meta name="color-scheme" content="light only" />
         <meta name="theme-color" content="#ffffff" />

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useAuth } from './AuthProvider'
+import { useAuthModal } from './auth/useAuthModal'
 
 const navItems = [
   { 
@@ -49,6 +51,17 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { user } = useAuth()
+  const { openLogin, setReturnUrl } = useAuthModal()
+  
+  const handleAuthRequiredClick = (e: React.MouseEvent, targetUrl: string) => {
+    if (!user) {
+      e.preventDefault()
+      setReturnUrl(targetUrl)
+      openLogin()
+    }
+    // If user exists, let the Link handle navigation normally
+  }
 
   return (
     <aside className={cn(
@@ -111,11 +124,13 @@ export function Sidebar() {
       )}>
         {navItems.map((item) => {
           const isActive = pathname === item.href
+          const requiresAuth = item.href === '/app/works/create' || item.href === '/app/profile'
           
           return (
             <Link
               key={item.href}
               href={item.href}
+              onClick={requiresAuth ? (e) => handleAuthRequiredClick(e, item.href) : undefined}
               className={cn(
                 'flex items-center gap-2 lg:gap-3',
                 'px-2 lg:px-3 py-2 lg:py-2.5 rounded-lg mb-1',
@@ -172,6 +187,7 @@ export function Sidebar() {
       )}>
         <Link
           href="/app/works/create"
+          onClick={(e) => handleAuthRequiredClick(e, '/app/works/create')}
           className={cn(
             'flex items-center justify-center gap-2 w-full',
             'py-2.5 lg:py-3 px-3 lg:px-4 rounded-lg lg:rounded-xl',

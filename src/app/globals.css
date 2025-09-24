@@ -138,6 +138,15 @@ html.dark .absolute.right-0.top-full.w-64 a:hover {
   .logo-light { display: block; }
   .logo-dark { display: none; }
   
+  .dark .logo-light { display: none; }
+  .dark .logo-dark { display: block; }
+  
+  .auth-page {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    color-scheme: light only;
+  }
+  
   .category-tag-brand {
     background: linear-gradient(135deg, #8b5cf6, #3b82f6);
     color: #ffffff;

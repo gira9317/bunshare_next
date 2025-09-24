@@ -28,38 +28,32 @@ export default async function ProfilePage({
   // 🚀 段階的読み込み: ユーザー情報を先に表示、作品データは後で読み込み
   const [userWithStats, userSeries] = await Promise.all([
     getUserWithStats(user.id),
-    getUserSeries(user.id)  // シリーズ情報は軽量なので先に取得
+    getUserSeries(user.id)
   ])
-  
+
   if (!userWithStats) {
-    redirect('/auth/login')
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-gray-500">プロフィールの読み込みに失敗しました</p>
+      </div>
+    )
   }
 
-  // URLパラメータからタブを取得（デフォルトは'dashboard'）
-  const defaultTab = params.tab || 'dashboard'
-
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* プロフィールセクション - 即座に表示 */}
-        <UserProfileSection
-          user={userWithStats}
-          currentUserId={user.id}
-        />
-
-        {/* タブセクション - Suspense で段階的読み込み */}
-        <ProfileSuspense 
-          user={userWithStats}
-          currentUserId={user.id}
-          userSeries={userSeries}
-          defaultTab={defaultTab}
-        />
-      </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+      {/* ユーザープロフィール */}
+      <UserProfileSection 
+        user={userWithStats}
+        userSeries={userSeries || []}
+        isOwnProfile={true}
+        initialTab={params.tab}
+      />
+      
+      {/* プロフィール詳細情報（サスペンス対応） */}
+      <ProfileSuspense 
+        userId={user.id}
+        initialTab={params.tab}
+      />
     </div>
   )
-}
-
-export const metadata = {
-  title: 'プロフィール - Bunshare',
-  description: 'あなたのプロフィールページです。'
 }

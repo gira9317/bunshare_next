@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useTapFeedback } from '@/hooks/useTapFeedback'
+import { useAuth } from './AuthProvider'
+import { useAuthModal } from './auth/useAuthModal'
 
 const navItems = [
   { 
@@ -49,12 +51,23 @@ const navItems = [
 
 export function BottomNav() {
   const pathname = usePathname()
+  const { user } = useAuth()
+  const { openLogin, setReturnUrl } = useAuthModal()
 
   // 各ナビアイテム用のタップフィードバック（Hooksはトップレベルで呼び出す）
   const tapFeedbacks = navItems.map(() => useTapFeedback({ 
     scaleAmount: 0.92,
     duration: 120
   }))
+  
+  const handleAuthRequiredClick = (e: React.MouseEvent, targetUrl: string) => {
+    if (!user) {
+      e.preventDefault()
+      setReturnUrl(targetUrl)
+      openLogin()
+    }
+    // If user exists, let the Link handle navigation normally
+  }
 
   return (
     <nav className={cn(
@@ -83,12 +96,14 @@ export function BottomNav() {
         {navItems.map((item, index) => {
           const isActive = pathname === item.href
           const tapFeedback = tapFeedbacks[index]
+          const requiresAuth = item.href === '/app/works/create' || item.href === '/app/profile'
           
           return (
             <Link
               key={item.href}
               href={item.href}
               {...tapFeedback.tapProps}
+              onClick={requiresAuth ? (e) => handleAuthRequiredClick(e, item.href) : undefined}
               className={cn(
                 'flex flex-col items-center justify-center',
                 'gap-0.5 sm:gap-1',

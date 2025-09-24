@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { User, Mail, Lock, Calendar, Users, Shield, UserCheck } from 'lucide-react'
 import { SignupForm } from '../schemas'
 import { PasswordValidation } from '../types'
@@ -103,19 +104,21 @@ export function SignupFormSection() {
   const passwordsMatch = formData.password === formData.passwordConfirm
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+    <div className="w-full bg-gray-50 rounded-lg border border-gray-200 p-8">
       {/* ロゴ */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <img 
+          <Image 
             src="/images/logo/Bunshare_logo.png" 
             alt="Bunshare" 
-            className="h-10 w-auto"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-contain"
           />
-          <span className="text-2xl font-bold text-gray-900">Bunshare</span>
+          <span className="text-2xl font-bold text-gray-700">Bunshare</span>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">新規登録</h1>
-        <p className="text-gray-600">アカウントを作成して始めましょう</p>
+        <h1 className="text-3xl font-bold text-gray-700 mb-2">新規登録</h1>
+        <p className="text-gray-500">アカウントを作成して始めましょう</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -241,18 +244,15 @@ export function SignupFormSection() {
               checked={formData.agreeTerms}
               onChange={(e) => setFormData({ ...formData, agreeTerms: e.target.checked })}
               className="mt-1 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-              style={{
-                backgroundColor: 'var(--bg-primary)',
-                borderColor: 'var(--border-secondary)'
-              }}
+              className="accent-blue-600"
               required
             />
-            <label htmlFor="agreeTerms" className="text-sm" style={{ color: 'var(--text-primary)' }}>
-              <Link href="/terms" target="_blank" className="text-purple-600 hover:text-purple-500 underline">
+            <label htmlFor="agreeTerms" className="text-sm text-gray-700">
+              <Link href="/terms" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
                 利用規約
               </Link>
               と
-              <Link href="/privacy" target="_blank" className="text-purple-600 hover:text-purple-500 underline">
+              <Link href="/privacy" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
                 プライバシーポリシー
               </Link>
               に同意する
@@ -266,12 +266,9 @@ export function SignupFormSection() {
               checked={formData.agreeMarketing}
               onChange={(e) => setFormData({ ...formData, agreeMarketing: e.target.checked })}
               className="mt-1 w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-              style={{
-                backgroundColor: 'var(--bg-primary)',
-                borderColor: 'var(--border-secondary)'
-              }}
+              className="accent-blue-600"
             />
-            <label htmlFor="agreeMarketing" className="text-sm" style={{ color: 'var(--text-primary)' }}>
+            <label htmlFor="agreeMarketing" className="text-sm text-gray-700">
               お得な情報やアップデート情報をメールで受け取る（任意）
             </label>
           </div>
@@ -280,7 +277,7 @@ export function SignupFormSection() {
         <button
           type="submit"
           disabled={loading || !formData.agreeTerms}
-          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium py-2.5 px-4 rounded-md hover:from-purple-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
@@ -314,11 +311,11 @@ export function SignupFormSection() {
       </div>
 
       <div className="mt-8 text-center">
-        <p className="text-gray-600">
+        <p className="text-gray-500">
           すでにアカウントをお持ちの方は{' '}
           <Link
             href="/auth/login"
-            className="text-purple-600 hover:text-purple-500 font-medium transition-colors"
+            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             ログイン
           </Link>

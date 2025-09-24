@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Mail, Lock } from 'lucide-react'
 import { LoginForm } from '../schemas'
 import { FormField, TextInput } from '../leaf/FormField'
@@ -59,19 +60,21 @@ export function LoginFormSection() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8">
+    <div className="w-full bg-gray-50 rounded-lg border border-gray-200 p-8">
       {/* ロゴ */}
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <img 
+          <Image 
             src="/images/logo/Bunshare_logo.png" 
             alt="Bunshare" 
-            className="h-10 w-auto"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-contain"
           />
-          <span className="text-2xl font-bold text-gray-900">Bunshare</span>
+          <span className="text-2xl font-bold text-gray-700">Bunshare</span>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">ようこそ</h1>
-        <p className="text-gray-600">あなたの物語を始めましょう</p>
+        <h1 className="text-3xl font-bold text-gray-700 mb-2">ようこそ</h1>
+        <p className="text-gray-500">あなたの物語を始めましょう</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -110,7 +113,7 @@ export function LoginFormSection() {
             <div className="text-right">
               <Link
                 href="/auth/forgot-password"
-                className="text-sm text-purple-600 hover:text-purple-500 transition-colors"
+                className="text-sm text-blue-600 hover:text-blue-700 transition-colors"
               >
                 パスワードをお忘れですか？
               </Link>
@@ -121,7 +124,7 @@ export function LoginFormSection() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 px-4 rounded-xl hover:from-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium py-2.5 px-4 rounded-md hover:from-purple-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <div className="flex items-center justify-center gap-2">
