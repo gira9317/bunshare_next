@@ -94,15 +94,15 @@ export function UserSearchModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-sm">
+    <div className="fixed top-0 left-0 right-0 bottom-0 z-[9999] bg-black/50 backdrop-blur-sm">
       {/* オーバーレイ */}
       <div 
-        className="absolute inset-0 transition-opacity"
+        className="fixed top-0 left-0 right-0 bottom-0 z-[9998]"
         onClick={onClose}
       />
       
       {/* モーダル本体 */}
-      <div className="absolute inset-x-0 bottom-0 h-[90vh] sm:inset-4 sm:h-auto sm:max-h-[90vh] sm:max-w-3xl sm:mx-auto sm:my-auto">
+      <div className="fixed inset-x-0 bottom-0 h-[90vh] sm:inset-6 sm:h-[90vh] sm:max-w-4xl sm:mx-auto z-[9999]">
         <div className="h-full bg-white rounded-t-2xl sm:rounded-2xl shadow-xl flex flex-col">
           {/* ヘッダー */}
           <div className="flex-shrink-0 px-4 py-4 border-b border-gray-200">

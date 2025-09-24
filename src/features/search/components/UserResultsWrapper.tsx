@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { UserCard } from '@/features/users/leaf/UserCard';
 import { UserCarousel } from '../leaf/UserCarousel';
-import { UserSearchModal } from '../leaf/UserSearchModal';
 
 interface UserResultsWrapperProps {
   users: Array<{
@@ -20,6 +19,7 @@ interface UserResultsWrapperProps {
   searchType: string;
   query: string;
   totalCount: number;
+  onShowModal: () => void;
 }
 
 export function UserResultsWrapper({ 
@@ -27,11 +27,16 @@ export function UserResultsWrapper({
   searchType,
   query,
   totalCount 
-}: UserResultsWrapperProps) {
-  const [showModal, setShowModal] = useState(false);
+}: Omit<UserResultsWrapperProps, 'onShowModal'>) {
 
   // モバイルビューかどうかを判定（本来はuseMediaQueryを使うべきだが、簡単のため）
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+
+  const handleShowModal = () => {
+    if (typeof window !== 'undefined' && (window as any).openUserSearchModal) {
+      (window as any).openUserSearchModal(users, query)
+    }
+  }
 
   // 常に6人まで表示（全体検索のため）
   const displayUsers = users.slice(0, 6);
@@ -47,7 +52,7 @@ export function UserResultsWrapper({
             </h2>
             {users.length > 6 && (
               <button
-                onClick={() => setShowModal(true)}
+                onClick={handleShowModal}
                 className="text-blue-600 hovertext-blue-300 font-medium text-sm transition-colors"
               >
                 もっと見る ({users.length}人)
@@ -79,18 +84,10 @@ export function UserResultsWrapper({
         <div className="block sm:hidden">
           <UserCarousel
             users={users}
-            onShowMore={() => setShowModal(true)}
+            onShowMore={handleShowModal}
           />
         </div>
       </section>
-
-      {/* ユーザー検索モーダル */}
-      <UserSearchModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        initialUsers={users}
-        searchQuery={query}
-      />
     </>
   );
 }

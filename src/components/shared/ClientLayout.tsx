@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/shared/Sidebar'
 import { TopBarWrapper } from '@/components/shared/TopBarWrapper'
 import { BottomNav } from '@/components/shared/BottomNav'
 import { MobileSearchModal } from './MobileSearchModal'
+import { UserSearchModal } from '@/features/search/leaf/UserSearchModal'
 import { SiteFooter } from './SiteFooter'
 import { cn } from '@/lib/utils'
 
@@ -14,6 +15,19 @@ interface ClientLayoutProps {
 
 export function ClientLayout({ children }: ClientLayoutProps) {
   const [showMobileSearch, setShowMobileSearch] = useState(false)
+  const [showUserSearchModal, setShowUserSearchModal] = useState(false)
+  const [userSearchData, setUserSearchData] = useState<{
+    users: Array<any>;
+    query: string;
+  }>({ users: [], query: '' })
+
+  // Global function to open user search modal
+  if (typeof window !== 'undefined') {
+    (window as any).openUserSearchModal = (users: Array<any>, query: string) => {
+      setUserSearchData({ users, query })
+      setShowUserSearchModal(true)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white text-gray-900 transition-colors duration-200">
@@ -50,6 +64,14 @@ export function ClientLayout({ children }: ClientLayoutProps) {
       <MobileSearchModal
         isOpen={showMobileSearch}
         onClose={() => setShowMobileSearch(false)}
+      />
+      
+      {/* ユーザー検索モーダル - 最上位レベル */}
+      <UserSearchModal
+        isOpen={showUserSearchModal}
+        onClose={() => setShowUserSearchModal(false)}
+        initialUsers={userSearchData.users}
+        searchQuery={userSearchData.query}
       />
     </div>
   )
