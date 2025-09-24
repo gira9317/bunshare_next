@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { X, Search, Clock, TrendingUp, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +20,7 @@ export function MobileSearchModal({ isOpen, onClose }: MobileSearchModalProps) {
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const router = useRouter();
 
   // 検索履歴をローカルストレージから読み込み
   useEffect(() => {
@@ -74,7 +76,7 @@ export function MobileSearchModal({ isOpen, onClose }: MobileSearchModalProps) {
     const finalQuery = searchTerm || query;
     if (finalQuery.trim()) {
       saveToHistory(finalQuery.trim());
-      window.location.href = `/app/search?q=${encodeURIComponent(finalQuery)}`;
+      router.push(`/app/search?q=${encodeURIComponent(finalQuery)}`);
     }
   };
 

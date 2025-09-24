@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useTapFeedback } from '@/hooks/useTapFeedback'
 import { UserIconDropdownSection } from '@/features/users_icon'
@@ -24,6 +25,7 @@ export function TopBar({
   onMobileSearchOpen
 }: TopBarProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const router = useRouter()
 
   // タップフィードバック
   const logoTapFeedback = useTapFeedback({ scaleAmount: 0.97 })
@@ -33,7 +35,7 @@ export function TopBar({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      window.location.href = `/app/search?q=${encodeURIComponent(searchQuery)}`
+      router.push(`/app/search?q=${encodeURIComponent(searchQuery)}`)
     }
   }
 
