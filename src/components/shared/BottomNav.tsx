@@ -29,7 +29,7 @@ const navItems = [
     )
   },
   { 
-    href: '/app/works/create', 
+    href: '/app/post', 
     label: '投稿',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -96,7 +96,7 @@ export function BottomNav() {
         {navItems.map((item, index) => {
           const isActive = pathname === item.href
           const tapFeedback = tapFeedbacks[index]
-          const requiresAuth = item.href === '/app/works/create' || item.href === '/app/profile'
+          const requiresAuth = item.href === '/app/post' || item.href === '/app/profile'
           
           return (
             <Link

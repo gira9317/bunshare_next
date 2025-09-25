@@ -218,7 +218,6 @@ SECURITY DEFINER
 AS $$
 DECLARE
   updated_count INTEGER := 0;
-  additional_count INTEGER;
 BEGIN
   -- すべてのworksのlikes数を実際のカウントに同期
   WITH like_counts AS (

@@ -1,0 +1,100 @@
+bunshare-next プロジェクト構成
+==============================
+
+【主要ディレクトリ】
+
+bunshare-next/
+├─ src/                        # ソースコード
+│  ├─ app/                    # Next.js App Router
+│  │  ├─ api/                # APIルート
+│  │  │  ├─ auth/           # 認証関連
+│  │  │  ├─ users/          # ユーザー関連
+│  │  │  ├─ works/          # 作品関連  
+│  │  │  ├─ recommendations/ # レコメンド
+│  │  │  ├─ edge/           # Edge Functions
+│  │  │  └─ cron/           # 定期処理
+│  │  │
+│  │  ├─ app/                # 認証後メインアプリ
+│  │  │  ├─ page.tsx        # ホーム
+│  │  │  ├─ profile/        # プロフィール
+│  │  │  ├─ search/         # 検索
+│  │  │  ├─ trends/         # トレンド
+│  │  │  └─ works/          # 作品詳細・作成
+│  │  │
+│  │  ├─ auth/               # 認証画面
+│  │  │  ├─ login/
+│  │  │  ├─ signup/
+│  │  │  └─ reset-password/
+│  │  │
+│  │  └─ (静的ページ)
+│  │     ├─ page.tsx        # LP
+│  │     ├─ terms/          # 利用規約
+│  │     ├─ privacy/        # プライバシーポリシー
+│  │     └─ contact/        # お問い合わせ
+│  │
+│  ├─ features/              # ドメイン別機能
+│  │  ├─ auth/              # 認証
+│  │  ├─ home/              # ホーム
+│  │  ├─ search/            # 検索
+│  │  ├─ trends/            # トレンド
+│  │  ├─ users/             # ユーザー
+│  │  ├─ works/             # 作品
+│  │  └─ notifications/     # 通知
+│  │     各ディレクトリ内:
+│  │     ├─ server/         # サーバー処理
+│  │     ├─ sections/       # 画面セクション
+│  │     ├─ leaf/           # UI部品
+│  │     ├─ components/     # コンポーネント  
+│  │     ├─ schemas.ts      # Zodスキーマ
+│  │     └─ types.ts        # 型定義
+│  │
+│  ├─ components/            # 共通コンポーネント
+│  │  ├─ ui/               # 汎用UI
+│  │  ├─ shared/           # 共通部品
+│  │  └─ domain/           # ドメイン特化
+│  │
+│  ├─ lib/                   # ユーティリティ
+│  │  ├─ supabase/         # DB接続
+│  │  ├─ auth.ts           # 認証処理
+│  │  ├─ cache-strategy.ts # キャッシュ戦略
+│  │  └─ utils.ts          # 汎用関数
+│  │
+│  └─ hooks/                 # カスタムフック
+│
+├─ supabase/                 # Supabase設定
+│  ├─ migrations/           # DBマイグレーション
+│  └─ config.toml           # 設定ファイル
+│
+├─ public/                   # 静的ファイル
+│  └─ images/               # 画像
+│     ├─ icon/             # アイコン
+│     └─ logo/             # ロゴ
+│
+├─ docs/                     # ドキュメント
+│
+└─ 設定ファイル
+   ├─ package.json           # 依存関係
+   ├─ tsconfig.json          # TypeScript設定
+   ├─ tailwind.config.ts     # Tailwind設定
+   ├─ next.config.ts         # Next.js設定
+   └─ vercel.json            # Vercel設定
+
+
+【主要機能】
+- 小説・エッセイ投稿プラットフォーム
+- ユーザー認証（Supabase Auth）
+- 作品投稿・編集・閲覧
+- フォロー機能
+- いいね・ブックマーク
+- コメント機能
+- 検索機能
+- レコメンデーション
+- トレンドランキング
+- 通知システム
+
+【技術スタック】
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS  
+- Supabase (PostgreSQL + Auth)
+- Vercel (デプロイ)

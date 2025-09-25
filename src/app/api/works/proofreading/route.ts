@@ -68,7 +68,7 @@ ${prompt}
 # 修正対象テキスト
 ${text}
   `,
-      reasoning: { effort: "low" },
+      reasoning: { effort: "minimal" },
       text: { verbosity: "low" }
     })
 

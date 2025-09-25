@@ -17,7 +17,7 @@ export default function HelpPage() {
 
         {/* クイックアクセス */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
-          <Link href="/app/works/create" className="group">
+          <Link href="/app/post" className="group">
             <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-purple-400 transition-all">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

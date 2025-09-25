@@ -33,6 +33,22 @@ export async function middleware(request: NextRequest) {
     }
   )
 
+  // 認証が必要なパスの定義
+  const authRequiredPaths = ['/app/post', '/app/profile']
+  
+  // 認証が必要なパスへのアクセスをチェック
+  if (authRequiredPaths.some(path => request.nextUrl.pathname.startsWith(path))) {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      // 未ログインなら/auth/loginへリダイレクト
+      const url = request.nextUrl.clone()
+      url.pathname = '/auth/login'
+      url.searchParams.set('returnUrl', request.nextUrl.pathname)
+      return NextResponse.redirect(url)
+    }
+  }
+
   // ルートパス "/" へのアクセス時、ログイン済みなら /app へリダイレクト
   if (request.nextUrl.pathname === '/') {
     const { data: { user } } = await supabase.auth.getUser()

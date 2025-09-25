@@ -29,7 +29,7 @@ const navItems = [
     )
   },
   { 
-    href: '/app/works/create', 
+    href: '/app/post', 
     label: '投稿',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -124,7 +124,7 @@ export function Sidebar() {
       )}>
         {navItems.map((item) => {
           const isActive = pathname === item.href
-          const requiresAuth = item.href === '/app/works/create' || item.href === '/app/profile'
+          const requiresAuth = item.href === '/app/post' || item.href === '/app/profile'
           
           return (
             <Link
@@ -186,8 +186,8 @@ export function Sidebar() {
         'border-t border-gray-200/50'
       )}>
         <Link
-          href="/app/works/create"
-          onClick={(e) => handleAuthRequiredClick(e, '/app/works/create')}
+          href="/app/post"
+          onClick={(e) => handleAuthRequiredClick(e, '/app/post')}
           className={cn(
             'flex items-center justify-center gap-2 w-full',
             'py-2.5 lg:py-3 px-3 lg:px-4 rounded-lg lg:rounded-xl',
