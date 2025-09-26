@@ -9,7 +9,13 @@ interface TrendingWorksSectionProps {
 }
 
 async function TrendingWorksContent() {
+  const startTime = Date.now()
+  console.log('[TRENDS WORKS] トレンド作品取得開始')
+  
   const works = await getTrendingWorks();
+  
+  const endTime = Date.now()
+  console.log(`[TRENDS WORKS] トレンド作品取得完了: ${endTime - startTime}ms (件数: ${works.length})`)
   
   if (works.length === 0) {
     return (

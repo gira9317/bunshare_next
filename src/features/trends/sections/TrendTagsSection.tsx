@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getTrendTags } from '../server/loader';
+import { getTrendingWorks } from '../server/loader';
 import { TrendTagChip } from '../leaf/TrendTagChip';
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner';
 import { Hash } from 'lucide-react';
@@ -9,7 +9,31 @@ interface TrendTagsSectionProps {
 }
 
 async function TrendTagsContent() {
-  const tags = await getTrendTags();
+  const works = await getTrendingWorks();
+  
+  // トレンド作品からタグを抽出してカウント
+  const tagCounts = new Map<string, number>();
+  works.forEach(work => {
+    if (work.tags && Array.isArray(work.tags)) {
+      work.tags.forEach((tag: string) => {
+        if (typeof tag === 'string' && tag.trim()) {
+          const normalizedTag = tag.trim().toLowerCase();
+          tagCounts.set(normalizedTag, (tagCounts.get(normalizedTag) || 0) + 1);
+        }
+      });
+    }
+  });
+  
+  // タグをカウント順にソートして変換
+  const tags = Array.from(tagCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
+    .map(([tag, count]) => ({
+      tag,
+      count,
+      trend_score: count * 10,
+      growth_rate: 0
+    }));
   
   if (tags.length === 0) {
     return (
@@ -18,7 +42,7 @@ async function TrendTagsContent() {
           <Hash className="w-12 h-12 mx-auto" />
         </div>
         <p className="text-gray-600">
-          トレンドタグがありません
+          注目作品にタグがありません
         </p>
       </div>
     );
@@ -61,7 +85,7 @@ export function TrendTagsSection({ className = '' }: TrendTagsSectionProps) {
       <div className="flex items-center gap-3 mb-6">
         <Hash className="w-6 h-6 text-blue-500" />
         <h2 className="text-2xl font-bold text-gray-900">
-          トレンドタグ
+          注目作品のタグ
         </h2>
       </div>
       

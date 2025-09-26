@@ -8,7 +8,13 @@ interface TrendHeroSectionProps {
 }
 
 async function HeroBannerContent() {
+  const startTime = Date.now()
+  console.log('[TRENDS HERO] バナー取得開始')
+  
   const banners = await getHeroBanners();
+  
+  const endTime = Date.now()
+  console.log(`[TRENDS HERO] バナー取得完了: ${endTime - startTime}ms`)
   
   if (banners.length === 0) {
     return (

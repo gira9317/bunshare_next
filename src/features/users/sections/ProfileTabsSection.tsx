@@ -1096,7 +1096,7 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between first:mb-0">
         <div className="flex items-center gap-3">
           {activeLibraryTab === 'bookmarked' && !showFolderList && (
             <button
@@ -1121,49 +1121,34 @@ export function LibraryTabContent({ user, likedWorks, bookmarkedWorks, readingHi
       </div>
 
       {/* Sub-tabs with AnimatedTabs */}
-      <div className="border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <UnderlineTabs
-            tabs={libraryTabOptions}
-            activeTab={activeLibraryTab}
-            onTabChange={(tab) => {
-              setActiveLibraryTab(tab)
-              setShowFolderManager(false)
-              setShowFolderList(true)
-              setFolderWorks([])
-              setSelectedFolder('all')
-            }}
-            size="sm"
-            showCounts={true}
-            scrollable={true}
-            className="flex-1"
-          />
-          
-          {/* Folder Management Button - Tab Right (Desktop only) */}
-          {activeLibraryTab === 'bookmarked' && showFolderList && (
-            <button
-              onClick={() => setShowFolderManager(!showFolderManager)}
-              className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm font-medium bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors ml-4 flex-shrink-0"
-            >
-              <Settings size={16} />
-              <span>フォルダ管理</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Folder Management Button - Mobile (Below tabs) */}
+      <UnderlineTabs
+        tabs={libraryTabOptions}
+        activeTab={activeLibraryTab}
+        onTabChange={(tab) => {
+          setActiveLibraryTab(tab)
+          setShowFolderManager(false)
+          setShowFolderList(true)
+          setFolderWorks([])
+          setSelectedFolder('all')
+        }}
+        size="sm"
+        showCounts={true}
+        scrollable={true}
+      />
+      
+      {/* Folder Management Button - Mobile and Desktop */}
       {activeLibraryTab === 'bookmarked' && showFolderList && (
-        <div className="sm:hidden px-4 mb-4">
+        <div className="mt-2">
           <button
             onClick={() => setShowFolderManager(!showFolderManager)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
           >
             <Settings size={16} />
             <span>フォルダ管理</span>
           </button>
         </div>
       )}
+
 
       {/* Folder Management Panel */}
       {showFolderManager && activeLibraryTab === 'bookmarked' && (

@@ -32,68 +32,7 @@ export function AnimatedTabs<T = string>({
   showCounts = true,
   scrollable = true
 }: AnimatedTabsProps<T>) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [indicatorStyle, setIndicatorStyle] = useState({ width: 0, left: 0 });
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // activeTabが変更されたときにインデックスを更新
-  useEffect(() => {
-    const index = tabs.findIndex(tab => tab.id === activeTab);
-    if (index !== -1) {
-      setActiveIndex(index);
-    }
-  }, [activeTab, tabs]);
-
-  // インジケーターの位置を更新
-  useEffect(() => {
-    const updateIndicator = () => {
-      if (tabRefs.current[activeIndex] && variant === 'underline') {
-        const activeTabElement = tabRefs.current[activeIndex];
-        const containerElement = containerRef.current;
-        
-        if (activeTabElement && containerElement) {
-          const containerRect = containerElement.getBoundingClientRect();
-          const tabRect = activeTabElement.getBoundingClientRect();
-          
-          setIndicatorStyle({
-            width: tabRect.width,
-            left: tabRect.left - containerRect.left
-          });
-        }
-      }
-    };
-
-    // 少し遅延させて正確な位置を取得
-    const timeoutId = setTimeout(updateIndicator, 10);
-    return () => clearTimeout(timeoutId);
-  }, [activeIndex, variant, tabs]);
-
-  // リサイズ時にインジケーターを再計算
-  useEffect(() => {
-    const handleResize = () => {
-      if (variant === 'underline') {
-        const timeoutId = setTimeout(() => {
-          const activeTabElement = tabRefs.current[activeIndex];
-          const containerElement = containerRef.current;
-          
-          if (activeTabElement && containerElement) {
-            const containerRect = containerElement.getBoundingClientRect();
-            const tabRect = activeTabElement.getBoundingClientRect();
-            
-            setIndicatorStyle({
-              width: tabRect.width,
-              left: tabRect.left - containerRect.left
-            });
-          }
-        }, 10);
-        return () => clearTimeout(timeoutId);
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [activeIndex, variant]);
 
   const sizeClasses = {
     sm: 'text-xs sm:text-sm py-2 px-2 sm:px-3',
@@ -117,10 +56,10 @@ export function AnimatedTabs<T = string>({
     
     // Variant specific styles
     variant === 'underline' && cn(
-      'border-b-2 transition-colors',
+      'transition-colors',
       isActive
-        ? 'text-blue-600 border-transparent'
-        : 'text-gray-600 border-transparent hovertext-gray-100'
+        ? 'text-blue-600'
+        : 'text-gray-600 hovertext-gray-100'
     ),
     
     variant === 'pill' && cn(
@@ -141,13 +80,12 @@ export function AnimatedTabs<T = string>({
     scrollable && 'flex-shrink-0'
   );
 
-  const handleTabClick = (tab: TabItem<T>, index: number) => {
-    setActiveIndex(index);
+  const handleTabClick = (tab: TabItem<T>) => {
     onTabChange(tab.id);
   };
 
   return (
-    <div className={cn(containerClasses, scrollable && 'max-w-full overflow-hidden')}>
+    <div className={containerClasses}>
       <div
         ref={containerRef}
         className={cn(
@@ -168,17 +106,8 @@ export function AnimatedTabs<T = string>({
           return (
             <button
               key={String(tab.id)}
-              ref={el => {
-                tabRefs.current[index] = el
-                // タップフィードバックのrefとtabRefsを両方設定
-                if (tapFeedback.tapProps.ref && typeof tapFeedback.tapProps.ref === 'function') {
-                  tapFeedback.tapProps.ref(el)
-                } else if (tapFeedback.tapProps.ref && 'current' in tapFeedback.tapProps.ref) {
-                  tapFeedback.tapProps.ref.current = el
-                }
-              }}
-              {...(({ ref, ...rest }) => rest)(tapFeedback.tapProps)}
-              onClick={() => handleTabClick(tab, index)}
+              {...tapFeedback.tapProps}
+              onClick={() => handleTabClick(tab)}
               className={tabClasses(isActive)}
             >
               {tab.icon && (
@@ -202,22 +131,17 @@ export function AnimatedTabs<T = string>({
                   {tab.count}
                 </span>
               )}
+              {/* 各タブボタンに直接アンダーライン */}
+              {variant === 'underline' && isActive && (
+                <div 
+                  className="absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-300"
+                  style={{ background: 'linear-gradient(90deg, #8b5cf6, #3b82f6)' }}
+                />
+              )}
             </button>
           );
         })}
       </div>
-      
-      {/* Animated underline indicator */}
-      {variant === 'underline' && (
-        <div
-          className="absolute bottom-0 h-0.5 transition-all duration-300 ease-out"
-          style={{
-            width: indicatorStyle.width,
-            transform: `translateX(${indicatorStyle.left}px)`,
-            background: 'linear-gradient(90deg, #8b5cf6, #3b82f6)'
-          }}
-        />
-      )}
     </div>
   );
 }

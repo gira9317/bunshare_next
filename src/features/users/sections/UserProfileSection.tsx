@@ -44,7 +44,7 @@ export function UserProfileSection({
     : '不明'
 
   return (
-    <div className={cn('bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm', className)}>
+    <div className={cn('bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm mb-4', className)}>
       {/* Cover Image - Compact mobile first */}
       <div className="relative h-24 md:h-32 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600">
         {user.header_img_url ? (

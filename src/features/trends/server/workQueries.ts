@@ -3,31 +3,63 @@ import { createClient } from '@/lib/supabase/server';
 import type { TrendingWork } from '../types';
 
 export const getTrendingWorks = cache(async (): Promise<TrendingWork[]> => {
+  const startTime = Date.now()
+  console.log('[TRENDS WORKS QUERY] トレンド作品クエリ開始')
+  
   try {
     const supabase = await createClient();
     
-    // Use the new trend_score column for fast trending works retrieval
+    // Use the new trend_score column for fast trending works retrieval (軽量化版)
+    const queryStartTime = Date.now()
     const { data: works, error } = await supabase
       .from('works')
-      .select(getWorksSelectQueryWithTrendScore())
+      .select('work_id, title, description, trend_score, image_url, category, tags, views_count, likes_count, user_id')
       .eq('is_published', true)
       .gt('trend_score', 0)
       .order('trend_score', { ascending: false })
       .limit(3);
+    const queryEndTime = Date.now()
+    console.log(`[TRENDS WORKS QUERY] DB クエリ（軽量化）: ${queryEndTime - queryStartTime}ms`)
     
     if (error || !works) {
       console.error('Failed to fetch trending works:', error);
       // Fallback to recent works if trending query fails
-      return await getNewWorks(supabase);
+      const fallbackStartTime = Date.now()
+      const fallbackResult = await getNewWorks(supabase);
+      const fallbackEndTime = Date.now()
+      console.log(`[TRENDS WORKS QUERY] フォールバック処理: ${fallbackEndTime - fallbackStartTime}ms`)
+      return fallbackResult;
     }
     
-    return works.map(work => ({
-      ...formatWorkData(work),
+    const processStartTime = Date.now()
+    const result = works.map(work => ({
+      id: work.work_id,
+      title: work.title || '無題',
+      description: work.description,
+      author: {
+        id: work.user_id || '',
+        name: '作者名', // 後で必要に応じて取得
+        avatar_url: null
+      },
+      thumbnail_url: work.image_url,
+      category: work.category || 'その他',
+      tags: work.tags || [],
+      like_count: work.likes_count || 0,
+      view_count: work.views_count || 0,
       trend_score: work.trend_score || 0
     }));
+    const processEndTime = Date.now()
+    console.log(`[TRENDS WORKS QUERY] データ処理（軽量化）: ${processEndTime - processStartTime}ms`)
+    
+    const totalTime = Date.now() - startTime
+    console.log(`[TRENDS WORKS QUERY] 総処理時間: ${totalTime}ms (結果: ${result.length}件)`)
+    
+    return result;
     
   } catch (error) {
     console.error('getTrendingWorks error:', error);
+    const totalTime = Date.now() - startTime
+    console.log(`[TRENDS WORKS QUERY] 総処理時間(エラー): ${totalTime}ms`)
     return [];
   }
 });

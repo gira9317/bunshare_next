@@ -3,47 +3,67 @@ import { createClient } from '@/lib/supabase/server';
 import type { TrendTag, HeroBanner, Announcement } from '../types';
 
 export const getTrendTags = cache(async (): Promise<TrendTag[]> => {
+  const startTime = Date.now()
+  console.log('[TRENDS TAGS] トレンドタグ取得開始')
+  
   try {
     const supabase = await createClient();
     
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
     
+    const queryStartTime = Date.now()
     const { data: weeklyWorks, error: weeklyError } = await supabase
       .from('works')
       .select('tags, created_at')
       .eq('is_published', true)
       .gte('created_at', sevenDaysAgo);
+    const queryEndTime = Date.now()
+    console.log(`[TRENDS TAGS] DB クエリ: ${queryEndTime - queryStartTime}ms`)
     
     if (weeklyError || !weeklyWorks) {
       console.error('Failed to fetch weekly tags:', weeklyError);
       return [];
     }
     
+    const processStartTime = Date.now()
     const tagStats = aggregateTagStats(weeklyWorks);
     const trendTags = calculateTrendScores(tagStats);
+    const processEndTime = Date.now()
+    console.log(`[TRENDS TAGS] データ処理: ${processEndTime - processStartTime}ms`)
     
     // 作品が少ない場合はカテゴリタグで補完
     if (trendTags.length < 8) {
+      const categoryStartTime = Date.now()
       const categoryTags = await getCategoryTags(supabase, sevenDaysAgo);
       categoryTags.forEach(categoryTag => {
         if (!trendTags.find(t => t.tag === categoryTag.tag)) {
           trendTags.push(categoryTag);
         }
       });
+      const categoryEndTime = Date.now()
+      console.log(`[TRENDS TAGS] カテゴリ補完: ${categoryEndTime - categoryStartTime}ms`)
     }
+    
+    const totalTime = Date.now() - startTime
+    console.log(`[TRENDS TAGS] 総処理時間: ${totalTime}ms (結果: ${trendTags.length}件)`)
     
     return trendTags.slice(0, 12);
     
   } catch (error) {
     console.error('getTrendTags error:', error);
+    const totalTime = Date.now() - startTime
+    console.log(`[TRENDS TAGS] 総処理時間(エラー): ${totalTime}ms`)
     return [];
   }
 });
 
 export const getHeroBanners = cache(async (): Promise<HeroBanner[]> => {
+  const startTime = Date.now()
+  console.log('[TRENDS BANNERS] ヒーローバナー取得開始')
+  
   // TODO: 将来的にはデータベースから取得
-  return [
+  const banners = [
     {
       id: '1',
       title: '新機能リリース記念キャンペーン',
@@ -54,6 +74,11 @@ export const getHeroBanners = cache(async (): Promise<HeroBanner[]> => {
       priority: 1
     }
   ];
+  
+  const endTime = Date.now()
+  console.log(`[TRENDS BANNERS] ヒーローバナー取得完了: ${endTime - startTime}ms`)
+  
+  return banners;
 });
 
 export const getAnnouncements = cache(async (): Promise<Announcement[]> => {
