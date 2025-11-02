@@ -2,21 +2,21 @@ import { createClient } from '@/lib/supabase/server'
 import { User } from '@supabase/supabase-js'
 import { cache } from 'react'
 
+// ユーザの認証処理(ログイン状態の確認)
 export const getAuthenticatedUser = cache(async (): Promise<User | null> => {
+  // 時間計測開始
   const startTime = Date.now()
   console.log('getAuthenticatedUser: Starting auth check...')
+
+  // supabaseオブジェクトの作成(createClientではCookie情報もくっついてるはず)
   const supabase = await createClient()
   
   try {
-    // Use getUser for proper authentication validation
-    console.log('getAuthenticatedUser: Calling getUser...')
-    const authStartTime = Date.now()
+    // supabaseオブジェクトからユーザオブジェクトを取得(エラーの場合は認証エラーとなる)
     const { data: { user }, error } = await supabase.auth.getUser()
-    const authEndTime = Date.now()
-    console.log(`[AUTH] Supabase getUser実行時間: ${authEndTime - authStartTime}ms`)
     
     if (error) {
-      // Handle AuthSessionMissingError as a normal case (user not logged in)
+      // 未ログインユーザの場合
       if (error.message.includes('Auth session missing')) {
         console.log('No auth session found - user not logged in')
         return null
@@ -24,19 +24,22 @@ export const getAuthenticatedUser = cache(async (): Promise<User | null> => {
       
       console.error('Auth user error:', error)
       
-      // If token is invalid, clear session
+      // セッショントークンが無効or期限切れ
       if (error.message.includes('Invalid') || error.message.includes('expired')) {
         console.log('Clearing invalid session')
         try {
+          // トークンが切れているので明示的にサインアウト
           await supabase.auth.signOut()
         } catch (signOutError) {
           console.error('Error signing out:', signOutError)
         }
       }
       
+      // システム上では正常系なのでuserがnullとして返す
       return null
     }
     
+    // 以降、時間計測用の処理
     console.log('getAuthenticatedUser: User result:', user ? { user: user.id, email: user.email } : 'No user')
     const totalTime = Date.now() - startTime
     console.log(`[AUTH] getAuthenticatedUser総処理時間: ${totalTime}ms`)
@@ -49,18 +52,19 @@ export const getAuthenticatedUser = cache(async (): Promise<User | null> => {
   }
 })
 
+
+
 // postページ用の軽量プロフィール取得関数
 export const getPostUserProfile = cache(async () => {
   const startTime = Date.now()
   console.log('[POST AUTH] プロフィール取得開始')
   
+  // supabaseオブジェクトの作成(createClientではCookie情報もくっついてるはず)
   const supabase = await createClient()
   
   try {
-    const authStartTime = Date.now()
+    // supabaseオブジェクトからユーザオブジェクトを取得(エラーの場合は認証エラーとなる)
     const { data: { user }, error: authError } = await supabase.auth.getUser()
-    const authEndTime = Date.now()
-    console.log(`[POST AUTH] Supabase getUser実行時間: ${authEndTime - authStartTime}ms`)
     
     if (authError || !user) {
       console.log('[POST AUTH] ユーザー認証失敗')
@@ -69,11 +73,14 @@ export const getPostUserProfile = cache(async () => {
     
     // プロフィール情報を取得
     const profileStartTime = Date.now()
+
+    // usersテーブルからユーザ情報を取得
     const { data: profile, error: profileError } = await supabase
       .from('users')
       .select('username, avatar_img_url')
       .eq('id', user.id)
       .single()
+
     const profileEndTime = Date.now()
     console.log(`[POST AUTH] プロフィール取得時間: ${profileEndTime - profileStartTime}ms`)
     
