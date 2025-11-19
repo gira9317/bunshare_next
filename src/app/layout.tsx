@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeScript } from '@/components/shared/ThemeScript'
 import { ClientProviders } from '@/components/shared/ClientProviders'
 import { NavigationProgress } from '@/components/shared/NavigationProgress'
-import { Suspense } from "react"; // ← 追加
+import { Suspense } from "react"; 
 import "./globals.css";
 
 const geistSans = Geist({
